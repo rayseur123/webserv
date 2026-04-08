@@ -1,3 +1,6 @@
+#ifndef SERVER_CPP
+#define SERVER_CPP
+
 #include <string>
 #include <vector>
 #include "Location.hpp"
@@ -12,11 +15,13 @@ class Server
     public:
         int createSocket();
 
-        Server const&   opertor=(Server const& to_copy);
+        Server const&   operator=(Server const& to_copy);
 
         Server();
         Server(Server const& to_copy);
         Server(int fd, int max_client_request_body, std::string address,
-            std::vector<Location> location_vec);
+            std::vector<Location> locations_vec);
         ~Server();
-}
+};
+
+#endif

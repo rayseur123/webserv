@@ -12,6 +12,7 @@ SRCS_DIR := srcs/
 
 SRCS_CONTENT :=		main.cpp \
 					Server.cpp \
+					location.cpp \
 
 # ---------------------------------------------------------#
 #                       BUILD SOURCE                       #
