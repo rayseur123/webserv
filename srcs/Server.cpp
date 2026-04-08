@@ -17,12 +17,18 @@ Server const&   Server::opertor=(Server const& to_copy)
 }
 
 Server::Server()
-:fd_(0), max_client_request_body_(0) 
+: fd_(0), max_client_request_body_(0) 
 {}
 
 Server::Server(Server const& to_copy)
 : fd_(to_copy.fd_), max_client_request_body_(to_copy.max_client_request_body_) \
   address_(to_copy.address_), location_vec_(to_copy.location_vec_)
+{}
+
+Server::Server(int fd, int max_client_request_body, std::string address,
+            std::vector<Location> location_vec)
+: fd_(fd), max_client_request_body_(max_client_request_body),
+  address_(address), location_vec_(location_vec);
 {}
 
 Server::~Server(){}

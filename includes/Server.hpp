@@ -16,5 +16,7 @@ class Server
 
         Server();
         Server(Server const& to_copy);
+        Server(int fd, int max_client_request_body, std::string address,
+            std::vector<Location> location_vec);
         ~Server();
 }
