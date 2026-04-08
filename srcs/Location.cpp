@@ -1,7 +1,32 @@
-#include "location.hpp"
+#include "Location.hpp"
 #include <iostream>
 
-bool Location::methodIsAllowed(std::string verb)
+std::string const&  Location::getRoot()
+{
+    return (root_);
+}
+
+std::string const& Location::getErrorPage()
+{
+    return (error_page_);
+}
+
+bool const& Location::getEnableUpload()
+{
+    return (enable_upload_);
+}
+
+bool const& Location::getAutoIndex()
+{
+    return (autoindex_);
+}
+
+int const& Location::getAllowMethods()
+{
+    return (allow_methods_);
+}
+
+bool Location::methodIsAllowed(std::string const& verb)
 {
     std::cout << verb;
     return 0;

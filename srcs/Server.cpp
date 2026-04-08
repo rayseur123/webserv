@@ -1,8 +1,63 @@
 #include "Server.hpp"
+#include <utils.hpp>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <cstring>
 
-int Server::createSocket()
+Server& findServerByFd(std::vector<Server> &server_vec, int& server_fd)
 {
-	return (0);
+	for(size_t i = 0; i < server_vec.size(); i++)
+	{
+		if (server_vec[i].getFd() == server_fd)
+			return (server_vec[i]);
+	}
+	throw(std::logic_error("[Error] findServerByFd: Server not find !"));
+}
+
+int const& Server::getFd() const
+{
+	return (fd_);
+}
+
+int const& Server::getMaxClientRequestBody() const
+{
+	return (max_client_request_body_);
+}
+
+int const& Server::getPort() const
+{
+	return (port_);
+}
+
+std::vector<Location> const& Server::getLocation() const
+{
+	return (locations_vec_);
+}
+
+#include <netdb.h>
+
+void Server::createSocket()
+{
+
+	addrinfo hints;
+	addrinfo * result, rp;
+
+	sockaddr_in	socket_addr = {};
+
+	socket_addr.sin_addr.s_addr = address_;
+	socket_addr.sin_family = AF_INET;
+	socket_addr.sin_port = htons(port_);
+
+	fd_ = socket(AF_INET, SOCK_STREAM, 1);
+	if (!fd_)
+		throw(std::range_error(messageError("createSocket>socket")));
+	
+	if (bind(fd_, reinterpret_cast<sockaddr *>(&socket_addr), sizeof(socket_addr)) == -1)
+		throw(std::range_error(messageError("createSocket>bind")));
+	
+	if (listen(fd_, LISTEN_QUEUE) == -1)
+		throw(std::range_error(messageError("createSocket>listen")));
+
 }
 
 Server const&   Server::operator=(Server const& to_copy)

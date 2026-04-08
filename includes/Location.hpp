@@ -10,11 +10,17 @@ class Location
         std::string error_page_;
         bool        enable_upload_;
         bool        autoindex_;
-        int         allow_methods_ : 3;
+        int         allow_methods_;
 
     public:
 
-        bool methodIsAllowed(std::string verb);
+        bool methodIsAllowed(std::string const& verb);
+
+        std::string const&  getRoot();
+        std::string const&  getErrorPage();
+        bool const&         getEnableUpload();
+        bool const&         getAutoIndex();
+        int const&          getAllowMethods();
 
         Location();
         Location(std::string root, std::string error_page, bool enable_upload, bool autoindex, int allow_methods);
