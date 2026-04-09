@@ -1,5 +1,9 @@
 #include "Server.hpp"
-
+#include <fstream>
+#include <sstream>
+#include <exception>
+#include <stdexcept>
+	
 int Server::createSocket()
 {
 	return (0);
@@ -12,23 +16,24 @@ Server const&   Server::operator=(Server const& to_copy)
 	fd_ = to_copy.fd_;
 	max_client_request_body_ = to_copy.max_client_request_body_;
 	address_ = to_copy.address_;
+	port_ = to_copy.port_;
 	locations_vec_ = to_copy.locations_vec_;
 	return (*this);
 }
 
 Server::Server()
-: fd_(0), max_client_request_body_(0) 
+: fd_(0), max_client_request_body_(0) , port_(0)
 {}
 
 Server::Server(Server const& to_copy)
 : fd_(to_copy.fd_), max_client_request_body_(to_copy.max_client_request_body_),
-  address_(to_copy.address_), locations_vec_(to_copy.locations_vec_)
+  address_(to_copy.address_), port_(to_copy.port_),locations_vec_(to_copy.locations_vec_)
 {}
 
 Server::Server(int fd, int max_client_request_body, std::string address,
-            std::vector<Location> locations_vec)
+            int port, std::vector<Location> locations_vec)
 : fd_(fd), max_client_request_body_(max_client_request_body),
-  address_(address), locations_vec_(locations_vec)
+  address_(address), port_(port), locations_vec_(locations_vec)
 {}
 
 Server::~Server(){}

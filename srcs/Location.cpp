@@ -1,10 +1,10 @@
-#include "location.hpp"
+#include "Location.hpp"
 #include <iostream>
 
 bool Location::methodIsAllowed(std::string verb)
 {
     std::cout << verb;
-    return 0;
+    return (0);
 }
 
 Location::Location()
@@ -25,13 +25,13 @@ Location::Location(Location const& to_copy)
 Location const& Location::operator=(Location const& to_copy)
 {
     if (this == &to_copy)
-        return *this;
+        return (*this);
     root_ = to_copy.root_;
     error_page_ = to_copy.error_page_;
     enable_upload_ = to_copy.enable_upload_;
     autoindex_ = to_copy.autoindex_;
     allow_methods_ = to_copy.allow_methods_;
-    return *this;
+    return (*this);
 }
 
 Location::~Location()

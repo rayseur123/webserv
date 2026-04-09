@@ -8,9 +8,10 @@
 class Server
 {
     private:
-        int fd_;
-        int max_client_request_body_;
-        std::string address_;
+        int                     fd_;
+        int                     max_client_request_body_;
+        std::string             address_;
+        int                     port_;
         std::vector<Location>   locations_vec_;
     public:
         int createSocket();
@@ -20,7 +21,7 @@ class Server
         Server();
         Server(Server const& to_copy);
         Server(int fd, int max_client_request_body, std::string address,
-            std::vector<Location> locations_vec);
+            int port, std::vector<Location> locations_vec);
         ~Server();
 };
 
