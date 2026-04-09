@@ -12,25 +12,25 @@ class Server
     private:
         int fd_;
         int max_client_request_body_;
-        int port_;
+        std::string port_;
         std::string address_;
         std::vector<Location>   locations_vec_;
     public:
         
-        int                             createSocket();
+        void                            createSocket();
         
         
         int const&                      getFd() const;
         int const&                      getMaxClientRequestBody() const; 
-        int const&                      getPort() const;
+        std::string const&                      getPort() const;
         std::vector<Location> const&    getLocation() const;
         
         Server const&   operator=(Server const& to_copy);
 
         Server();
         Server(Server const& to_copy);
-        Server(int fd, int max_client_request_body, std::string address,
-            std::vector<Location> locations_vec);
+        Server(int max_client_request_body, std::string port_, std::string address,
+            std::vector<Location>& locations_vec);
         ~Server();
 };
 

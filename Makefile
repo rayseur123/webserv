@@ -13,7 +13,9 @@ SRCS_CONTENT :=		main.cpp \
 					Server.cpp \
 					Location.cpp \
 					Client.cpp \
+					Network.cpp \
 					utils.cpp
+
 
 # ---------------------------------------------------------#
 #                       BUILD SOURCE                       #

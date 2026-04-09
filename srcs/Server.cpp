@@ -3,6 +3,8 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <cstring>
+#include <netdb.h>
+
 
 Server& findServerByFd(std::vector<Server> &server_vec, int& server_fd)
 {
@@ -23,8 +25,7 @@ int const& Server::getMaxClientRequestBody() const
 {
 	return (max_client_request_body_);
 }
-
-int const& Server::getPort() const
+std::string const& Server::getPort() const
 {
 	return (port_);
 }
@@ -34,26 +35,28 @@ std::vector<Location> const& Server::getLocation() const
 	return (locations_vec_);
 }
 
-#include <netdb.h>
-
 void Server::createSocket()
 {
 
-	addrinfo hints;
-	addrinfo * result, rp;
+	addrinfo hints = {};
+	hints.ai_family = AF_INET;
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_protocol = 0;
+	hints.ai_flags = AI_PASSIVE;
 
-	sockaddr_in	socket_addr = {};
+	addrinfo *res = NULL;
 
-	socket_addr.sin_addr.s_addr = address_;
-	socket_addr.sin_family = AF_INET;
-	socket_addr.sin_port = htons(port_);
+	if (getaddrinfo(address_.c_str(), port_.c_str(), &hints, &res) != 0)
+		throw(std::range_error(messageError("createSocket>getaddrinfo")));
 
-	fd_ = socket(AF_INET, SOCK_STREAM, 1);
-	if (!fd_)
+	fd_ = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+	if (fd_ == -1)
 		throw(std::range_error(messageError("createSocket>socket")));
 	
-	if (bind(fd_, reinterpret_cast<sockaddr *>(&socket_addr), sizeof(socket_addr)) == -1)
+	if (bind(fd_, res->ai_addr, res->ai_addrlen) == -1)
 		throw(std::range_error(messageError("createSocket>bind")));
+	
+	freeaddrinfo(res);
 	
 	if (listen(fd_, LISTEN_QUEUE) == -1)
 		throw(std::range_error(messageError("createSocket>listen")));
@@ -72,7 +75,7 @@ Server const&   Server::operator=(Server const& to_copy)
 }
 
 Server::Server()
-: fd_(0), max_client_request_body_(0) 
+: max_client_request_body_(0) 
 {}
 
 Server::Server(Server const& to_copy)
@@ -80,9 +83,9 @@ Server::Server(Server const& to_copy)
   address_(to_copy.address_), locations_vec_(to_copy.locations_vec_)
 {}
 
-Server::Server(int fd, int max_client_request_body, std::string address,
-            std::vector<Location> locations_vec)
-: fd_(fd), max_client_request_body_(max_client_request_body),
+Server::Server(int max_client_request_body, std::string port,std::string address,
+            std::vector<Location>& locations_vec)
+: max_client_request_body_(max_client_request_body), port_(port),
   address_(address), locations_vec_(locations_vec)
 {}
 
