@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <fstream>
+#include <Server.hpp>
 
 class Block
 {
@@ -15,6 +16,14 @@ class Block
 	public:
 		void    		print(int depth = 0) const;
 		void 			print2(int depth = 0) const;
+
+		Location    					makeLocation();
+		std::vector<Server>				makeServerVec();
+		std::vector<Location>   		makeLocationVec();
+		Server  						makeServer();
+		
+		std::vector<std::string> const&	getDirectivs() const;
+
 		Block const&	operator=(Block const& to_copy);
 
 		Block();
@@ -24,9 +33,9 @@ class Block
 
 		enum Type
 		{
+			FILES,
 			SERVER,
 			LOCATION,
-			FILES
 		};
 };
 

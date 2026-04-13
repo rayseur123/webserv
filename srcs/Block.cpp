@@ -1,5 +1,95 @@
 #include "Block.hpp"
 #include <iostream>
+#include "Server.hpp"
+
+#include <vector>
+#include <string>
+#include <sstream>
+#include <cstdlib>
+#include <utility>
+
+static std::vector<std::string> splitDirectiv(std::string const& directiv)
+{
+    std::vector<std::string> params_vec;
+    std::stringstream ss(directiv);
+    std::string word;
+
+    while (ss >> word)
+        params_vec.push_back(word);
+    return (params_vec);
+}
+
+Location    Block::makeLocation()
+{
+    Location                    loc;
+    std::vector<std::string>    directivs_split;
+
+    for (size_t i = 0; i < directivs_vec_.size(); i++)
+    {
+        directivs_split = splitDirectiv(directivs_vec_[i]);
+        if (directivs_split.size() < 2)
+            throw std::invalid_argument("Invalide directiv. : " + directivs_split[0]);
+        else if (directivs_split[0] == "root")
+            loc.setRoot(directivs_split[1]);
+        else if (directivs_split[0] == "allow_methods:")
+            loc.setAllowMethods(directivs_split);
+        else if (directivs_split[0] == "autoindex")
+            loc.setAutoIndex(directivs_split[1]);
+        else if (directivs_split[0] == "index")
+            loc.setIndex(directivs_split[1]);
+        else if (directivs_split[0] == "upload_store")
+            loc.setUploadStore(directivs_split[1]);
+        else if (directivs_split[0] == "cgi_pass")
+            loc.setCgiPass(directivs_split[1]);
+        else if (directivs_split[0] == "redirect")
+            loc.setRedirect(directivs_split[1]);
+        else
+            throw std::invalid_argument("Invalide directiv." + directivs_split[0]);
+    }
+    return (loc);
+}
+
+std::vector<Location>   Block::makeLocationVec()
+{
+    std::vector<Location> loc_vec;
+
+    for (size_t i = 0; i < blocks_vec_.size(); i++)
+        loc_vec.push_back(blocks_vec_[i].makeLocation());
+    return (loc_vec);
+}
+
+Server  Block::makeServer()
+{
+    Server  serv;
+    std::vector<std::string>    directivs_split;
+    serv.setLocations(makeLocationVec());
+    for (size_t i = 0; i < directivs_vec_.size(); i++)
+    {
+        directivs_split = splitDirectiv(directivs_vec_[i]);
+        if (directivs_split.size() < 2)
+            throw std::invalid_argument("Invalide directiv.");
+        else if (directivs_split[0] == "client_max_body_size")
+            serv.setMaxClientRequestBody(directivs_split[1]);
+        else if (directivs_split[0] == "listen")
+            serv.setAddrAndPort(directivs_split[1]);
+        else if (directivs_split[0] == "error_page")
+            serv.setErrorPage(directivs_split);
+    }
+    return (serv);
+}
+
+std::vector<Server> Block::makeServerVec()
+{
+    std::vector<Server> server_vec;
+    for (size_t i = 0; i < blocks_vec_.size(); i++)
+        server_vec.push_back(blocks_vec_[i].makeServer());
+    return (server_vec);
+}
+
+std::vector<std::string> const&	Block::getDirectivs() const
+{
+    return (directivs_vec_);
+}
 
 Block const&	Block::operator=(Block const& to_copy)
 {

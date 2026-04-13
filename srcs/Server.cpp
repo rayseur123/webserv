@@ -3,10 +3,62 @@
 #include <sstream>
 #include <exception>
 #include <stdexcept>
+#include <cstdlib> 
 	
 int Server::createSocket()
 {
 	return (0);
+}
+
+void	Server::setLocations(std::vector<Location> const& location_vec)
+{
+	locations_vec_ = location_vec;
+}
+
+void	Server::setMaxClientRequestBody(std::string const& max_client_request_body)
+{
+	size_t	index = max_client_request_body.find("m");
+	max_client_request_body_ = atoi(max_client_request_body.substr(0, index).c_str());
+	if (index != std::string::npos)
+		max_client_request_body_ *= 1000;
+}
+
+void	Server::setAddrAndPort(std::string const& addr_and_port)
+{
+	size_t	index = addr_and_port.find(":");
+	if (index == std::string::npos)
+		throw std::invalid_argument("Invalide port");
+	address_ = addr_and_port.substr(0, index);
+	port_ = addr_and_port.substr(index + 1);
+}
+
+void	Server::setErrorPage(std::vector<std::string> const& error_page)
+{
+	if (error_page.size() != 3)
+		throw std::invalid_argument("Invalide error page format");
+
+	error_page_ = std::make_pair(atoi(error_page[1].c_str()), error_page[2]);
+}
+
+#include "Server.hpp"
+#include <iostream>
+
+void Server::print() const {
+    std::cout << "============= SERVER CONFIG =============" << std::endl;
+    std::cout << "FD:           " << fd_ << std::endl;
+    std::cout << "Address:      " << address_ << std::endl;
+    std::cout << "Port:         " << port_ << std::endl;
+    std::cout << "Max Body:     " << max_client_request_body_ << std::endl;
+    std::cout << "Error Page:   " << error_page_.first << " -> " << error_page_.second << std::endl;
+    
+    std::cout << "Locations (" << locations_vec_.size() << "):" << std::endl;
+    
+    // En C++98, on utilise les itérateurs pour parcourir le vecteur
+    for (std::vector<Location>::const_iterator it = locations_vec_.begin(); 
+         it != locations_vec_.end(); ++it) {
+        it->print(2); // On décale de 2 espaces pour la lisibilité
+    }
+    std::cout << "=========================================" << std::endl;
 }
 
 Server const&   Server::operator=(Server const& to_copy)
@@ -18,20 +70,22 @@ Server const&   Server::operator=(Server const& to_copy)
 	address_ = to_copy.address_;
 	port_ = to_copy.port_;
 	locations_vec_ = to_copy.locations_vec_;
+	error_page_ = to_copy.error_page_;
 	return (*this);
 }
 
 Server::Server()
-: fd_(0), max_client_request_body_(0) , port_(0)
+: fd_(0), max_client_request_body_(0)
 {}
 
 Server::Server(Server const& to_copy)
 : fd_(to_copy.fd_), max_client_request_body_(to_copy.max_client_request_body_),
-  address_(to_copy.address_), port_(to_copy.port_),locations_vec_(to_copy.locations_vec_)
+  address_(to_copy.address_), port_(to_copy.port_), locations_vec_(to_copy.locations_vec_),
+  error_page_(to_copy.error_page_)
 {}
 
 Server::Server(int fd, int max_client_request_body, std::string address,
-            int port, std::vector<Location> locations_vec)
+            std::string port, std::vector<Location> locations_vec)
 : fd_(fd), max_client_request_body_(max_client_request_body),
   address_(address), port_(port), locations_vec_(locations_vec)
 {}
