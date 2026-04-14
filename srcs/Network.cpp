@@ -8,7 +8,7 @@ void Network::instanceEpoll()
 {
     epoll_fd_ = epoll_create1(0);
     if (epoll_fd_ == -1)
-        throw(std::logic_error(messageError("instance_epoll>epoll_create")));
+        throw std::logic_error(messageError("instance_epoll>epoll_create"));
 }
 
 
@@ -24,9 +24,8 @@ void Network::addingServers()
         ev.data.fd = fd;
         ev.events = EPOLLIN;
         
-
         if (epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, fd, &ev) == -1)
-             throw(std::logic_error(messageError("addingServers>epoll_ctl")));
+             throw std::logic_error(messageError("addingServers>epoll_ctl"));
     }
 }
 
@@ -81,7 +80,7 @@ void Network::acceptNewClient(Server const& server)
         ev.events = EPOLLIN;
         
         if (epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, client_fd, &ev) == -1)
-            throw(std::logic_error(messageError("acceptNewClient>epoll_ctl")));
+            throw std::logic_error(messageError("acceptNewClient>epoll_ctl"));
         
         Client client(client_fd, server);
         client_vec_.push_back(client);

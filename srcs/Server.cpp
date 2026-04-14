@@ -43,23 +43,21 @@ void Server::createSocket()
 		
 	setsockopt(fd_, SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option));
 	
-	int tmp;
-
+	int status;
 	for (int i = 0; res[i].ai_addr != NULL ; ++i)
 	{
-		tmp = bind(fd_, res[i].ai_addr, res[i].ai_addrlen);
-		if (tmp != -1)
+		status = bind(fd_, res[i].ai_addr, res[i].ai_addrlen);
+		if (status != -1)
 			break;
 	}
-
-	if (tmp == -1)
-		throw(std::runtime_error(messageError("createSocket>bind")));
+	if (status == -1)
+		throw std::runtime_error(messageError("createSocket>bind"));
 		
 	freeaddrinfo(res);
 	setNoBlockingFd();
 		
 	if (listen(fd_, LISTEN_QUEUE) == -1)
-		throw(std::runtime_error(messageError("createSocket>listen")));
+		throw std::runtime_error(messageError("createSocket>listen"));
 }
 
 void	Server::setLocations(std::vector<Location> const& location_vec)
