@@ -4,11 +4,60 @@
 #include <exception>
 #include <stdexcept>
 #include <cstdlib> 
+#include <fcntl.h>
+#include "utils.hpp"
 #include <iostream>
+#include <netinet/in.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
 	
-int Server::createSocket()
+
+void Server::setNoBlockingFd()
 {
-	return (0);
+	int flags = fcntl(fd_, F_GETFL, 0);
+	if (flags == -1)
+		throw std::runtime_error(messageError("createSocket>flags_fcntl"));
+
+	if (fcntl(fd_, F_SETFL, flags | O_NONBLOCK) == -1)
+		throw std::runtime_error(messageError("createSocket>set_fcntl"));
+}
+
+void Server::createSocket()
+{
+
+	int option = 1;
+	addrinfo hints = {};
+	hints.ai_family = AF_UNSPEC;
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_protocol = 0;
+	hints.ai_flags = AI_PASSIVE;
+	
+	addrinfo *res = NULL;
+
+	if (getaddrinfo(address_.c_str(), port_.c_str(), &hints, &res) != 0)
+		throw std::runtime_error(messageError("createSocket>getaddrinfo"));
+	fd_ = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+	if (fd_ == -1)
+		throw std::runtime_error(messageError("createSocket>socket"));
+		
+	setsockopt(fd_, SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option));
+	
+	int status;
+	for (int i = 0; res[i].ai_addr != NULL ; ++i)
+	{
+		status = bind(fd_, res[i].ai_addr, res[i].ai_addrlen);
+		if (status != -1)
+			break;
+	}
+	if (status == -1)
+		throw std::runtime_error(messageError("createSocket>bind"));
+		
+	freeaddrinfo(res);
+	setNoBlockingFd();
+		
+	if (listen(fd_, LISTEN_QUEUE) == -1)
+		throw std::runtime_error(messageError("createSocket>listen"));
 }
 
 void	Server::setLocations(std::vector<Location> const& location_vec)
@@ -41,6 +90,16 @@ void	Server::setErrorPage(std::vector<std::string> const& error_page)
 	error_page_ = std::make_pair(atoi(error_page[1].c_str()), error_page[2]);
 }
 
+int	 Server::getFd() const
+{
+	return (fd_);
+}
+
+std::string const& Server::getPort() const
+{
+	return (port_);
+}
+
 int	Server::getMaxClientRequestBody() const
 {
 	return (max_client_request_body_);
@@ -51,10 +110,7 @@ std::string const&	Server::getAddress() const
 	return (address_);
 }
 
-std::string const&	Server::getPort() const
-{
-	return (port_);
-}
+
 
 std::vector<Location> const&	Server::getLocations() const
 {

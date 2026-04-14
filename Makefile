@@ -13,6 +13,9 @@ SRCS_DIR := srcs/
 SRCS_CONTENT :=		main.cpp \
 					Server.cpp \
 					Location.cpp \
+					Client.cpp \
+					Network.cpp \
+					utils.cpp \
 					Block.cpp \
 
 # ---------------------------------------------------------#
