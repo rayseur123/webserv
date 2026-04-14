@@ -17,10 +17,10 @@ void Server::setNoBlockingFd()
 {
 	int flags = fcntl(fd_, F_GETFL, 0);
 	if (flags == -1)
-		throw(std::range_error(messageError("createSocket>flags_fcntl")));
+		throw std::runtime_error(messageError("createSocket>flags_fcntl"));
 
 	if (fcntl(fd_, F_SETFL, flags | O_NONBLOCK) == -1)
-		throw(std::range_error(messageError("createSocket>set_fcntl")));
+		throw std::runtime_error(messageError("createSocket>set_fcntl"));
 }
 
 void Server::createSocket()
@@ -28,30 +28,38 @@ void Server::createSocket()
 
 	int option = 1;
 	addrinfo hints = {};
-	hints.ai_family = AF_INET;
+	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_protocol = 0;
 	hints.ai_flags = AI_PASSIVE;
-
+	
 	addrinfo *res = NULL;
 
 	if (getaddrinfo(address_.c_str(), port_.c_str(), &hints, &res) != 0)
-		throw(std::range_error(messageError("createSocket>getaddrinfo")));
+		throw std::runtime_error(messageError("createSocket>getaddrinfo"));
 	fd_ = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
 	if (fd_ == -1)
-		throw(std::range_error(messageError("createSocket>socket")));
+		throw std::runtime_error(messageError("createSocket>socket"));
 		
 	setsockopt(fd_, SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option));
 	
-	if (bind(fd_, res->ai_addr, res->ai_addrlen) == -1)
-		throw(std::range_error(messageError("createSocket>bind")));
+	int tmp;
+
+	for (int i = 0; res[i].ai_addr != NULL ; ++i)
+	{
+		tmp = bind(fd_, res[i].ai_addr, res[i].ai_addrlen);
+		if (tmp != -1)
+			break;
+	}
+
+	if (tmp == -1)
+		throw(std::runtime_error(messageError("createSocket>bind")));
 		
 	freeaddrinfo(res);
-		
 	setNoBlockingFd();
 		
 	if (listen(fd_, LISTEN_QUEUE) == -1)
-		throw(std::range_error(messageError("createSocket>listen")));
+		throw(std::runtime_error(messageError("createSocket>listen")));
 }
 
 void	Server::setLocations(std::vector<Location> const& location_vec)

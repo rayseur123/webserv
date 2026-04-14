@@ -88,7 +88,7 @@ void Network::acceptNewClient(Server const& server)
     }
 }
 
-int Network::getServerFdFromClient(int client_fd)
+int Network::findServerFdFromClient(int client_fd)
 {
     std::vector<Client>::iterator it;
 
@@ -102,7 +102,7 @@ int Network::getServerFdFromClient(int client_fd)
 
 int Network::clientIsInsideServer(int client_fd, Server &server)
 {
-    if (getServerFdFromClient(client_fd) == server.getFd())
+    if (findServerFdFromClient(client_fd) == server.getFd())
         return (1);
     return (0);
 }
@@ -137,7 +137,17 @@ Network::Network():
 Network::Network(std::vector<Server> &servers, std::vector<Client> &clients):
     server_vec_(servers), 
     client_vec_(clients)
-    {}
+{
+
+    std::vector<Server>::iterator it;
+
+    for (it = server_vec_.begin(); it != server_vec_.end(); it++)
+		(*it).createSocket();
+
+    instanceEpoll();
+    addingServers();
+    manageNetwork();
+}
 
 Network::Network(Network const& to_copy):
     epoll_fd_(to_copy.epoll_fd_),

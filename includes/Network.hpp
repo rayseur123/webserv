@@ -26,7 +26,7 @@ class Network
         void                        acceptNewClient(Server const& server_fd);
         void                        getClientRequest(Server const& server_fd, int client_fd) const;
         
-        int                         getServerFdFromClient(int client_fd);
+        int                         findServerFdFromClient(int client_fd);
         int                         clientIsInsideServer(int client_fd, Server &server);
 
         void                        setServers(std::vector<Server> const& servers);

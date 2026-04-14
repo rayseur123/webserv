@@ -10,26 +10,17 @@ int	main(int ac, char **av)
 		(void)ac;
 		(void)av;
 
-		Network net;
-		std::vector<Client> clients;
+		std::vector<Client> client_vec;
 		std::string	buff;
-
+		
 		std::ifstream file("webserv.conf");
 		Block	block(file, Block::FILE, buff, "FILE");
-
-		std::vector<Server> server_vec = block.makeServerVec();
-
-		for (size_t i = 0; i < server_vec.size(); i++)
-		{
-			server_vec[i].createSocket();
-		}
-
-		net.setClients(clients);
-		net.setServers(server_vec);
 		
-		net.instanceEpoll();
-		net.addingServers();
-		net.manageNetwork();
+		std::vector<Server> server_vec = block.makeServerVec();
+		
+		Network net(server_vec, client_vec);
+
+
 	}
 	catch(const std::exception& e)
 	{

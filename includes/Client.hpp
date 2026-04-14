@@ -1,7 +1,6 @@
 #ifndef CLIENT_HPP
 #define CLIENT_HPP
 
-#include <vector>
 #include "Server.hpp"
 
 class Client
