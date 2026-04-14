@@ -112,8 +112,8 @@ Server::Server(Server const& to_copy)
 	error_page_(to_copy.error_page_)
 {}
 
-Server::Server(int fd, int max_client_request_body, std::string address,
-            std::string port, std::vector<Location> locations_vec)
+Server::Server(int fd, int max_client_request_body, std::string const& address,
+            std::string const& port, std::vector<Location> const& locations_vec)
 	:fd_(fd),
 	max_client_request_body_(max_client_request_body),
 	address_(address),
