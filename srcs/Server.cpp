@@ -72,7 +72,7 @@ Server const&   Server::operator=(Server const& to_copy)
 }
 
 Server::Server()
-	:fd_(0),
+	:fd_(-1),
 	max_client_request_body_(0)
 {}
 

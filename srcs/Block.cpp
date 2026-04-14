@@ -8,10 +8,10 @@
 #include <cstdlib>
 #include <utility>
 
-static std::vector<std::string> splitDirectiv(std::string const& directiv)
+static std::vector<std::string> splitDirective(std::string const& directive)
 {
     std::vector<std::string> params_vec;
-    std::stringstream ss(directiv);
+    std::stringstream ss(directive);
     std::string word;
 
     while (ss >> word)
@@ -19,37 +19,37 @@ static std::vector<std::string> splitDirectiv(std::string const& directiv)
     return (params_vec);
 }
 
-Location    Block::makeLocation()
+Location    Block::makeLocation() const
 {
     Location                    loc;
-    std::vector<std::string>    directivs_split;
+    std::vector<std::string>    directives_split;
 
-    for (size_t i = 0; i < directivs_vec_.size(); i++)
+    for (size_t i = 0; i < directives_vec_.size(); i++)
     {
-        directivs_split = splitDirectiv(directivs_vec_[i]);
-        if (directivs_split.size() < 2)
-            throw std::invalid_argument("Invalide directiv. : " + directivs_split[0]);
-        else if (directivs_split[0] == "root")
-            loc.setRoot(directivs_split[1]);
-        else if (directivs_split[0] == "allow_methods:")
-            loc.setAllowMethods(directivs_split);
-        else if (directivs_split[0] == "autoindex")
-            loc.setAutoIndex(directivs_split[1]);
-        else if (directivs_split[0] == "index")
-            loc.setIndex(directivs_split[1]);
-        else if (directivs_split[0] == "upload_store")
-            loc.setUploadStore(directivs_split[1]);
-        else if (directivs_split[0] == "cgi_pass")
-            loc.setCgiPass(directivs_split[1]);
-        else if (directivs_split[0] == "redirect")
-            loc.setRedirect(directivs_split[1]);
+        directives_split = splitDirective(directives_vec_[i]);
+        if (directives_split.size() < 2)
+            throw std::invalid_argument("Invalide directive. : " + directives_split[0]);
+        else if (directives_split[0] == "root")
+            loc.setRoot(directives_split[1]);
+        else if (directives_split[0] == "allow_methods:")
+            loc.setAllowMethods(directives_split);
+        else if (directives_split[0] == "autoindex")
+            loc.setAutoIndex(directives_split[1]);
+        else if (directives_split[0] == "index")
+            loc.setIndex(directives_split[1]);
+        else if (directives_split[0] == "upload_store")
+            loc.setUploadStore(directives_split[1]);
+        else if (directives_split[0] == "cgi_pass")
+            loc.setCgiPass(directives_split[1]);
+        else if (directives_split[0] == "redirect")
+            loc.setRedirect(directives_split[1]);
         else
-            throw std::invalid_argument("Invalide directiv." + directivs_split[0]);
+            throw std::invalid_argument("Invalide directive." + directives_split[0]);
     }
     return (loc);
 }
 
-std::vector<Location>   Block::makeLocationVec()
+std::vector<Location>   Block::makeLocationVec() const
 {
     std::vector<Location> loc_vec;
 
@@ -58,29 +58,29 @@ std::vector<Location>   Block::makeLocationVec()
     return (loc_vec);
 }
 
-Server  Block::makeServer()
+Server  Block::makeServer() const
 {
     Server  serv;
-    std::vector<std::string>    directivs_split;
+    std::vector<std::string>    directives_split;
     serv.setLocations(makeLocationVec());
-    for (size_t i = 0; i < directivs_vec_.size(); i++)
+    for (size_t i = 0; i < directives_vec_.size(); i++)
     {
-        directivs_split = splitDirectiv(directivs_vec_[i]);
-        if (directivs_split.size() < 2)
-            throw std::invalid_argument("Invalide directiv.");
-        else if (directivs_split[0] == "client_max_body_size")
-            serv.setMaxClientRequestBody(directivs_split[1]);
-        else if (directivs_split[0] == "listen")
-            serv.setAddrAndPort(directivs_split[1]);
-        else if (directivs_split[0] == "error_page")
-            serv.setErrorPage(directivs_split);
+        directives_split = splitDirective(directives_vec_[i]);
+        if (directives_split.size() < 2)
+            throw std::invalid_argument("Invalide directive.");
+        else if (directives_split[0] == "client_max_body_size")
+            serv.setMaxClientRequestBody(directives_split[1]);
+        else if (directives_split[0] == "listen")
+            serv.setAddrAndPort(directives_split[1]);
+        else if (directives_split[0] == "error_page")
+            serv.setErrorPage(directives_split);
         else
-            throw std::invalid_argument("Invalide directiv.");
+            throw std::invalid_argument("Invalide directive.");
     }
     return (serv);
 }
 
-std::vector<Server> Block::makeServerVec()
+std::vector<Server> Block::makeServerVec() const
 {
     std::vector<Server> server_vec;
     for (size_t i = 0; i < blocks_vec_.size(); i++)
@@ -88,9 +88,9 @@ std::vector<Server> Block::makeServerVec()
     return (server_vec);
 }
 
-std::vector<std::string> const&	Block::getDirectivs() const
+std::vector<std::string> const&	Block::getDirectives() const
 {
-    return (directivs_vec_);
+    return (directives_vec_);
 }
 
 Block::Block(std::ifstream &file, int type, std::string& buff, std::string const& name):
@@ -128,7 +128,7 @@ type_(type), name_(name)
             if (sep_char == ';')
 			{
                 if (!content.empty())
-					directivs_vec_.push_back(content);
+					directives_vec_.push_back(content);
                 buff = my_buff.substr(separator + 1);
             }
             else if (sep_char == '{')
@@ -161,8 +161,8 @@ void Block::print(int depth) const
     else
         std::cout << indent << "location {" << std::endl;
 
-    for (size_t i = 0; i < directivs_vec_.size(); i++)
-        std::cout << indent2 << directivs_vec_[i] << ";" << std::endl;
+    for (size_t i = 0; i < directives_vec_.size(); i++)
+        std::cout << indent2 << directives_vec_[i] << ";" << std::endl;
 
     for (size_t i = 0; i < blocks_vec_.size(); i++)
         blocks_vec_[i].print(depth + 1);
@@ -176,8 +176,8 @@ void Block::print2(int depth) const
     std::string indent2((depth + 1) * 4, ' ');
 
 	std::cout << indent << "Name : " << name_ << std::endl;
-    for (size_t i = 0; i < directivs_vec_.size(); i++)
-        std::cout << indent2 << directivs_vec_[i] << std::endl;
+    for (size_t i = 0; i < directives_vec_.size(); i++)
+        std::cout << indent2 << directives_vec_[i] << std::endl;
 
     for (size_t i = 0; i < blocks_vec_.size(); i++)
         blocks_vec_[i].print2(depth + 1);
@@ -188,7 +188,7 @@ Block const&	Block::operator=(Block const& to_copy)
 	if (&to_copy == this)
 		return (*this);
 	blocks_vec_ = to_copy.blocks_vec_;
-	directivs_vec_ = to_copy.directivs_vec_;
+	directives_vec_ = to_copy.directives_vec_;
 	type_ = to_copy.type_;
 	name_ = to_copy.name_;
 	return (*this);
@@ -200,7 +200,7 @@ Block::Block()
 Block::Block(Block const& to_copy)
     :type_(to_copy.type_),
     blocks_vec_(to_copy.blocks_vec_),
-    directivs_vec_(to_copy.directivs_vec_),
+    directives_vec_(to_copy.directives_vec_),
     name_(to_copy.name_)
 {}
 
