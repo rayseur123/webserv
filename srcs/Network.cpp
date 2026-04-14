@@ -13,15 +13,19 @@ void Network::instanceEpoll()
 
 
 void Network::addingServers()
-{
-    for(size_t i = 0; i < server_vec_.size(); i++)
+{   
+    std::vector<Server>::iterator   it;
+    epoll_event                     ev;
+    
+    for (it = server_vec_.begin(); it != server_vec_.end(); ++it)
     {
-        int fd = server_vec_[i].getFd();
+        int fd = (*it).getFd();
         
-        ev_.data.fd = fd;
-        ev_.events = EPOLLIN;
+        ev.data.fd = fd;
+        ev.events = EPOLLIN;
         
-        if (epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, fd, &ev_) == -1)
+
+        if (epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, fd, &ev) == -1)
              throw(std::logic_error(messageError("addingServers>epoll_ctl")));
     }
 }
@@ -30,22 +34,19 @@ void Network::addingServers()
 
 void Network::manageNetwork()
 {
+    std::vector<Server>::iterator it;
+
     while (true)
     {
         int nb_events = epoll_wait(epoll_fd_, events_, MAX_EVENTS, -1 );
         for (int i = 0; i < nb_events; i++)
         {
-            for (size_t j = 0; j < server_vec_.size(); j++)
+            for (it = server_vec_.begin(); it != server_vec_.end(); ++it)
             {
-                if (events_[i].data.fd == server_vec_[j].getFd())
-                {
-                   acceptNewClient(server_vec_[j]);
-                   displayClients();
-                }
-                else if (events_[i].events & EPOLLIN && clientIsInsideServer(events_[i].data.fd, server_vec_[j]))
-                {
-                    getClientRequest(server_vec_[j], events_[i].data.fd);
-                }
+                if (events_[i].data.fd == (*it).getFd())
+                    acceptNewClient(*it);
+                else if (events_[i].events & EPOLLIN && clientIsInsideServer(events_[i].data.fd, *it))
+                    getClientRequest(*it, events_[i].data.fd);
             }
         }
     }
@@ -57,16 +58,18 @@ void Network::getClientRequest(Server const& server, int client_fd) const
 
     int bytes;
     char buffer[100000] = {};
+
     bytes = recv(client_fd, buffer, sizeof(buffer), 0);
     std::cout << server.getPort() << ": " << buffer << std::endl;
 }
 
 void Network::acceptNewClient(Server const& server)
 {
+    epoll_event ev;
+
     while (true)
     {
         sockaddr_in client_addr = {};
-
         socklen_t size = sizeof(client_addr);
 
         int client_fd = accept(server.getFd(), reinterpret_cast<sockaddr *>(&client_addr), &size);
@@ -74,9 +77,10 @@ void Network::acceptNewClient(Server const& server)
         if (client_fd == -1)
             break;
         
-        ev_.data.fd = client_fd;
+        ev.data.fd = client_fd;
+        ev.events = EPOLLIN;
         
-        if (epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, client_fd, &ev_) == -1)
+        if (epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, client_fd, &ev) == -1)
             throw(std::logic_error(messageError("acceptNewClient>epoll_ctl")));
         
         Client client(client_fd, server);
@@ -84,35 +88,19 @@ void Network::acceptNewClient(Server const& server)
     }
 }
 
-void Network::displayClients() const
+int Network::getServerFdFromClient(int client_fd)
 {
-    std::cout << "----------------------------" << std::endl;
-    for (size_t i = 0; i < client_vec_.size(); i++)
+    std::vector<Client>::iterator it;
+
+    for (it = client_vec_.begin(); it != client_vec_.end(); it++)
     {
-        Client tmp;
-
-        tmp = client_vec_[i];
-
-        std::cout << "client_fd: "<< tmp.getClient() << std::endl;
-        std::cout << "server_fd: " << tmp.getServer().getFd() << std::endl;
-        std::cout << "----------------------------" << std::endl;
+        if ((*it).getClient() == client_fd)
+            return ((*it).getServer().getFd());
     }
-    std::cout << std::endl;
+    return (-1);
 }
 
-int Network::getServerFdFromClient(int client_fd) const
-{
-    for(size_t i = 0; i < client_vec_.size(); i++)
-    {
-        if (client_vec_[i].getClient() == client_fd)
-        {
-            return (client_vec_[i].getServer().getFd());
-        }
-    }
-    return -1;
-}
-
-int Network::clientIsInsideServer(int client_fd, Server &server) const
+int Network::clientIsInsideServer(int client_fd, Server &server)
 {
     if (getServerFdFromClient(client_fd) == server.getFd())
         return (1);

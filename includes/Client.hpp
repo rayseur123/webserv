@@ -8,13 +8,13 @@ class Client
 {
     private:
         
-        int client_fd_;
-        Server server_;
+        Server  server_;
+        int     client_fd_;
     
     public:
 
-        int const& getClient() const;
-        Server const& getServer() const;
+        int             getClient() const;
+        Server const&   getServer() const;
 
         Client();
         Client(int client, Server const& server);
@@ -23,5 +23,6 @@ class Client
         ~Client();
     };
     
+    std::ostream& operator<<(std::ostream& os, Client const& client);
 
 #endif

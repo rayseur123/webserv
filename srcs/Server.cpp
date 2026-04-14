@@ -4,36 +4,14 @@
 #include <exception>
 #include <stdexcept>
 #include <cstdlib> 
+#include <fcntl.h>
+#include "utils.hpp"
 #include <iostream>
+#include <netinet/in.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
 	
-int Server::createSocket()
-{
-	for(size_t i = 0; i < server_vec.size(); i++)
-	{
-		if (server_vec[i].getFd() == server_fd)
-			return (server_vec[i]);
-	}
-	throw(std::logic_error("[Error] findServerByFd: Server not find !"));
-}
-
-int const& Server::getFd() const
-{
-	return (fd_);
-}
-
-int const& Server::getMaxClientRequestBody() const
-{
-	return (max_client_request_body_);
-}
-std::string const& Server::getPort() const
-{
-	return (port_);
-}
-
-std::vector<Location> const& Server::getLocation() const
-{
-	return (locations_vec_);
-}
 
 void Server::setNoBlockingFd()
 {
@@ -106,6 +84,16 @@ void	Server::setErrorPage(std::vector<std::string> const& error_page)
 	error_page_ = std::make_pair(atoi(error_page[1].c_str()), error_page[2]);
 }
 
+int	 Server::getFd() const
+{
+	return (fd_);
+}
+
+std::string const& Server::getPort() const
+{
+	return (port_);
+}
+
 int	Server::getMaxClientRequestBody() const
 {
 	return (max_client_request_body_);
@@ -116,10 +104,7 @@ std::string const&	Server::getAddress() const
 	return (address_);
 }
 
-std::string const&	Server::getPort() const
-{
-	return (port_);
-}
+
 
 std::vector<Location> const&	Server::getLocations() const
 {

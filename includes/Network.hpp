@@ -13,7 +13,6 @@ class Network
         
         int                 epoll_fd_;
         
-        epoll_event         ev_; 
         epoll_event         events_[MAX_EVENTS];
 
         std::vector<Server> server_vec_;
@@ -27,9 +26,8 @@ class Network
         void                        acceptNewClient(Server const& server_fd);
         void                        getClientRequest(Server const& server_fd, int client_fd) const;
         
-        int                         getServerFdFromClient(int client_fd) const;
-        int                         clientIsInsideServer(int client_fd, Server &server) const;
-        void                        displayClients() const;
+        int                         getServerFdFromClient(int client_fd);
+        int                         clientIsInsideServer(int client_fd, Server &server);
 
         void                        setServers(std::vector<Server> const& servers);
         void                        setClients(std::vector<Client> const& clients);
@@ -42,17 +40,5 @@ class Network
         Network const& operator=(Network const& to_copy);
         ~Network();
 };
-
-template <typename T>
-std::ostream & operator<<(std::ostream& os, std::vector<T> list)
-{
-    typename std::vector<T>::iterator it;
-
-    for (it = list.begin(); it != list.end(); ++it)
-    {
-        os << *it;
-    }
-    return os;
-}
 
 #endif
