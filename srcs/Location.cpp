@@ -79,20 +79,31 @@ void Location::print(int depth) const {
 }
 
 Location::Location()
-: autoindex_(0), allow_methods_(0)
+    :root_("/www/data"),
+    autoindex_(false),
+    allow_methods_(0),
+    index_("index.html")
 {}
 
 Location::Location(std::string const& root, bool autoindex, int allow_methods, std::string const& index,
                 std::string const& upload_store, std::string const& cgi_pass, std::string const& redirect)
-:root_(root), autoindex_(autoindex), 
- allow_methods_(allow_methods), index_(index),
- upload_store_(upload_store), cgi_pass_(cgi_pass),
- redirect_(redirect)
+    :root_(root),
+    autoindex_(autoindex), 
+    allow_methods_(allow_methods),
+    index_(index),
+    upload_store_(upload_store),
+    cgi_pass_(cgi_pass),
+    redirect_(redirect)
 {}
 
 Location::Location(Location const& to_copy)
-:root_(to_copy.root_), autoindex_(to_copy.autoindex_),
- allow_methods_(to_copy.allow_methods_)
+    :root_(to_copy.root_),
+    autoindex_(to_copy.autoindex_),
+    allow_methods_(to_copy.allow_methods_),
+    index_(to_copy.index_),
+    upload_store_(to_copy.upload_store_),
+    cgi_pass_(to_copy.cgi_pass_),
+    redirect_(to_copy.redirect_)
 {}
 
 Location const& Location::operator=(Location const& to_copy)

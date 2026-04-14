@@ -4,6 +4,7 @@
 #include <exception>
 #include <stdexcept>
 #include <cstdlib> 
+#include <iostream>
 	
 int Server::createSocket()
 {
@@ -40,9 +41,6 @@ void	Server::setErrorPage(std::vector<std::string> const& error_page)
 	error_page_ = std::make_pair(atoi(error_page[1].c_str()), error_page[2]);
 }
 
-#include "Server.hpp"
-#include <iostream>
-
 void Server::print() const {
     std::cout << "============= SERVER CONFIG =============" << std::endl;
     std::cout << "FD:           " << fd_ << std::endl;
@@ -53,10 +51,9 @@ void Server::print() const {
     
     std::cout << "Locations (" << locations_vec_.size() << "):" << std::endl;
     
-    // En C++98, on utilise les itérateurs pour parcourir le vecteur
     for (std::vector<Location>::const_iterator it = locations_vec_.begin(); 
          it != locations_vec_.end(); ++it) {
-        it->print(2); // On décale de 2 espaces pour la lisibilité
+        it->print(2);
     }
     std::cout << "=========================================" << std::endl;
 }
@@ -75,19 +72,26 @@ Server const&   Server::operator=(Server const& to_copy)
 }
 
 Server::Server()
-: fd_(0), max_client_request_body_(0)
+	:fd_(0),
+	max_client_request_body_(0)
 {}
 
 Server::Server(Server const& to_copy)
-: fd_(to_copy.fd_), max_client_request_body_(to_copy.max_client_request_body_),
-  address_(to_copy.address_), port_(to_copy.port_), locations_vec_(to_copy.locations_vec_),
-  error_page_(to_copy.error_page_)
+	:fd_(to_copy.fd_),
+	max_client_request_body_(to_copy.max_client_request_body_),
+	address_(to_copy.address_),
+	port_(to_copy.port_),
+	locations_vec_(to_copy.locations_vec_),
+	error_page_(to_copy.error_page_)
 {}
 
 Server::Server(int fd, int max_client_request_body, std::string address,
             std::string port, std::vector<Location> locations_vec)
-: fd_(fd), max_client_request_body_(max_client_request_body),
-  address_(address), port_(port), locations_vec_(locations_vec)
+	:fd_(fd),
+	max_client_request_body_(max_client_request_body),
+	address_(address),
+	port_(port),
+	locations_vec_(locations_vec)
 {}
 
 Server::~Server(){}

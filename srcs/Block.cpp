@@ -91,21 +91,6 @@ std::vector<std::string> const&	Block::getDirectivs() const
     return (directivs_vec_);
 }
 
-Block const&	Block::operator=(Block const& to_copy)
-{
-	if (&to_copy == this)
-		return (*this);
-	blocks_vec_ = to_copy.blocks_vec_;
-	directivs_vec_ = to_copy.directivs_vec_;
-	type_ = to_copy.type_;
-	name_ = to_copy.name_;
-	return (*this);
-}
-
-Block::Block()
-{}
-
-
 Block::Block(std::ifstream &file, int type, std::string& buff, std::string const& name):
 type_(type), name_(name)
 {
@@ -190,8 +175,25 @@ void Block::print2(int depth) const
         blocks_vec_[i].print2(depth + 1);
 }
 	
-Block::Block(Block const& to_copy):
-type_(to_copy.type_), blocks_vec_(to_copy.blocks_vec_), directivs_vec_(to_copy.directivs_vec_), name_(to_copy.name_)
+Block const&	Block::operator=(Block const& to_copy)
+{
+	if (&to_copy == this)
+		return (*this);
+	blocks_vec_ = to_copy.blocks_vec_;
+	directivs_vec_ = to_copy.directivs_vec_;
+	type_ = to_copy.type_;
+	name_ = to_copy.name_;
+	return (*this);
+}
+
+Block::Block()
+{}
+
+Block::Block(Block const& to_copy)
+    :type_(to_copy.type_),
+    blocks_vec_(to_copy.blocks_vec_),
+    directivs_vec_(to_copy.directivs_vec_),
+    name_(to_copy.name_)
 {}
 
 Block::~Block()
