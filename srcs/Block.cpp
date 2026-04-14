@@ -74,6 +74,8 @@ Server  Block::makeServer()
             serv.setAddrAndPort(directivs_split[1]);
         else if (directivs_split[0] == "error_page")
             serv.setErrorPage(directivs_split);
+        else
+            throw std::invalid_argument("Invalide directiv.");
     }
     return (serv);
 }
@@ -140,7 +142,10 @@ type_(type), name_(name)
                 return;
             }
         }
+        else if (!my_buff.empty())
+            throw std::runtime_error("Syntax error: line '" + my_buff + "' is missing a ';' separator.");
     }
+    throw std::runtime_error("Syntax error: unclosed block '" + name_ + "' at end of file.");
 }
 
 void Block::print(int depth) const
