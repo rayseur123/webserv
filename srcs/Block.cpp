@@ -93,8 +93,9 @@ std::vector<std::string> const&	Block::getDirectives() const
     return (directives_vec_);
 }
 
-Block::Block(std::ifstream &file, int type, std::string& buff, std::string const& name):
-type_(type), name_(name)
+Block::Block(std::ifstream &file, int type, std::string& buff, std::string const& name)
+    :type_(type),
+    name_(name)
 {
     std::string line;
     std::string my_buff;
