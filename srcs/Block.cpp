@@ -24,7 +24,7 @@ Location    Block::makeLocation() const
     Location                    loc;
     std::vector<std::string>    directives_split;
 
-    for (size_t i = 0; i < directives_vec_.size(); i++)
+    for (size_t i = 0; i < directives_vec_.size(); ++i)
     {
         directives_split = splitDirective(directives_vec_[i]);
         if (directives_split.size() < 2)
@@ -53,7 +53,7 @@ std::vector<Location>   Block::makeLocationVec() const
 {
     std::vector<Location> loc_vec;
 
-    for (size_t i = 0; i < blocks_vec_.size(); i++)
+    for (size_t i = 0; i < blocks_vec_.size(); ++i)
         loc_vec.push_back(blocks_vec_[i].makeLocation());
     return (loc_vec);
 }
@@ -63,7 +63,7 @@ Server  Block::makeServer() const
     Server  serv;
     std::vector<std::string>    directives_split;
     serv.setLocations(makeLocationVec());
-    for (size_t i = 0; i < directives_vec_.size(); i++)
+    for (size_t i = 0; i < directives_vec_.size(); ++i)
     {
         directives_split = splitDirective(directives_vec_[i]);
         if (directives_split.size() < 2)
@@ -83,7 +83,7 @@ Server  Block::makeServer() const
 std::vector<Server> Block::makeServerVec() const
 {
     std::vector<Server> server_vec;
-    for (size_t i = 0; i < blocks_vec_.size(); i++)
+    for (size_t i = 0; i < blocks_vec_.size(); ++i)
         server_vec.push_back(blocks_vec_[i].makeServer());
     return (server_vec);
 }
@@ -151,21 +151,6 @@ Block::Block(std::ifstream &file, int type, std::string& buff, std::string const
         throw std::runtime_error("[ERROR] : Syntax error: unclosed block '" + name_ + "' at end of file.");
     }
 }
-
-	
-void Block::printToStream(std::ostream& os, int depth) const
-{
-    std::string indent(depth * 4, ' ');
-    std::string indent2((depth + 1) * 4, ' ');
-
-    os << indent << "Name : " << name_ << "\n";
-    
-    for (size_t i = 0; i < directives_vec_.size(); i++)
-        os << indent2 << directives_vec_[i] << "\n";
-
-    for (size_t i = 0; i < blocks_vec_.size(); i++)
-        blocks_vec_[i].printToStream(os, depth + 1);
-}
 	
 Block const&	Block::operator=(Block const& to_copy)
 {
@@ -178,10 +163,10 @@ Block const&	Block::operator=(Block const& to_copy)
 	return (*this);
 }
 
-std::ostream& operator<<(std::ostream& of, Block const& toPrint)
+std::ostream& operator<<(std::ostream& os, Block const& to_print)
 {
-    toPrint.printToStream(of, 0);
-    return (of);
+    (void)to_print;
+    return (os);
 }
 
 Block::Block()

@@ -41,23 +41,6 @@ void	Server::setErrorPage(std::vector<std::string> const& error_page)
 	error_page_ = std::make_pair(atoi(error_page[1].c_str()), error_page[2]);
 }
 
-void Server::print() const {
-    std::cout << "============= SERVER CONFIG =============" << std::endl;
-    std::cout << "FD:           " << fd_ << std::endl;
-    std::cout << "Address:      " << address_ << std::endl;
-    std::cout << "Port:         " << port_ << std::endl;
-    std::cout << "Max Body:     " << max_client_request_body_ << std::endl;
-    std::cout << "Error Page:   " << error_page_.first << " -> " << error_page_.second << std::endl;
-    
-    std::cout << "Locations (" << locations_vec_.size() << "):" << std::endl;
-    
-    for (std::vector<Location>::const_iterator it = locations_vec_.begin(); 
-         it != locations_vec_.end(); ++it) {
-        it->print(2);
-    }
-    std::cout << "=========================================" << std::endl;
-}
-
 Server const&   Server::operator=(Server const& to_copy)
 {
 	if (&to_copy == this)
@@ -69,6 +52,12 @@ Server const&   Server::operator=(Server const& to_copy)
 	locations_vec_ = to_copy.locations_vec_;
 	error_page_ = to_copy.error_page_;
 	return (*this);
+}
+
+std::ostream&   operator<<(std::ostream& os, Server const& to_print)
+{
+	(void)to_print;
+	return (os);
 }
 
 Server::Server()

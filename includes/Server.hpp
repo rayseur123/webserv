@@ -26,13 +26,13 @@ class Server
         void            setAddrAndPort(std::string const& addr_and_port);
         void            setErrorPage(std::vector<std::string> const& error_page);
 
-        void print() const;
-
         Server();
         Server(Server const& to_copy);
         Server(int fd, int max_client_request_body, std::string address,
             std::string port, std::vector<Location> locations_vec);
         ~Server();
 };
+
+std::ostream&   operator<<(std::ostream& os, Server const& to_print);
 
 #endif

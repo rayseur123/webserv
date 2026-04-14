@@ -4,6 +4,7 @@
 #include <iostream>
 #include <utility>
 #include <vector>
+#include <fstream>
 
 #define GET 1
 #define POST 2
@@ -21,7 +22,6 @@ class Location
         std::string redirect_;
 
     public:
-
         void    setRoot(std::string const& root);
         void    setAllowMethods(std::vector<std::string> const& allow_methods);
         void    setAutoIndex(std::string const& autoindex);
@@ -30,8 +30,6 @@ class Location
         void    setCgiPass(std::string const& cgi_pass);
         void    setRedirect(std::string const& redirect);
 
-        void print(int depth = 0) const;
-
         Location();
         Location(std::string const& root, bool autoindex, int allow_methods, std::string const& index,
                 std::string const& upload_store, std::string const& cgi_pass, std::string const& redirect);
@@ -39,5 +37,7 @@ class Location
         Location const& operator=(Location const& to_copy);
         ~Location();
 };
+
+std::ostream&   operator<<(std::ostream& os, Location const& to_print);
 
 #endif

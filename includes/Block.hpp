@@ -14,8 +14,6 @@ class Block
 		std::vector<std::string>	directives_vec_;
 		std::string					name_;
 	public:
-		void							printToStream(std::ostream& os, int depth = 0) const;
-
 		Location    					makeLocation() const;
 		std::vector<Server>				makeServerVec() const;
 		std::vector<Location>   		makeLocationVec() const;
@@ -38,6 +36,6 @@ class Block
 		};
 };
 
-std::ostream& operator<<(std::ostream& of, Block const& toPrint);
+std::ostream& operator<<(std::ostream& os, Block const& to_print);
 
 #endif

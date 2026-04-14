@@ -18,7 +18,7 @@ int	main(int ac, char **av)
 		//block.print2();
 
 		//std::vector<Server> server_vec = block.makeServerVec();
-		//for (size_t i = 0; i < server_vec.size(); i++)
+		//for (size_t i = 0; i < server_vec.size(); ++i)
 		//{
 		//	server_vec[i].print();
 		//}
