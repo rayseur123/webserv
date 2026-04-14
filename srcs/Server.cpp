@@ -4,7 +4,7 @@
 #include <netinet/in.h>
 #include <cstring>
 #include <netdb.h>
-
+#include <fcntl.h>
 
 Server& findServerByFd(std::vector<Server> &server_vec, int& server_fd)
 {
@@ -35,9 +35,20 @@ std::vector<Location> const& Server::getLocation() const
 	return (locations_vec_);
 }
 
+void Server::setNoBlockingFd()
+{
+	int flags = fcntl(fd_, F_GETFL, 0);
+	if (flags == -1)
+		throw(std::range_error(messageError("createSocket>flags_fcntl")));
+
+	if (fcntl(fd_, F_SETFL, flags | O_NONBLOCK) == -1)
+		throw(std::range_error(messageError("createSocket>set_fcntl")));
+}
+
 void Server::createSocket()
 {
 
+	int option = 1;
 	addrinfo hints = {};
 	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_STREAM;
@@ -48,19 +59,21 @@ void Server::createSocket()
 
 	if (getaddrinfo(address_.c_str(), port_.c_str(), &hints, &res) != 0)
 		throw(std::range_error(messageError("createSocket>getaddrinfo")));
-
 	fd_ = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
 	if (fd_ == -1)
 		throw(std::range_error(messageError("createSocket>socket")));
+		
+	setsockopt(fd_, SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option));
 	
 	if (bind(fd_, res->ai_addr, res->ai_addrlen) == -1)
 		throw(std::range_error(messageError("createSocket>bind")));
-	
+		
 	freeaddrinfo(res);
-	
+		
+	setNoBlockingFd();
+		
 	if (listen(fd_, LISTEN_QUEUE) == -1)
 		throw(std::range_error(messageError("createSocket>listen")));
-
 }
 
 Server const&   Server::operator=(Server const& to_copy)
@@ -75,11 +88,11 @@ Server const&   Server::operator=(Server const& to_copy)
 }
 
 Server::Server()
-: max_client_request_body_(0) 
+: max_client_request_body_(0)
 {}
 
 Server::Server(Server const& to_copy)
-: fd_(to_copy.fd_), max_client_request_body_(to_copy.max_client_request_body_),
+: fd_(to_copy.fd_), max_client_request_body_(to_copy.max_client_request_body_), port_(to_copy.port_),
   address_(to_copy.address_), locations_vec_(to_copy.locations_vec_)
 {}
 

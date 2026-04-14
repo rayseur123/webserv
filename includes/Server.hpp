@@ -18,11 +18,11 @@ class Server
     public:
         
         void                            createSocket();
-        
+        void                            setNoBlockingFd();
         
         int const&                      getFd() const;
         int const&                      getMaxClientRequestBody() const; 
-        std::string const&                      getPort() const;
+        std::string const&              getPort() const;
         std::vector<Location> const&    getLocation() const;
         
         Server const&   operator=(Server const& to_copy);

@@ -2,26 +2,26 @@
 #define CLIENT_HPP
 
 #include <vector>
+#include "Server.hpp"
 
 class Client
 {
     private:
         
         int client_fd_;
-        int server_fd_;
+        Server server_;
     
     public:
 
         int const& getClient() const;
-        int const& getServer() const;
-        
+        Server const& getServer() const;
+
         Client();
-        Client(int client, int server);
+        Client(int client, Server const& server);
         Client(Client const& to_copy);
         Client const& operator=(Client const& to_copy);
         ~Client();
     };
     
-int findServerByClient(std::vector<Client> client_vec, int client_fd);
 
 #endif
