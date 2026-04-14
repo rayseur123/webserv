@@ -1,4 +1,4 @@
-NAME := PmergeMe
+NAME := webServ
 
 # ---------------------------------------------------------#
 #                       DIRECTORIES                        #
@@ -12,7 +12,8 @@ SRCS_DIR := srcs/
 
 SRCS_CONTENT :=		main.cpp \
 					Server.cpp \
-					location.cpp \
+					Location.cpp \
+					Block.cpp \
 
 # ---------------------------------------------------------#
 #                       BUILD SOURCE                       #
