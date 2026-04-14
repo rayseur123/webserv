@@ -3,12 +3,6 @@
 #include <vector>
 #include <stdexcept>
 
-bool Location::methodIsAllowed(std::string verb)
-{
-    std::cout << verb;
-    return (0);
-}
-
 void    Location::setRoot(std::string const& root)
 {
     root_ = root;
