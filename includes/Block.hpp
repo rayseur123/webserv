@@ -19,7 +19,10 @@ class Block
 		std::vector<Location>   		makeLocationVec() const;
 		Server  						makeServer() const;
 		
+		int								getType() const;
+		std::vector<Block> const&		getBlocks() const;
 		std::vector<std::string> const&	getDirectives() const;
+		std::string const&				getName() const;
 
 		Block const&	operator=(Block const& to_copy);
 

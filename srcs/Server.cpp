@@ -41,6 +41,31 @@ void	Server::setErrorPage(std::vector<std::string> const& error_page)
 	error_page_ = std::make_pair(atoi(error_page[1].c_str()), error_page[2]);
 }
 
+int	Server::getMaxClientRequestBody() const
+{
+	return (max_client_request_body_);
+}
+
+std::string const&	Server::getAddress() const
+{
+	return (address_);
+}
+
+std::string const&	Server::getPort() const
+{
+	return (port_);
+}
+
+std::vector<Location> const&	Server::getLocations() const
+{
+	return (locations_vec_);
+}
+
+std::pair<int, std::string> const&	Server::getErrorPage() const
+{
+	return (error_page_);
+}
+
 Server const&   Server::operator=(Server const& to_copy)
 {
 	if (&to_copy == this)
@@ -54,10 +79,23 @@ Server const&   Server::operator=(Server const& to_copy)
 	return (*this);
 }
 
-std::ostream&   operator<<(std::ostream& os, Server const& to_print)
+std::ostream& operator<<(std::ostream& os, Server const& to_print)
 {
-	(void)to_print;
-	return (os);
+    os << "SERVER [" << to_print.getAddress() << ":" << to_print.getPort() << "]" << std::endl;
+    os << "\tclient_max_body_size: " << to_print.getMaxClientRequestBody() << std::endl;
+    
+    std::pair<int, std::string> err = to_print.getErrorPage();
+    if (err.first != 0) {
+        os << "\terror_page: " << err.first << " -> " << err.second << std::endl;
+    }
+
+    std::vector<Location> const& locs = to_print.getLocations();
+    for (size_t i = 0; i < locs.size(); ++i) {
+        os << locs[i];
+    }
+
+    os << "--------------------------------------" << std::endl;
+    return (os);
 }
 
 Server::Server()

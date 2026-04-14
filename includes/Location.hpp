@@ -30,6 +30,14 @@ class Location
         void    setCgiPass(std::string const& cgi_pass);
         void    setRedirect(std::string const& redirect);
 
+        std::string const&  getRoot() const;
+        bool                getAutoIndex() const;
+        int                 getAllowMethods() const;
+        std::string const&  getIndex() const;
+        std::string const&  getUploadStore() const;
+        std::string const&  getCgiPass() const;
+        std::string const&  getRedirect() const;
+
         Location();
         Location(std::string const& root, bool autoindex, int allow_methods, std::string const& index,
                 std::string const& upload_store, std::string const& cgi_pass, std::string const& redirect);

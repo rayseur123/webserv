@@ -26,6 +26,12 @@ class Server
         void            setAddrAndPort(std::string const& addr_and_port);
         void            setErrorPage(std::vector<std::string> const& error_page);
 
+        int                                 getMaxClientRequestBody() const;
+        std::string const&                  getAddress() const;
+        std::string const&                  getPort() const;
+        std::vector<Location> const&        getLocations() const;
+        std::pair<int, std::string> const&  getErrorPage() const;
+
         Server();
         Server(Server const& to_copy);
         Server(int fd, int max_client_request_body, std::string address,

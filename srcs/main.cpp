@@ -13,15 +13,12 @@ int	main(int ac, char **av)
 		std::ifstream file("webserv.conf");
 		Block	block(file, Block::FILE, buff, "FILE");
 		std::cout << block << std::endl;
-		//block.print();
-		//std::cout << "print 2 : " << std::endl << std::endl << std::endl;
-		//block.print2();
 
-		//std::vector<Server> server_vec = block.makeServerVec();
-		//for (size_t i = 0; i < server_vec.size(); ++i)
-		//{
-		//	server_vec[i].print();
-		//}
+		std::vector<Server> server_vec = block.makeServerVec();
+		for (size_t i = 0; i < server_vec.size(); ++i)
+		{
+			std::cout << server_vec[i];
+		}
 	}
 	catch(const std::exception& e)
 	{

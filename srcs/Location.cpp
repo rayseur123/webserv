@@ -53,6 +53,41 @@ void    Location::setRedirect(std::string const& redirect)
     redirect_ = redirect;
 }
 
+std::string const&  Location::getRoot() const
+{
+    return (root_);
+}
+
+bool    Location::getAutoIndex() const
+{
+    return (autoindex_);
+}
+
+int Location::getAllowMethods() const
+{
+    return (allow_methods_);
+}
+
+std::string const&  Location::getIndex() const
+{
+    return (index_);
+}
+
+std::string const&  Location::getUploadStore() const
+{
+    return (upload_store_);
+}
+
+std::string const& Location::getCgiPass() const
+{
+    return (cgi_pass_);
+}
+
+std::string const&  Location::getRedirect() const
+{
+    return (redirect_);
+}
+
 Location const& Location::operator=(Location const& to_copy)
 {
     if (this == &to_copy)
@@ -67,9 +102,32 @@ Location const& Location::operator=(Location const& to_copy)
     return (*this);
 }
 
-std::ostream&   operator<<(std::ostream& os, Location const& to_print)
+std::ostream& operator<<(std::ostream& os, Location const& to_print)
 {
-    (void)to_print;
+    os << "\t\tLOCATION {" << std::endl;
+    os << "\t\t\troot: " << to_print.getRoot() << std::endl;
+    os << "\t\t\tautoindex: " << (to_print.getAutoIndex() ? "on" : "off") << std::endl;
+    
+    os << "\t\t\tmethods: ";
+    int m = to_print.getAllowMethods();
+    if (m & GET)
+        os << "GET ";
+    if (m & POST)
+        os << "POST ";
+    if (m & DELETE)
+        os << "DELETE ";
+    os << std::endl;
+
+    if (!to_print.getIndex().empty())
+        os << "\t\t\tindex: " << to_print.getIndex() << std::endl;
+    if (!to_print.getRedirect().empty())
+        os << "\t\t\tredirect: " << to_print.getRedirect() << std::endl;
+    if (!to_print.getUploadStore().empty())
+        os << "\t\t\tupload: " << to_print.getUploadStore() << std::endl;
+    if (!to_print.getCgiPass().empty())
+        os << "\t\t\tcgi: " << to_print.getCgiPass() << std::endl;
+    
+    os << "\t\t}" << std::endl;
     return (os);
 }
 

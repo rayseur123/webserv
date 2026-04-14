@@ -88,9 +88,24 @@ std::vector<Server> Block::makeServerVec() const
     return (server_vec);
 }
 
-std::vector<std::string> const&	Block::getDirectives() const
+int  Block::getType() const
+{
+    return (type_);
+}
+
+std::vector<Block> const&		Block::getBlocks() const
+{
+    return (blocks_vec_);
+}
+
+std::vector<std::string> const& Block::getDirectives() const
 {
     return (directives_vec_);
+}
+
+std::string const&  Block::getName() const
+{
+    return (name_);
 }
 
 Block::Block(std::ifstream &file, int type, std::string& buff, std::string const& name)
@@ -163,10 +178,39 @@ Block const&	Block::operator=(Block const& to_copy)
 	return (*this);
 }
 
+static std::string  getBlockNameByType(int type)
+{
+    if (type == Block::FILE)
+        return ("FILE");
+    else if (type == Block::SERVER)
+        return ("SERVER");
+    else if (type == Block::LOCATION)
+        return ("LOCATION");
+    return ("ERROR_NAME");
+}
+
 std::ostream& operator<<(std::ostream& os, Block const& to_print)
 {
-    (void)to_print;
-    return (os);
+    static int depth = 0;
+    
+    std::string indent(depth, '\t');
+    std::string name = getBlockNameByType(to_print.getType());
+    std::vector<std::string> directives = to_print.getDirectives();
+    std::vector<Block> blocks = to_print.getBlocks();
+
+    os << indent << "\033[1;34m" << name << "\033[0m {" << std::endl; 
+
+    for (size_t i = 0; i < directives.size(); i++) {
+        os << indent << "\t" << directives[i] << std::endl;
+    }
+
+    depth++;
+    for (size_t i = 0; i < blocks.size(); i++) {
+        os << blocks[i];
+    }
+    depth--;
+    os << indent << "}" << std::endl;
+    return os;
 }
 
 Block::Block()
