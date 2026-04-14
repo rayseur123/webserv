@@ -1,4 +1,5 @@
-NAME := Webserv
+NAME := webServ
+
 # ---------------------------------------------------------#
 #                       DIRECTORIES                        #
 # ---------------------------------------------------------#
@@ -14,8 +15,8 @@ SRCS_CONTENT :=		main.cpp \
 					Location.cpp \
 					Client.cpp \
 					Network.cpp \
-					utils.cpp
-
+					utils.cpp \
+					Block.cpp \
 
 # ---------------------------------------------------------#
 #                       BUILD SOURCE                       #
