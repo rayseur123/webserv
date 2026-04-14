@@ -11,7 +11,7 @@ int	main(int ac, char **av)
 		std::string	buff;
 
 		std::ifstream file("webserv.conf");
-		Block	block(file, Block::SERVER, buff, "FILE");
+		Block	block(file, Block::FILE, buff, "FILE");
 		//block.print();
 		//std::cout << "print 2 : " << std::endl << std::endl << std::endl;
 		//block.print2();

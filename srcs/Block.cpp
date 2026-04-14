@@ -145,7 +145,10 @@ type_(type), name_(name)
         else if (!my_buff.empty())
             throw std::runtime_error("Syntax error: line '" + my_buff + "' is missing a ';' separator.");
     }
-    throw std::runtime_error("Syntax error: unclosed block '" + name_ + "' at end of file.");
+    if (type != FILE)
+    {
+        throw std::runtime_error("Syntax error: unclosed block '" + name_ + "' at end of file.");
+    }
 }
 
 void Block::print(int depth) const

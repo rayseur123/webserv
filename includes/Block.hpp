@@ -33,7 +33,7 @@ class Block
 
 		enum Type
 		{
-			FILES,
+			FILE,
 			SERVER,
 			LOCATION,
 		};
