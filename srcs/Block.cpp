@@ -28,7 +28,7 @@ Location    Block::makeLocation() const
     {
         directives_split = splitDirective(directives_vec_[i]);
         if (directives_split.size() < 2)
-            throw std::invalid_argument("Invalide directive. : " + directives_split[0]);
+            throw std::invalid_argument("[ERROR] : Invalide directive. : " + directives_split[0]);
         else if (directives_split[0] == "root")
             loc.setRoot(directives_split[1]);
         else if (directives_split[0] == "allow_methods:")
@@ -44,7 +44,7 @@ Location    Block::makeLocation() const
         else if (directives_split[0] == "redirect")
             loc.setRedirect(directives_split[1]);
         else
-            throw std::invalid_argument("Invalide directive." + directives_split[0]);
+            throw std::invalid_argument("[ERROR] : Invalide directive." + directives_split[0]);
     }
     return (loc);
 }
@@ -67,7 +67,7 @@ Server  Block::makeServer() const
     {
         directives_split = splitDirective(directives_vec_[i]);
         if (directives_split.size() < 2)
-            throw std::invalid_argument("Invalide directive.");
+            throw std::invalid_argument("[ERROR] : Invalide directive.");
         else if (directives_split[0] == "client_max_body_size")
             serv.setMaxClientRequestBody(directives_split[1]);
         else if (directives_split[0] == "listen")
@@ -75,7 +75,7 @@ Server  Block::makeServer() const
         else if (directives_split[0] == "error_page")
             serv.setErrorPage(directives_split);
         else
-            throw std::invalid_argument("Invalide directive.");
+            throw std::invalid_argument("[ERROR] : Invalide directive.");
     }
     return (serv);
 }
@@ -144,44 +144,27 @@ Block::Block(std::ifstream &file, int type, std::string& buff, std::string const
             }
         }
         else if (!my_buff.empty())
-            throw std::runtime_error("Syntax error: line '" + my_buff + "' is missing a ';' separator.");
+            throw std::runtime_error("[ERROR] : Syntax error: line '" + my_buff + "' is missing a ';' separator.");
     }
     if (type != FILE)
     {
-        throw std::runtime_error("Syntax error: unclosed block '" + name_ + "' at end of file.");
+        throw std::runtime_error("[ERROR] : Syntax error: unclosed block '" + name_ + "' at end of file.");
     }
 }
 
-void Block::print(int depth) const
+	
+void Block::printToStream(std::ostream& os, int depth) const
 {
     std::string indent(depth * 4, ' ');
     std::string indent2((depth + 1) * 4, ' ');
 
-    if (type_ == SERVER)
-        std::cout << indent << "server {" << std::endl;
-    else
-        std::cout << indent << "location {" << std::endl;
-
+    os << indent << "Name : " << name_ << "\n";
+    
     for (size_t i = 0; i < directives_vec_.size(); i++)
-        std::cout << indent2 << directives_vec_[i] << ";" << std::endl;
+        os << indent2 << directives_vec_[i] << "\n";
 
     for (size_t i = 0; i < blocks_vec_.size(); i++)
-        blocks_vec_[i].print(depth + 1);
-
-    std::cout << indent << "}" << std::endl;
-}
-	
-void Block::print2(int depth) const
-{
-	std::string indent(depth * 4, ' ');
-    std::string indent2((depth + 1) * 4, ' ');
-
-	std::cout << indent << "Name : " << name_ << std::endl;
-    for (size_t i = 0; i < directives_vec_.size(); i++)
-        std::cout << indent2 << directives_vec_[i] << std::endl;
-
-    for (size_t i = 0; i < blocks_vec_.size(); i++)
-        blocks_vec_[i].print2(depth + 1);
+        blocks_vec_[i].printToStream(os, depth + 1);
 }
 	
 Block const&	Block::operator=(Block const& to_copy)
@@ -193,6 +176,12 @@ Block const&	Block::operator=(Block const& to_copy)
 	type_ = to_copy.type_;
 	name_ = to_copy.name_;
 	return (*this);
+}
+
+std::ostream& operator<<(std::ostream& of, Block const& toPrint)
+{
+    toPrint.printToStream(of, 0);
+    return (of);
 }
 
 Block::Block()

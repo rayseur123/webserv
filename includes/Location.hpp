@@ -22,8 +22,6 @@ class Location
 
     public:
 
-        bool methodIsAllowed(std::string verb);
-
         void    setRoot(std::string const& root);
         void    setAllowMethods(std::vector<std::string> const& allow_methods);
         void    setAutoIndex(std::string const& autoindex);

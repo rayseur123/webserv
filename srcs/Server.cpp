@@ -28,7 +28,7 @@ void	Server::setAddrAndPort(std::string const& addr_and_port)
 {
 	size_t	index = addr_and_port.find(":");
 	if (index == std::string::npos)
-		throw std::invalid_argument("Invalide port");
+		throw std::invalid_argument("[ERROR] : Invalide port");
 	address_ = addr_and_port.substr(0, index);
 	port_ = addr_and_port.substr(index + 1);
 }
@@ -36,7 +36,7 @@ void	Server::setAddrAndPort(std::string const& addr_and_port)
 void	Server::setErrorPage(std::vector<std::string> const& error_page)
 {
 	if (error_page.size() != 3)
-		throw std::invalid_argument("Invalide error page format");
+		throw std::invalid_argument(" [ERROR] :Invalide error page format");
 
 	error_page_ = std::make_pair(atoi(error_page[1].c_str()), error_page[2]);
 }

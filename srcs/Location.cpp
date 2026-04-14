@@ -19,7 +19,7 @@ void    Location::setAllowMethods(std::vector<std::string> const& allow_methods)
         else if (allow_methods[i] == "DELETE")
             allow_methods_ += DELETE;
         else
-            throw std::invalid_argument("Cant find " + allow_methods[i] + " method.");
+            throw std::invalid_argument("[ERROR] : Cant find " + allow_methods[i] + " method.");
     }
 }
 
@@ -30,7 +30,7 @@ void    Location::setAutoIndex(std::string const& autoindex)
     else if (autoindex == "off")
         autoindex_ = false;
     else
-        throw std::invalid_argument(autoindex + " is not an autoindex mode.");
+        throw std::invalid_argument("[ERROR] : " + autoindex + " is not an autoindex mode.");
 }
 
 void    Location::setIndex(std::string const& index)
