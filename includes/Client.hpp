@@ -7,18 +7,19 @@ class Client
 {
     private:
         
-        Server  server_;
-        int     client_fd_;
+        Server const*   server_;
+        int             fd_;
     
     public:
 
-        int             getClient() const;
+        int             getFd() const;
         Server const&   getServer() const;
 
         Client();
         Client(int client, Server const& server);
         Client(Client const& to_copy);
-        Client const& operator=(Client const& to_copy);
+        Client const&   operator=(Client const& to_copy);
+        bool            operator==(Client const& to_comp);
         ~Client();
     };
     

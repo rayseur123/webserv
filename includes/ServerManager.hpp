@@ -1,5 +1,5 @@
-#ifndef NETWORK_HPP
-#define NETWORK_HPP
+#ifndef SERVER_MANAGER_HPP
+#define SERVER_MANAGER_HPP
 
 #include <Client.hpp>
 #include <Server.hpp>
@@ -7,7 +7,7 @@
 
 #define MAX_EVENTS 100
 
-class Network
+class ServerManager
 {
     private:
         
@@ -22,10 +22,13 @@ class Network
 
         void                        instanceEpoll();
         void                        addingServers();
-        void                        manageNetwork();
+        void                        manageServerManager();
         void                        acceptNewClient(Server const& server_fd);
-        void                        getClientRequest(Server const& server_fd, int client_fd) const;
-        
+        int                         getClientRequest(Server const& server_fd, int client_fd) const;
+        Client const&               getClientByFd(int client_fd) const;
+        int                         handleEventsServer(Server const& server, uint32_t events);
+        int                         handleEventsClient(Server const& server, Client const& client, uint32_t events);
+
         int                         findServerFdFromClient(int client_fd) const;
         int                         clientIsInsideServer(int client_fd, Server &server) const;
 
@@ -34,11 +37,12 @@ class Network
         std::vector<Server> const&  getServers() const;
         std::vector<Client> const&  getClients() const;
 
-        Network();
-        Network(std::vector<Server> &servers, std::vector<Client> &clients);
-        Network(Network const& to_copy);
-        Network const& operator=(Network const& to_copy);
-        ~Network();
+
+        ServerManager();
+        ServerManager(std::vector<Server> &servers, std::vector<Client> &clients);
+        ServerManager(ServerManager const& to_copy);
+        ServerManager const& operator=(ServerManager const& to_copy);
+        ~ServerManager();
 };
 
 #endif

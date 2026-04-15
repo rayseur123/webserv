@@ -1,7 +1,7 @@
 #include <vector>
 #include "Server.hpp"
 #include "Block.hpp"
-#include "Network.hpp"
+#include "ServerManager.hpp"
 
 int	main(int ac, char **av)
 {
@@ -18,7 +18,7 @@ int	main(int ac, char **av)
 		
 		std::vector<Server> server_vec = block.makeServerVec();
 		
-		Network net(server_vec, client_vec);
+		ServerManager net(server_vec, client_vec);
 	}
 	catch(const std::exception& e)
 	{
