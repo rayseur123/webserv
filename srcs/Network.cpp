@@ -21,19 +21,19 @@ void Network::addingServers()
         int fd = (*it).getFd();
         
         ev.data.fd = fd;
-        ev.events = EPOLLIN;
+        ev.events = EPOLLIN | EPOLLOUT | EPOLLPRI | EPOLLERR | EPOLLRDHUP;
         
         if (epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, fd, &ev) == -1)
              throw std::logic_error(messageError("addingServers>epoll_ctl"));
     }
 }
 
-
-
 void Network::manageNetwork()
 {
-    std::vector<Server>::iterator it;
+    std::vector<Server>::iterator   it;
+    uint32_t                        event_check;
 
+    event_check = EPOLLIN; // rajouter les events ici
     while (true)
     {
         int nb_events = epoll_wait(epoll_fd_, events_, MAX_EVENTS, -1 );
@@ -43,7 +43,7 @@ void Network::manageNetwork()
             {
                 if (events_[i].data.fd == (*it).getFd())
                     acceptNewClient(*it);
-                else if (events_[i].events & EPOLLIN && clientIsInsideServer(events_[i].data.fd, *it))
+                else if (events_[i].events & event_check && clientIsInsideServer(events_[i].data.fd, *it))
                     getClientRequest(*it, events_[i].data.fd);
             }
         }
