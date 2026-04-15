@@ -20,7 +20,7 @@ void ServerManager::addingServers()
     
     for (it = server_vec_.begin(); it != server_vec_.end(); ++it)
     {
-        int fd = (*it).getFd();
+        int fd = it->getFd();
         
         ev.data.fd = fd;
         ev.events = EPOLLIN | EPOLLERR | EPOLLRDHUP;
@@ -43,7 +43,7 @@ void ServerManager::manageServerManager()
         {
             for (it = server_vec_.begin(); it != server_vec_.end(); ++it)
             {
-                if (events_[i].data.fd == (*it).getFd())
+                if (events_[i].data.fd == it->getFd())
                 {
                     if (handleEventsServer(*it, events_[i].events))
                     {
@@ -150,8 +150,8 @@ int ServerManager::findServerFdFromClient(int client_fd) const
 
     for (it = client_vec_.begin(); it != client_vec_.end(); ++it)
     {
-        if ((*it).getFd() == client_fd)
-            return ((*it).getServer().getFd());
+        if (it->getFd() == client_fd)
+            return (it->getServer().getFd());
     }
     return (-1);
 }
@@ -198,7 +198,7 @@ ServerManager::ServerManager(std::vector<Server> &servers, std::vector<Client> &
     std::vector<Server>::iterator it;
 
     for (it = server_vec_.begin(); it != server_vec_.end(); ++it)
-		(*it).createSocket();
+		it->createSocket();
 
     instanceEpoll();
     addingServers();
