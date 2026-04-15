@@ -5,16 +5,15 @@
 
 int	main(int ac, char **av)
 {
+	if (ac != 2)
+		return (1);
 	try
 	{
-		(void)ac;
-		(void)av;
-
 		std::vector<Client> client_vec;
-		std::string	buff;
+		std::string			buff;
 		
-		std::ifstream file("webserv.conf");
-		Block	block(file, Block::FILE, buff, "FILE");
+		std::ifstream		file(av[1]);
+		Block				block(file, Block::FILE, buff, "FILE");
 		
 		std::vector<Server> server_vec = block.makeServerVec();
 		
