@@ -17,7 +17,8 @@ Body [Seulement pour les methods qui envoie des infos au serveur]
 Le serveur envoie une reponse -> **[Methode | Code | Message_Code | Version | Type MIME | Body]**
 
 Ligne-Etat: **["HTTP/" 1*DIGIT "." 1*DIGIT SP 3DIGIT SP]**  
-En-Tête-d'entité: [Compris dans la liste ci-dessous] 
+En-Tête-d'entité: [Compris dans la liste ci-dessous]  
+
 	| Content-Encoding
 	| Content-Lenght (Obligatoire)
 	| Content-Type (Obligatoire)
