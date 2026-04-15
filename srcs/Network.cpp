@@ -6,11 +6,10 @@
 
 void Network::instanceEpoll()
 {
-    epoll_fd_ = epoll_create1(0);
+    epoll_fd_ = epoll_create(2);
     if (epoll_fd_ == -1)
         throw std::logic_error(messageError("instance_epoll>epoll_create"));
 }
-
 
 void Network::addingServers()
 {   
@@ -38,7 +37,7 @@ void Network::manageNetwork()
     while (true)
     {
         int nb_events = epoll_wait(epoll_fd_, events_, MAX_EVENTS, -1 );
-        for (int i = 0; i < nb_events; i++)
+        for (int i = 0; i < nb_events; ++i)
         {
             for (it = server_vec_.begin(); it != server_vec_.end(); ++it)
             {
@@ -91,7 +90,7 @@ int Network::findServerFdFromClient(int client_fd) const
 {
     std::vector<Client>::const_iterator it;
 
-    for (it = client_vec_.begin(); it != client_vec_.end(); it++)
+    for (it = client_vec_.begin(); it != client_vec_.end(); ++it)
     {
         if ((*it).getClient() == client_fd)
             return ((*it).getServer().getFd());
@@ -140,7 +139,7 @@ Network::Network(std::vector<Server> &servers, std::vector<Client> &clients):
 
     std::vector<Server>::iterator it;
 
-    for (it = server_vec_.begin(); it != server_vec_.end(); it++)
+    for (it = server_vec_.begin(); it != server_vec_.end(); ++it)
 		(*it).createSocket();
 
     instanceEpoll();

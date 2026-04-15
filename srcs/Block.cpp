@@ -200,12 +200,12 @@ std::ostream& operator<<(std::ostream& os, Block const& to_print)
 
     os << indent << "\033[1;34m" << name << "\033[0m {" << std::endl; 
 
-    for (size_t i = 0; i < directives.size(); i++) {
+    for (size_t i = 0; i < directives.size(); ++i) {
         os << indent << "\t" << directives[i] << std::endl;
     }
 
     depth++;
-    for (size_t i = 0; i < blocks.size(); i++) {
+    for (size_t i = 0; i < blocks.size(); ++i) {
         os << blocks[i];
     }
     depth--;
