@@ -30,7 +30,7 @@ void ServerManager::addingServers()
     }
 }
 
-void ServerManager::manageServerManager()
+void ServerManager::manageServers()
 {
     std::vector<Server>::iterator   it;
     uint32_t                        event_check;
@@ -202,7 +202,7 @@ ServerManager::ServerManager(std::vector<Server> &servers, std::vector<Client> &
 
     instanceEpoll();
     addingServers();
-    manageServerManager();
+    manageServers();
 }
 
 ServerManager::ServerManager(ServerManager const& to_copy):
