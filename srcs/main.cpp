@@ -19,8 +19,6 @@ int	main(int ac, char **av)
 		std::vector<Server> server_vec = block.makeServerVec();
 		
 		Network net(server_vec, client_vec);
-
-
 	}
 	catch(const std::exception& e)
 	{

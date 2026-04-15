@@ -87,9 +87,9 @@ void Network::acceptNewClient(Server const& server)
     }
 }
 
-int Network::findServerFdFromClient(int client_fd)
+int Network::findServerFdFromClient(int client_fd) const
 {
-    std::vector<Client>::iterator it;
+    std::vector<Client>::const_iterator it;
 
     for (it = client_vec_.begin(); it != client_vec_.end(); it++)
     {
@@ -99,7 +99,7 @@ int Network::findServerFdFromClient(int client_fd)
     return (-1);
 }
 
-int Network::clientIsInsideServer(int client_fd, Server &server)
+int Network::clientIsInsideServer(int client_fd, Server &server) const
 {
     if (findServerFdFromClient(client_fd) == server.getFd())
         return (1);
