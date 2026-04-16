@@ -33,14 +33,14 @@ class ServerManager
         int                         findServerFdFromConnection(int connection_fd) const;
         int                         connectionIsInsideServer(int connection_fd, Server &server) const;
 
-        void                        setServersVec(std::vector<Server> const& servers_vec);
-        void                        setConnectionsVec(std::vector<Connection> const& connections_vec);
-        std::vector<Server> const&  getServersVec() const;
+        void                        setServerVec(std::vector<Server> const& server_vec);
+        void                        setConnectionVec(std::vector<Connection> const& connection_vec);
+        std::vector<Server> const&  getServerVec() const;
         std::vector<Connection> const&  getConnectionVec() const;
 
 
         ServerManager();
-        ServerManager(std::vector<Server> &servers, std::vector<Connection> &connections_vec);
+        ServerManager(std::vector<Server> &servers, std::vector<Connection> &connection_vec);
         ServerManager(ServerManager const& to_copy);
         ServerManager const& operator=(ServerManager const& to_copy);
         ~ServerManager();

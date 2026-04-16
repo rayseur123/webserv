@@ -160,17 +160,17 @@ int ServerManager::connectionIsInsideServer(int connection_fd, Server &server) c
     return (0);
 }
 
-void ServerManager::setConnectionsVec(std::vector<Connection> const& connection_vec)
+void ServerManager::setConnectionVec(std::vector<Connection> const& connection_vec)
 {
     connection_vec_ = connection_vec;
 }
 
-void ServerManager::setServersVec(std::vector<Server> const& servers)
+void ServerManager::setServerVec(std::vector<Server> const& server_vec)
 {
-    server_vec_ = servers;
+    server_vec_ = server_vec;
 }
 
-std::vector<Server> const&  ServerManager::getServersVec() const
+std::vector<Server> const&  ServerManager::getServerVec() const
 {
     return (server_vec_);
 }
@@ -187,9 +187,9 @@ ServerManager::ServerManager():
     connection_vec_(0)
     {}
 
-ServerManager::ServerManager(std::vector<Server> &servers, std::vector<Connection> &clients_vec):
-    server_vec_(servers), 
-    connection_vec_(clients_vec)
+ServerManager::ServerManager(std::vector<Server> &server_vec, std::vector<Connection> &connection_vec):
+    server_vec_(server_vec), 
+    connection_vec_(connection_vec)
 {
 
     std::vector<Server>::iterator it;
