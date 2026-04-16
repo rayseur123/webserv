@@ -6,41 +6,33 @@
 #include <sys/epoll.h>
 #include <map>
 
+
+#define EVENTS_CONNECTION EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLPRI
+#define EVENTS_SERVER EPOLLIN | EPOLLERR | EPOLLRDHUP
 #define MAX_EVENTS 100
 
 class ServerManager
 {
     private:
         
-        int                 epoll_fd_;
+        int                     epoll_fd_;
         
-        epoll_event         events_[MAX_EVENTS];
+        epoll_event             events_[MAX_EVENTS];
 
-        std::vector<Server> server_vec_;
-        std::vector<Connection> connection_vec_;
-
+        std::map<int, Server>       server_map_;
+        std::map<int, Connection>   connection_map_;
     public:
 
-        void                        instanceEpoll();
-        void                        addingServers();
-        void                        eventLoop();
-        void                        acceptNewConnection(Server const& server_fd);
-        int                         getConnectionRequest(Server const& server_fd, int connection_fd) const;
-        Connection const&           getConnectionByFd(int connection_fd) const;
-        int                         handleEventsServer(Server const& server, uint32_t events);
-        int                         handleEventsConnection(Server const& server, Connection const& connection, uint32_t events);
-
-        int                         findServerFdFromConnection(int connection_fd) const;
-        int                         connectionIsInsideServer(int connection_fd, Server &server) const;
-
-        void                        setServerVec(std::vector<Server> const& server_vec);
-        void                        setConnectionVec(std::vector<Connection> const& connection_vec);
-        std::vector<Server> const&  getServerVec() const;
-        std::vector<Connection> const&  getConnectionVec() const;
-
+        void                            instanceEpoll();
+        void                            registerServersToEpoll();
+        void                            eventLoop();
+        void                            acceptNewConnection(int fd);
+        int                             getConnectionRequest(Server const& server_fd, int connection_fd) const;
+        int                             handleEventsServer(int fd, uint32_t events);
+        int                             handleEventsConnection(Connection const& connection, uint32_t events);
 
         ServerManager();
-        ServerManager(std::vector<Server> &servers, std::vector<Connection> &connection_vec);
+        ServerManager(std::vector<Server> &servers);
         ServerManager(ServerManager const& to_copy);
         ServerManager const& operator=(ServerManager const& to_copy);
         ~ServerManager();

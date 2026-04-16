@@ -24,45 +24,47 @@ void Server::setNoBlockingFd()
 		throw std::runtime_error(messageError("createSocket>set_fcntl"));
 }
 
-void Server::createSocket()
+int Server::createSocket()
 {
-    int option = 1;
-    addrinfo hints = {};
-    hints.ai_family = AF_UNSPEC; // IPv4 / IPv6
+	int option = 1;
+	addrinfo hints = {};
+	hints.ai_family = AF_UNSPEC; // IPv4 / IPv6
 	hints.ai_socktype = SOCK_STREAM; // Communication par flux de bytes, avec des données hors bande pour les données prioritaires
 	hints.ai_flags = AI_PASSIVE; // si node (address_.c_str()) est NULL, alors getaddrinfo trouvera quand même une adresse disponible
 
-    
-    addrinfo *res = NULL;
+	
+	addrinfo *res = NULL;
 
-    if (getaddrinfo(address_.c_str(), port_.c_str(), &hints, &res) != 0)
-        throw std::runtime_error(messageError("createSocket>getaddrinfo"));
+	if (getaddrinfo(address_.c_str(), port_.c_str(), &hints, &res) != 0)
+		throw std::runtime_error(messageError("createSocket>getaddrinfo"));
 
-    addrinfo *p;
-    for (p = res; p != NULL; p = p->ai_next) 
-    {
-        fd_ = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
-        if (fd_ == -1)
-            continue;
+	addrinfo *p;
+	for (p = res; p != NULL; p = p->ai_next) 
+	{
+		fd_ = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
+		if (fd_ == -1)
+			continue;
 
-        setsockopt(fd_, SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option));
+		setsockopt(fd_, SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option));
 
-        if (bind(fd_, p->ai_addr, p->ai_addrlen) == 0)
-            break;
+		if (bind(fd_, p->ai_addr, p->ai_addrlen) == 0)
+			break;
 
-        close(fd_);
-        fd_ = -1;
-    }
+		close(fd_);
+		fd_ = -1;
+	}
 
-    freeaddrinfo(res);
+	freeaddrinfo(res);
 
-    if (fd_ == -1)
-        throw std::runtime_error(messageError("createSocket>bind failed for all addresses"));
+	if (fd_ == -1)
+		throw std::runtime_error(messageError("createSocket>bind failed for all addresses"));
 
-    setNoBlockingFd();
-        
-    if (listen(fd_, LISTEN_QUEUE) == -1)
-        throw std::runtime_error(messageError("createSocket>listen"));
+	setNoBlockingFd();
+		
+	if (listen(fd_, LISTEN_QUEUE) == -1)
+		throw std::runtime_error(messageError("createSocket>listen"));
+	
+	return (fd_);
 }
 
 void	Server::setLocations(std::vector<Location> const& location_vec)

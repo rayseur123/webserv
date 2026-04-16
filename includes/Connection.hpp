@@ -2,6 +2,7 @@
 #define CONNECTION_HPP
 
 #include "Server.hpp"
+#include <stdint.h>
 
 class Connection
 {

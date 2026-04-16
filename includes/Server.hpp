@@ -20,7 +20,7 @@ class Server
         std::pair<int, std::string> error_page_;
     public:
         
-        void                                createSocket();
+        int                                 createSocket();
         void                                setNoBlockingFd();
         
         int                                 getFd() const;

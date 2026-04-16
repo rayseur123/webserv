@@ -13,7 +13,7 @@ SRCS_DIR := srcs/
 SRCS_CONTENT :=		main.cpp \
 					Server.cpp \
 					Location.cpp \
-					Client.cpp \
+					Connection.cpp \
 					ServerManager.cpp \
 					utils.cpp \
 					Block.cpp \
