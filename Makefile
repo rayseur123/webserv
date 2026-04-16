@@ -17,6 +17,13 @@ SRCS_CONTENT :=		main.cpp \
 					Network.cpp \
 					utils.cpp \
 					Block.cpp \
+					Request.cpp \
+					Method.cpp \
+					Uri.cpp \
+					Version.cpp \
+					Type.cpp \
+					Body.cpp \
+
 
 # ---------------------------------------------------------#
 #                       BUILD SOURCE                       #
