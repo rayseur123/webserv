@@ -1,4 +1,4 @@
-#include "Client.hpp"
+#include "Connection.hpp"
 #include <iostream>
 
 int Connection::getFd() const
@@ -16,9 +16,9 @@ Connection::Connection():
     fd_(-1)
     {}
 
-Connection::Connection(int client, Server const& server): 
+Connection::Connection(int fd, Server const& server): 
     server_(&server),
-    fd_(client) 
+    fd_(fd) 
     {}
 
 Connection::Connection(Connection const& to_copy): 
@@ -43,9 +43,9 @@ bool    Connection::operator==(Connection const& to_comp)
 Connection::~Connection()
 {}
 
-std::ostream& operator<<(std::ostream& os, Connection const& client)
+std::ostream& operator<<(std::ostream& os, Connection const& connection)
 {
-    os << "client_fd: " << client.getFd() << std::endl;
-    os << "server_fd: " << client.getServer().getFd() << std::endl;
+    os << "connection_fd: " << connection.getFd() << std::endl;
+    os << "server_fd: " << connection.getServer().getFd() << std::endl;
     return (os);
 }

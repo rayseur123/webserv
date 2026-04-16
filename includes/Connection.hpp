@@ -1,5 +1,5 @@
-#ifndef CLIENT_HPP
-#define CLIENT_HPP
+#ifndef CONNECTION_HPP
+#define CONNECTION_HPP
 
 #include "Server.hpp"
 
@@ -15,13 +15,13 @@ class Connection
         Server const&   getServer() const;
 
         Connection();
-        Connection(int client, Server const& server);
+        Connection(int connection, Server const& server);
         Connection(Connection const& to_copy);
         Connection const&   operator=(Connection const& to_copy);
         bool            operator==(Connection const& to_comp);
         ~Connection();
     };
     
-    std::ostream& operator<<(std::ostream& os, Connection const& client);
+    std::ostream& operator<<(std::ostream& os, Connection const& connection);
 
 #endif

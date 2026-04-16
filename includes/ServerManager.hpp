@@ -17,30 +17,30 @@ class ServerManager
         epoll_event         events_[MAX_EVENTS];
 
         std::vector<Server> server_vec_;
-        std::vector<Connection> client_vec_;
+        std::vector<Connection> connection_vec_;
 
     public:
 
         void                        instanceEpoll();
         void                        addingServers();
         void                        eventLoop();
-        void                        acceptNewClient(Server const& server_fd);
-        int                         getClientRequest(Server const& server_fd, int client_fd) const;
-        Connection const&           getClientByFd(int client_fd) const;
+        void                        acceptNewConnection(Server const& server_fd);
+        int                         getConnectionRequest(Server const& server_fd, int connection_fd) const;
+        Connection const&           getConnectionByFd(int connection_fd) const;
         int                         handleEventsServer(Server const& server, uint32_t events);
-        int                         handleEventsClient(Server const& server, Connection const& client, uint32_t events);
+        int                         handleEventsConnection(Server const& server, Connection const& connection, uint32_t events);
 
-        int                         findServerFdFromClient(int client_fd) const;
-        int                         clientIsInsideServer(int client_fd, Server &server) const;
+        int                         findServerFdFromConnection(int connection_fd) const;
+        int                         connectionIsInsideServer(int connection_fd, Server &server) const;
 
-        void                        setServers(std::vector<Server> const& servers);
-        void                        setClients(std::vector<Connection> const& clients);
-        std::vector<Server> const&  getServers() const;
-        std::vector<Connection> const&  getClients() const;
+        void                        setServersVec(std::vector<Server> const& servers_vec);
+        void                        setConnectionsVec(std::vector<Connection> const& connections_vec);
+        std::vector<Server> const&  getServersVec() const;
+        std::vector<Connection> const&  getConnectionVec() const;
 
 
         ServerManager();
-        ServerManager(std::vector<Server> &servers, std::vector<Connection> &clients);
+        ServerManager(std::vector<Server> &servers, std::vector<Connection> &connections_vec);
         ServerManager(ServerManager const& to_copy);
         ServerManager const& operator=(ServerManager const& to_copy);
         ~ServerManager();

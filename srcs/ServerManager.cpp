@@ -50,13 +50,13 @@ void ServerManager::eventLoop()
                         epoll_ctl(epoll_fd_, EPOLL_CTL_DEL, it->getFd(), NULL);
                     }
                 }
-                else if (events_[i].events && clientIsInsideServer(events_[i].data.fd, *it))
+                else if (events_[i].events && connectionIsInsideServer(events_[i].data.fd, *it))
                 {
-                    Connection client = getClientByFd(events_[i].data.fd);
-                    if (handleEventsClient(*it, client, events_[i].events))
+                    Connection connection = getConnectionByFd(events_[i].data.fd);
+                    if (handleEventsConnection(*it, connection, events_[i].events))
                     {
-                        std::cout << "Client on fd " << events_[i].data.fd << " has been disconected." << std::endl;
-                        client_vec_.erase(std::find(client_vec_.begin(), client_vec_.end(), client));
+                        std::cout << "Connection on fd " << events_[i].data.fd << " has been disconected." << std::endl;
+                        connection_vec_.erase(std::find(connection_vec_.begin(), connection_vec_.end(), connection));
                         epoll_ctl(epoll_fd_, EPOLL_CTL_DEL, events_[i].data.fd, NULL);
                     }
                 }
@@ -65,13 +65,13 @@ void ServerManager::eventLoop()
     }
 }
 
-Connection const&   ServerManager::getClientByFd(int client_fd) const
+Connection const&   ServerManager::getConnectionByFd(int connection_fd) const
 {
-    std::vector<Connection>::const_iterator it = client_vec_.begin();
+    std::vector<Connection>::const_iterator it = connection_vec_.begin();
 
-    while (it != client_vec_.end())
+    while (it != connection_vec_.end())
     {
-        if (it->getFd() == client_fd)
+        if (it->getFd() == connection_fd)
             break ;
         it++;
     }
@@ -86,110 +86,110 @@ int    ServerManager::handleEventsServer(Server const& server, uint32_t events)
         return (1);
     }
     else if (events & EPOLLIN)
-        acceptNewClient(server);
+        acceptNewConnection(server);
     return (0);
 }
 
-int ServerManager::handleEventsClient(Server const& server, Connection const& client, uint32_t events)
+int ServerManager::handleEventsConnection(Server const& server, Connection const& connection, uint32_t events)
 {
     if (events & (EPOLLERR | EPOLLRDHUP))
     {
-        close(client.getFd());
+        close(connection.getFd());
         return (1);
     }
     if (events & (EPOLLIN | EPOLLPRI))
-        return (getClientRequest(server, client.getFd()));
+        return (getConnectionRequest(server, connection.getFd()));
     // rajouter un if respond quand pour le http plus tard.
     return (0);
 }
 
-int ServerManager::getClientRequest(Server const& server, int client_fd) const
+int ServerManager::getConnectionRequest(Server const& server, int connection_fd) const
 {
     (void)server;
     int bytes;
     char buffer[100000] = {};
 
-    bytes = recv(client_fd, buffer, sizeof(buffer), 0);
+    bytes = recv(connection_fd, buffer, sizeof(buffer), 0);
     if (!bytes)
         return (1);
     std::cout << server.getPort() << ": " << buffer << std::endl;
     return (0);
 }
 
-void ServerManager::acceptNewClient(Server const& server)
+void ServerManager::acceptNewConnection(Server const& server)
 {
     epoll_event ev;
 
     while (true)
     {
-        sockaddr_in client_addr = {};
-        socklen_t size = sizeof(client_addr);
+        sockaddr_in connection_addr = {};
+        socklen_t size = sizeof(connection_addr);
 
-        int client_fd = accept(server.getFd(), reinterpret_cast<sockaddr *>(&client_addr), &size);
+        int connection_fd = accept(server.getFd(), reinterpret_cast<sockaddr *>(&connection_addr), &size);
         
-        if (client_fd == -1)
+        if (connection_fd == -1)
             break;
         
-        ev.data.fd = client_fd;
+        ev.data.fd = connection_fd;
         ev.events = EPOLLIN; // Rajouter les events client
         
-        if (epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, client_fd, &ev) == -1)
+        if (epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, connection_fd, &ev) == -1)
             throw std::logic_error(messageError("acceptNewClient>epoll_ctl"));
         
-        Connection client(client_fd, server);
-        client_vec_.push_back(client);
+        Connection connection(connection_fd, server);
+        connection_vec_.push_back(connection);
     }
 }
 
-int ServerManager::findServerFdFromClient(int client_fd) const
+int ServerManager::findServerFdFromConnection(int connection_fd) const
 {
     std::vector<Connection>::const_iterator it;
 
-    for (it = client_vec_.begin(); it != client_vec_.end(); ++it)
+    for (it = connection_vec_.begin(); it != connection_vec_.end(); ++it)
     {
-        if (it->getFd() == client_fd)
+        if (it->getFd() == connection_fd)
             return (it->getServer().getFd());
     }
     return (-1);
 }
 
-int ServerManager::clientIsInsideServer(int client_fd, Server &server) const
+int ServerManager::connectionIsInsideServer(int connection_fd, Server &server) const
 {
-    if (findServerFdFromClient(client_fd) == server.getFd())
+    if (findServerFdFromConnection(connection_fd) == server.getFd())
         return (1);
     return (0);
 }
 
-void ServerManager::setClients(std::vector<Connection> const& clients)
+void ServerManager::setConnectionsVec(std::vector<Connection> const& connection_vec)
 {
-    client_vec_ = clients;
+    connection_vec_ = connection_vec;
 }
 
-void ServerManager::setServers(std::vector<Server> const& servers)
+void ServerManager::setServersVec(std::vector<Server> const& servers)
 {
     server_vec_ = servers;
 }
 
-std::vector<Server> const&  ServerManager::getServers() const
+std::vector<Server> const&  ServerManager::getServersVec() const
 {
     return (server_vec_);
 }
 
 
-std::vector<Connection> const&  ServerManager::getClients() const 
+std::vector<Connection> const&  ServerManager::getConnectionVec() const 
 {
-    return (client_vec_);
+    return (connection_vec_);
 }
 
 ServerManager::ServerManager():
     epoll_fd_(-1), 
     server_vec_(0), 
-    client_vec_(0)
+    connection_vec_(0)
     {}
 
-ServerManager::ServerManager(std::vector<Server> &servers, std::vector<Connection> &clients):
+ServerManager::ServerManager(std::vector<Server> &servers, std::vector<Connection> &clients_vec):
     server_vec_(servers), 
-    client_vec_(clients)
+    connection_vec_(clients_vec)
 {
 
     std::vector<Server>::iterator it;
@@ -205,7 +205,7 @@ ServerManager::ServerManager(std::vector<Server> &servers, std::vector<Connectio
 ServerManager::ServerManager(ServerManager const& to_copy):
     epoll_fd_(to_copy.epoll_fd_),
     server_vec_(to_copy.server_vec_), 
-    client_vec_(to_copy.client_vec_)
+    connection_vec_(to_copy.connection_vec_)
     {} 
 
 ServerManager const& ServerManager::operator=(ServerManager const& to_copy)
@@ -214,7 +214,7 @@ ServerManager const& ServerManager::operator=(ServerManager const& to_copy)
         return *this;
     epoll_fd_ = to_copy.epoll_fd_;    
     server_vec_ = to_copy.server_vec_;
-    client_vec_ = to_copy.client_vec_;
+    connection_vec_ = to_copy.connection_vec_;
     return *this;
 }    
 
