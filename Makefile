@@ -7,14 +7,14 @@ NAME := webServ
 SRCS_DIR := srcs/
 
 # ---------------------------------------------------------#
-#                       SOURCE FILES                       #
+#                       SOURCE FILES                       #s
 # ---------------------------------------------------------#
 
 SRCS_CONTENT :=		main.cpp \
 					Server.cpp \
 					Location.cpp \
 					Client.cpp \
-					Network.cpp \
+					ServerManager.cpp \
 					utils.cpp \
 					Block.cpp \
 

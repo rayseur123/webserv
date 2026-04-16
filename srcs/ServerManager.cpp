@@ -30,12 +30,10 @@ void ServerManager::addingServers()
     }
 }
 
-void ServerManager::manageServers()
+void ServerManager::eventLoop()
 {
     std::vector<Server>::iterator   it;
-    uint32_t                        event_check;
 
-    event_check = EPOLLIN; // rajouter les events ici
     while (true)
     {
         int nb_events = epoll_wait(epoll_fd_, events_, MAX_EVENTS, -1 );
@@ -54,7 +52,7 @@ void ServerManager::manageServers()
                 }
                 else if (events_[i].events && clientIsInsideServer(events_[i].data.fd, *it))
                 {
-                    Client client = getClientByFd(events_[i].data.fd);
+                    Connection client = getClientByFd(events_[i].data.fd);
                     if (handleEventsClient(*it, client, events_[i].events))
                     {
                         std::cout << "Client on fd " << events_[i].data.fd << " has been disconected." << std::endl;
@@ -67,9 +65,9 @@ void ServerManager::manageServers()
     }
 }
 
-Client const&   ServerManager::getClientByFd(int client_fd) const
+Connection const&   ServerManager::getClientByFd(int client_fd) const
 {
-    std::vector<Client>::const_iterator it = client_vec_.begin();
+    std::vector<Connection>::const_iterator it = client_vec_.begin();
 
     while (it != client_vec_.end())
     {
@@ -82,7 +80,7 @@ Client const&   ServerManager::getClientByFd(int client_fd) const
 
 int    ServerManager::handleEventsServer(Server const& server, uint32_t events)
 {
-    if (events & (EPOLLERR | EPOLLHUP))
+    if (events & (EPOLLERR | EPOLLRDHUP))
     {
         close(server.getFd());
         return (1);
@@ -92,9 +90,9 @@ int    ServerManager::handleEventsServer(Server const& server, uint32_t events)
     return (0);
 }
 
-int ServerManager::handleEventsClient(Server const& server, Client const& client, uint32_t events)
+int ServerManager::handleEventsClient(Server const& server, Connection const& client, uint32_t events)
 {
-    if (events & (EPOLLERR | EPOLLHUP))
+    if (events & (EPOLLERR | EPOLLRDHUP))
     {
         close(client.getFd());
         return (1);
@@ -108,7 +106,6 @@ int ServerManager::handleEventsClient(Server const& server, Client const& client
 int ServerManager::getClientRequest(Server const& server, int client_fd) const
 {
     (void)server;
-
     int bytes;
     char buffer[100000] = {};
 
@@ -134,19 +131,19 @@ void ServerManager::acceptNewClient(Server const& server)
             break;
         
         ev.data.fd = client_fd;
-        ev.events = EPOLLIN;
+        ev.events = EPOLLIN; // Rajouter les events client
         
         if (epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, client_fd, &ev) == -1)
             throw std::logic_error(messageError("acceptNewClient>epoll_ctl"));
         
-        Client client(client_fd, server);
+        Connection client(client_fd, server);
         client_vec_.push_back(client);
     }
 }
 
 int ServerManager::findServerFdFromClient(int client_fd) const
 {
-    std::vector<Client>::const_iterator it;
+    std::vector<Connection>::const_iterator it;
 
     for (it = client_vec_.begin(); it != client_vec_.end(); ++it)
     {
@@ -163,7 +160,7 @@ int ServerManager::clientIsInsideServer(int client_fd, Server &server) const
     return (0);
 }
 
-void ServerManager::setClients(std::vector<Client> const& clients)
+void ServerManager::setClients(std::vector<Connection> const& clients)
 {
     client_vec_ = clients;
 }
@@ -179,7 +176,7 @@ std::vector<Server> const&  ServerManager::getServers() const
 }
 
 
-std::vector<Client> const&  ServerManager::getClients() const 
+std::vector<Connection> const&  ServerManager::getClients() const 
 {
     return (client_vec_);
 }
@@ -190,7 +187,7 @@ ServerManager::ServerManager():
     client_vec_(0)
     {}
 
-ServerManager::ServerManager(std::vector<Server> &servers, std::vector<Client> &clients):
+ServerManager::ServerManager(std::vector<Server> &servers, std::vector<Connection> &clients):
     server_vec_(servers), 
     client_vec_(clients)
 {
@@ -202,7 +199,7 @@ ServerManager::ServerManager(std::vector<Server> &servers, std::vector<Client> &
 
     instanceEpoll();
     addingServers();
-    manageServers();
+    eventLoop();
 }
 
 ServerManager::ServerManager(ServerManager const& to_copy):

@@ -9,7 +9,7 @@ int	main(int ac, char **av)
 		return (1);
 	try
 	{
-		std::vector<Client> client_vec;
+		std::vector<Connection> client_vec;
 		std::string			buff;
 		
 		std::ifstream		file(av[1]);

@@ -24,6 +24,11 @@ class Block
 		std::vector<std::string> const&	getDirectives() const;
 		std::string const&				getName() const;
 
+		bool 							parseToken(std::ifstream& file, std::string& buff,
+                        						const std::string& content, char sep_char);
+		bool 							getNextToken(std::ifstream& file, std::string& buff, 
+                          						std::string& content, char& sep_char);
+
 		Block const&	operator=(Block const& to_copy);
 
 		Block();
