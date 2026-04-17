@@ -1,43 +1,50 @@
 #include "Connection.hpp"
-#include <iostream>
+#include "Listener.hpp"
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <unistd.h>
 
-int Connection::getFd() const
+int Connection::getConnectionRequest() const
 {
-    return (fd_);
+    int bytes;
+    char buffer[100000] = {};
+
+    bytes = recv(fd_, buffer, sizeof(buffer), 0);
+    if (!bytes)
+        return (1);
+    std::cout << server_.getPort() << ": " << buffer << std::endl;
+    return (0);
 }
 
-Server const& Connection::getServer() const
+int		Connection::handleEvent(EpollManager& manager, int events)
 {
-    return (*server_);
+	(void)manager;
+	if (events & (EPOLLERR | EPOLLRDHUP))
+		return (1);
+	if (events & (EPOLLIN | EPOLLPRI))
+		return (getConnectionRequest());
+	// rajouter un if respond quand pour le http plus tard.
+	return (0);
 }
 
-Connection::Connection(): 
-    server_(NULL),
-    fd_(-1)
-    {}
-
-Connection::Connection(int fd, Server const& server): 
-    server_(&server),
-    fd_(fd) 
-    {}
-
-Connection::Connection(Connection const& to_copy): 
-    server_(to_copy.server_),
-    fd_(to_copy.fd_)
-    {}
-
-Connection const& Connection::operator=(Connection const& to_copy)
+Listener const&   Connection::getServer() const
 {
-    if (this == &to_copy)
-        return (*this);
-    fd_ = to_copy.fd_;
-    server_ = to_copy.server_;
-    return (*this);
+	return (server_);
 }
 
-bool    Connection::operator==(Connection const& to_comp)
+Connection::Connection(int fd, Listener& server)
+: ASocket(fd),
+  server_(server)
+{}
+
+Connection::Connection(Connection const& to_copy)
+:server_(to_copy.server_)
+{}
+
+Connection const&   Connection::operator=(Connection const& to_copy)
 {
-    return (to_comp.fd_ == fd_);
+	(void)to_copy;
+	return (*this);
 }
 
 Connection::~Connection()
@@ -45,7 +52,7 @@ Connection::~Connection()
 
 std::ostream& operator<<(std::ostream& os, Connection const& connection)
 {
-    os << "connection_fd: " << connection.getFd() << std::endl;
+	os << "connection_fd: " << connection.getFd() << std::endl;
     os << "server_fd: " << connection.getServer().getFd() << std::endl;
     return (os);
 }

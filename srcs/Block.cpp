@@ -1,6 +1,6 @@
 #include "Block.hpp"
 #include <iostream>
-#include "Server.hpp"
+#include "Listener.hpp"
 
 #include <vector>
 #include <string>
@@ -58,9 +58,9 @@ std::vector<Location>   Block::makeLocationVec() const
     return (loc_vec);
 }
 
-Server  Block::makeServer() const
+Listener  Block::makeServer() const
 {
-    Server  serv;
+    Listener  serv;
     std::vector<std::string>    directives_split;
     serv.setLocations(makeLocationVec());
     for (size_t i = 0; i < directives_vec_.size(); ++i)
@@ -80,9 +80,9 @@ Server  Block::makeServer() const
     return (serv);
 }
 
-std::vector<Server> Block::makeServerVec() const
+std::vector<Listener> Block::makeServerVec() const
 {
-    std::vector<Server> server_vec;
+    std::vector<Listener> server_vec;
     for (size_t i = 0; i < blocks_vec_.size(); ++i)
         server_vec.push_back(blocks_vec_[i].makeServer());
     return (server_vec);

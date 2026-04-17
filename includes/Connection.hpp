@@ -1,28 +1,28 @@
 #ifndef CONNECTION_HPP
 #define CONNECTION_HPP
 
-#include "Server.hpp"
-#include <stdint.h>
+#include "ASocket.hpp"
+#include <fstream>
 
-class Connection
+class Listener;
+class EpollManager;
+
+class	Connection : public ASocket
 {
-    private:
-        Server const*   server_;
-        int             fd_;
-    
-    public:
+	private:
+		Listener const&	server_;
+	public:
+        int                 getConnectionRequest() const;
 
-        int             getFd() const;
-        Server const&   getServer() const;
+        virtual int		    handleEvent(EpollManager& manager, int events);
+		Listener const&     getServer() const;
 
-        Connection();
-        Connection(int connection, Server const& server);
+        Connection(int fd, Listener& server);
         Connection(Connection const& to_copy);
         Connection const&   operator=(Connection const& to_copy);
-        bool            operator==(Connection const& to_comp);
         ~Connection();
-    };
-    
-    std::ostream& operator<<(std::ostream& os, Connection const& connection);
+};
+
+std::ostream& operator<<(std::ostream& os, Connection const& connection);
 
 #endif

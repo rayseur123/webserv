@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 #include <fstream>
-#include <Server.hpp>
+#include "Listener.hpp"
 
 class Block
 {
@@ -15,9 +15,9 @@ class Block
 		std::string					name_;
 	public:
 		Location    					makeLocation() const;
-		std::vector<Server>				makeServerVec() const;
+		std::vector<Listener>				makeServerVec() const;
 		std::vector<Location>   		makeLocationVec() const;
-		Server  						makeServer() const;
+		Listener  						makeServer() const;
 		
 		int								getType() const;
 		std::vector<Block> const&		getBlocks() const;

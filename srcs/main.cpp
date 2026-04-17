@@ -1,7 +1,7 @@
 #include <vector>
-#include "Server.hpp"
+#include "Listener.hpp"
 #include "Block.hpp"
-#include "ServerManager.hpp"
+#include "EpollManager.hpp"
 
 int	main(int ac, char **av)
 {
@@ -14,9 +14,9 @@ int	main(int ac, char **av)
 		std::ifstream		file(av[1]);
 		Block				block(file, Block::FILE, buff, "FILE");
 		
-		std::vector<Server> server_vec = block.makeServerVec();
+		std::vector<Listener> server_vec = block.makeServerVec();
 		
-		ServerManager net(server_vec);
+		EpollManager net(server_vec);
 	}
 	catch(const std::exception& e)
 	{

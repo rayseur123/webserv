@@ -11,12 +11,13 @@ SRCS_DIR := srcs/
 # ---------------------------------------------------------#
 
 SRCS_CONTENT :=		main.cpp \
-					Server.cpp \
-					Location.cpp \
-					Connection.cpp \
-					ServerManager.cpp \
-					utils.cpp \
+					ASocket.cpp \
 					Block.cpp \
+					Connection.cpp \
+					EpollManager.cpp \
+					Listener.cpp \
+					Location.cpp \
+					utils.cpp \
 
 # ---------------------------------------------------------#
 #                       BUILD SOURCE                       #
