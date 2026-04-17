@@ -3,6 +3,7 @@
 #include "utils.hpp"
 #include "sys/socket.h"
 #include <netinet/in.h>
+#include "Request.hpp"
 
 void Network::instanceEpoll()
 {
@@ -53,13 +54,16 @@ void Network::manageNetwork()
 
 void Network::getClientRequest(Server const& server, int client_fd) const
 {
+    
     (void)server;
 
     int bytes;
     char buffer[100000] = {};
 
     bytes = recv(client_fd, buffer, sizeof(buffer), 0);
-    std::cout << server.getPort() << ": " << buffer << std::endl;
+    std::string buffin(buffer);
+    std::cout << buffin;
+    Request test(buffin);
 }
 
 void Network::acceptNewClient(Server const& server)

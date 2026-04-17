@@ -21,7 +21,7 @@ SRCS_CONTENT :=		main.cpp \
 					Method.cpp \
 					Uri.cpp \
 					Version.cpp \
-					Type.cpp \
+					Header.cpp \
 					Body.cpp \
 
 

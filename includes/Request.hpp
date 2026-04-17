@@ -1,10 +1,9 @@
 #ifndef REQUEST_HPP
 #define REQUEST_HPP
 
-#include <iostream>
 #include "Version.hpp"
 #include "Method.hpp"
-#include "Type.hpp"
+#include "Header.hpp"
 #include "Body.hpp"
 #include "Uri.hpp"
 
@@ -14,7 +13,7 @@ class Request
         Method  method_;
         Uri     uri_;
         Version version_;
-        Type    type_;
+        Header  type_;
         Body    body_;
 
     public:
@@ -22,13 +21,13 @@ class Request
         void    setMethod(Method const& method);
         void    setUri(Uri const& method);
         void    setVersion(Version const& version);
-        void    setType(Type const& type);
+        void    setHeader(Header const& type);
         void    setBody(Body const& body);
 
         Method  const&  getMethod()     const;
         Uri     const&  getUri()        const;
         Version const&  getVersion()    const;
-        Type    const&  getType()       const;
+        Header  const&  getHeader()     const;
         Body    const&  getBody()       const;
 
         Request();

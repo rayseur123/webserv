@@ -1,4 +1,5 @@
 #include "Request.hpp"
+#include <sstream>
 
 void Request::setMethod(Method const& method)
 {
@@ -15,7 +16,7 @@ void Request::setVersion(Version const& version)
     version_ = version;
 }
 
-void Request::setType(Type const& type)
+void Request::setHeader(Header const& type)
 {
     type_ = type;
 }
@@ -24,7 +25,6 @@ void Request::setBody(Body const& body)
 {
     body_ = body;
 }
-
 
 Method const& Request::getMethod() const
 {
@@ -41,7 +41,7 @@ Version const& Request::getVersion() const
     return version_;
 }
 
-Type const& Request::getType() const
+Header const& Request::getHeader() const
 {
     return type_;
 }
@@ -51,13 +51,17 @@ Body const& Request::getBody() const
     return body_;
 }
 
-
 Request::Request(){}
 
 Request::Request(std::string request)
 {
-    (void)request;
-    //parsing
+    std::stringstream file;
+    char coucou[10000];
+
+    file << request;
+    file.getline(&coucou[0], 10000, '\n');
+    std::cout << coucou << std::endl;
+    
 }
 
 Request::Request(Request const& to_copy)
@@ -86,7 +90,7 @@ std::ostream& operator<<(std::ostream& os, Request const& r)
     os << "Method: "  << r.getMethod()  << std::endl;
     os << "URI: "     << r.getUri()     << std::endl;
     os << "Version: " << r.getVersion() << std::endl;
-    os << "Type: "    << r.getType()    << std::endl;
+    os << "Header: "  << r.getHeader()    << std::endl;
     os << "Body: "    << r.getBody()    << std::endl;
 
     return os;
