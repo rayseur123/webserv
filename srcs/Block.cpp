@@ -1,6 +1,6 @@
 #include "Block.hpp"
 #include <iostream>
-#include "Server.hpp"
+#include "Listener.hpp"
 
 #include <vector>
 #include <string>
@@ -58,9 +58,9 @@ std::vector<Location>   Block::makeLocationVec() const
     return (loc_vec);
 }
 
-Server  Block::makeServer() const
+Listener  Block::makeServer() const
 {
-    Server  serv;
+    Listener  serv;
     std::vector<std::string>    directives_split;
     serv.setLocations(makeLocationVec());
     for (size_t i = 0; i < directives_vec_.size(); ++i)
@@ -80,9 +80,9 @@ Server  Block::makeServer() const
     return (serv);
 }
 
-std::vector<Server> Block::makeServerVec() const
+std::vector<Listener> Block::makeServerVec() const
 {
-    std::vector<Server> server_vec;
+    std::vector<Listener> server_vec;
     for (size_t i = 0; i < blocks_vec_.size(); ++i)
         server_vec.push_back(blocks_vec_[i].makeServer());
     return (server_vec);
@@ -108,63 +108,70 @@ std::string const&  Block::getName() const
     return (name_);
 }
 
-Block::Block(std::ifstream &file, int type, std::string& buff, std::string const& name)
-    :type_(type),
-    name_(name)
+bool Block::getNextToken(std::ifstream& file, std::string& buff, 
+                          std::string& content, char& sep_char)
 {
     std::string line;
-    std::string my_buff;
-    
+
     while (file.good() || !buff.empty())
     {
         if (!buff.empty())
-		{
-			line = buff;
-			buff.clear();
-		}
+        {
+            line = buff;
+            buff.clear();
+        }
         else
-			std::getline(file, line);
+            std::getline(file, line);
 
         size_t start = line.find_first_not_of(" \t\r\n");
         if (start == std::string::npos)
-			continue;
-        
-        my_buff = line.substr(start);
-        size_t separator = my_buff.find_first_of("{};");
+            continue;
 
-        if (separator != std::string::npos)
-        {
-            char sep_char = my_buff[separator];
-            std::string content = my_buff.substr(0, separator);
-            
-            size_t end = content.find_last_not_of(" \t\r\n");
-            if (end != std::string::npos)
-				content = content.substr(0, end + 1);
+        std::string token = line.substr(start);
+        size_t sep = token.find_first_of("{};");
 
-            if (sep_char == ';')
-			{
-                if (!content.empty())
-					directives_vec_.push_back(content);
-                buff = my_buff.substr(separator + 1);
-            }
-            else if (sep_char == '{')
-			{
-                buff = my_buff.substr(separator + 1);
-                blocks_vec_.push_back(Block(file, type_ + 1, buff, content));
-            }
-            else if (sep_char == '}')
-			{
-                buff = my_buff.substr(separator + 1);
-                return;
-            }
-        }
-        else if (!my_buff.empty())
-            throw std::runtime_error("[ERROR] : Syntax error: line '" + my_buff + "' is missing a ';' separator.");
+        if (sep == std::string::npos)
+            throw std::runtime_error("[ERROR] : Syntax error: line '" 
+                + token + "' is missing a ';' separator.");
+
+        sep_char = token[sep];
+        content  = token.substr(0, sep);
+        size_t end = content.find_last_not_of(" \t\r\n");
+        content  = (end != std::string::npos) ? content.substr(0, end + 1) : "";
+        buff     = token.substr(sep + 1);
+        return (true);
     }
-    if (type != FILE)
+    return (false);
+}
+
+bool Block::parseToken(std::ifstream& file, std::string& buff,
+                        const std::string& content, char sep_char)
+{
+    if (sep_char == ';')
     {
-        throw std::runtime_error("[ERROR] : Syntax error: unclosed block '" + name_ + "' at end of file.");
+        if (!content.empty())
+            directives_vec_.push_back(content);
     }
+    else if (sep_char == '{')
+        blocks_vec_.push_back(Block(file, type_ + 1, buff, content));
+    else if (sep_char == '}')
+        return (true);
+    return (false);
+}
+
+Block::Block(std::ifstream& file, int type, std::string& buff, std::string const& name)
+    : type_(type), name_(name)
+{
+    std::string content;
+    char        sep_char;
+
+    while (getNextToken(file, buff, content, sep_char))
+        if (parseToken(file, buff, content, sep_char))
+            return;
+
+    if (type != FILE)
+        throw std::runtime_error("[ERROR] : Syntax error: unclosed block '" 
+            + name_ + "' at end of file.");
 }
 	
 Block const&	Block::operator=(Block const& to_copy)
@@ -200,12 +207,12 @@ std::ostream& operator<<(std::ostream& os, Block const& to_print)
 
     os << indent << "\033[1;34m" << name << "\033[0m {" << std::endl; 
 
-    for (size_t i = 0; i < directives.size(); i++) {
+    for (size_t i = 0; i < directives.size(); ++i) {
         os << indent << "\t" << directives[i] << std::endl;
     }
 
     depth++;
-    for (size_t i = 0; i < blocks.size(); i++) {
+    for (size_t i = 0; i < blocks.size(); ++i) {
         os << blocks[i];
     }
     depth--;

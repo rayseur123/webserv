@@ -1,26 +1,22 @@
 #include <vector>
-#include "Server.hpp"
+#include "Listener.hpp"
 #include "Block.hpp"
-#include "Network.hpp"
+#include "EpollManager.hpp"
 
 int	main(int ac, char **av)
 {
+	if (ac != 2)
+		return (1);
 	try
 	{
-		(void)ac;
-		(void)av;
-
-		std::vector<Client> client_vec;
-		std::string	buff;
+		std::string			buff;
 		
-		std::ifstream file("webserv.conf");
-		Block	block(file, Block::FILE, buff, "FILE");
+		std::ifstream		file(av[1]);
+		Block				block(file, Block::FILE, buff, "FILE");
 		
-		std::vector<Server> server_vec = block.makeServerVec();
+		std::vector<Listener> server_vec = block.makeServerVec();
 		
-		Network net(server_vec, client_vec);
-
-
+		EpollManager net(server_vec);
 	}
 	catch(const std::exception& e)
 	{

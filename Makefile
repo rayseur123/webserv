@@ -7,16 +7,17 @@ NAME := webServ
 SRCS_DIR := srcs/
 
 # ---------------------------------------------------------#
-#                       SOURCE FILES                       #
+#                       SOURCE FILES                       #s
 # ---------------------------------------------------------#
 
 SRCS_CONTENT :=		main.cpp \
-					Server.cpp \
-					Location.cpp \
-					Client.cpp \
-					Network.cpp \
-					utils.cpp \
+					ASocket.cpp \
 					Block.cpp \
+					Connection.cpp \
+					EpollManager.cpp \
+					Listener.cpp \
+					Location.cpp \
+					utils.cpp \
 
 # ---------------------------------------------------------#
 #                       BUILD SOURCE                       #
