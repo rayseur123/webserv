@@ -15,7 +15,7 @@ class Block
 		std::string					name_;
 	public:
 		Location    					makeLocation() const;
-		std::vector<Listener>				makeServerVec() const;
+		std::vector<Listener>			makeServerVec() const;
 		std::vector<Location>   		makeLocationVec() const;
 		Listener  						makeServer() const;
 		
