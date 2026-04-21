@@ -11,10 +11,12 @@ class Header
 
     public:
 
-        void set(const std::string &key, const std::string &value);
+        void set(const std::string key, const std::string value);
         std::string& get(const std::string &key);
         std::map<std::string, std::string> const& getHeaders() const;
         bool has(const std::string &key) const;
+        
+        int getContentLength(); 
 
         Header const& operator=(Header const& to_copy);
 

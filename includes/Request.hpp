@@ -13,7 +13,7 @@ class Request
         Method  method_;
         Uri     uri_;
         Version version_;
-        Header  type_;
+        Header  header_;
         Body    body_;
 
     public:
@@ -31,7 +31,7 @@ class Request
         Body    const&  getBody()       const;
 
         Request();
-        Request(std::string request);
+        Request(std::string &request);
         Request(Request const& to_copy);
         Request const& operator=(Request const& to_copy);
         ~Request();

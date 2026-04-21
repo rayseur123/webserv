@@ -2,7 +2,17 @@
 
 void Uri::setTarget(std::string const& target)
 {
-    target_ = target;
+    if (isValid(target))
+        target_ = target;
+}
+
+bool Uri::isValid(std::string const& target) const
+{
+    // Relative
+    if(*target.begin() == '/')
+    {
+        return 1;
+    }
 }
 
 std::string const& Uri::getTarget() const

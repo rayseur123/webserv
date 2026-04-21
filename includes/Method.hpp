@@ -6,7 +6,7 @@
 class Method
 {
     private:
-        int type_ : 3;
+        int type_;
 
     public:
     

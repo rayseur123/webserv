@@ -15,8 +15,7 @@ Body::Body(){}
 
 Body::Body(std::string content)
 {
-    (void)content;
-    // parsing
+    content_ = content;
 }
 
 Body const& Body::operator=(Body const& to_copy)

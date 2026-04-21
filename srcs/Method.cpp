@@ -31,14 +31,20 @@ bool    Method::operator!=(Method const& m) const
     return 0;
 }
 
-Method::Method(): 
+Method::Method():
     type_(0)
 {}
 
 Method::Method(std::string method)
 {
-    (void)method;
-    //Parsing
+    if (method == "GET")
+        type_ = 1;
+    else if (method == "POST")
+        type_ = 2;
+    else if (method == "DELETE")
+        type_ = 4;
+    else
+        throw(std::logic_error("[Error] Method(Std::string) Invalid Verb"));
 }
 
 Method::Method(Method const& to_copy)
@@ -55,15 +61,15 @@ std::ostream & operator<<(std::ostream& os, Method const& m)
     switch (m.getMethod())
     {
     case 1:
-        os << "Type: GET" << std::endl;
+        os << "GET";
         break;
     
     case 2:
-        os << "Type: POST" << std::endl;
+        os << "POST";
         break;
     
     case 4:
-        os << "Type: DELETE" << std::endl;
+        os << "DELETE";
         break;
     }
     return os;

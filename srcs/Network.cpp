@@ -61,9 +61,7 @@ void Network::getClientRequest(Server const& server, int client_fd) const
     char buffer[100000] = {};
 
     bytes = recv(client_fd, buffer, sizeof(buffer), 0);
-    std::string buffin(buffer);
-    std::cout << buffin;
-    Request test(buffin);
+
 }
 
 void Network::acceptNewClient(Server const& server)

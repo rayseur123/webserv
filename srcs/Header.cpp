@@ -1,7 +1,8 @@
 #include "Header.hpp"
 #include "algorithm"
+#include <sstream>
 
-void    Header::set(const std::string &key, const std::string &value)
+void    Header::set(const std::string key, const std::string value)
 {
     headers_[key] = value;
 }
@@ -21,6 +22,16 @@ bool    Header::has(const std::string &key) const
     return 0;
 }
 
+int     Header::getContentLength()
+{
+    std::stringstream ss;
+    int number;
+
+    ss << get("Content-Length");
+    ss >> number;
+    return number;
+}
+
 Header const& Header::operator=(Header const& to_copy)
 {
     headers_ = to_copy.headers_;   
@@ -29,7 +40,6 @@ Header const& Header::operator=(Header const& to_copy)
 
 Header::Header() 
 {}
-
 
 Header::Header(Header const& to_copy)
 {
@@ -50,8 +60,9 @@ std::ostream& operator<<(std::ostream& os, Header const& m)
 
     for(it = m.getHeaders().begin(); it != m.getHeaders().end(); ++it)
     {
-        os << "Type: " << it->first << std::endl;
-        os << "Value: " << it->second << std::endl;
+        os << it->first;
+        os << ":";
+        os << it->second << std::endl;
     }
     return os;
 }

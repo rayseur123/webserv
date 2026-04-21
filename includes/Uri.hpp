@@ -10,8 +10,9 @@ class Uri
 
     public:
         
-        std::string const&  getTarget() const;
+        bool isValid(std::string const& target) const;
 
+        std::string const&  getTarget() const;
         void    setTarget(std::string const& target);
 
         Uri const&  operator=(Uri const& to_copy);

@@ -77,7 +77,7 @@ CPPFLAGS += -MMD -MP
 #                   CONFIG COMPILATION                     #
 # ---------------------------------------------------------#
 
-CFLAGS += -std=c++98 -Wall -Wextra -Werror
+CFLAGS += -std=c++98 -Wall -Wextra -Werror -g3
 
 CC = c++
 

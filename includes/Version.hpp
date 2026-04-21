@@ -10,6 +10,8 @@ class Version
         int         first_nb_;
         int         sec_nb_;
 
+        int     convertInNb(std::string buffer);
+
     public:
         
         std::string getProtocol()   const;
