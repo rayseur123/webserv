@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 #include <fstream>
-#include <Server.hpp>
+#include "Listener.hpp"
 
 class Block
 {
@@ -15,14 +15,19 @@ class Block
 		std::string					name_;
 	public:
 		Location    					makeLocation() const;
-		std::vector<Server>				makeServerVec() const;
+		std::vector<Listener>			makeServerVec() const;
 		std::vector<Location>   		makeLocationVec() const;
-		Server  						makeServer() const;
+		Listener  						makeServer() const;
 		
 		int								getType() const;
 		std::vector<Block> const&		getBlocks() const;
 		std::vector<std::string> const&	getDirectives() const;
 		std::string const&				getName() const;
+
+		bool 							parseToken(std::ifstream& file, std::string& buff,
+                        						const std::string& content, char sep_char);
+		bool 							getNextToken(std::ifstream& file, std::string& buff, 
+                          						std::string& content, char& sep_char);
 
 		Block const&	operator=(Block const& to_copy);
 
