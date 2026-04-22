@@ -13,6 +13,7 @@ bool Uri::isValid(std::string const& target) const
     {
         return 1;
     }
+    return 0;
 }
 
 std::string const& Uri::getTarget() const

@@ -2,6 +2,7 @@
 #include <sstream> 
 #include <string>
 #include <cstdlib>
+#include "Error.hpp"
 
 
 void Version::setProtocol(std::string protocol)
@@ -48,27 +49,33 @@ Version::Version():
 Version::Version(std::string version)
 {
     std::stringstream ss(version);
-    std::string proto;
-    std::string vers;
+    std::string tmp;
 
-    std::cout << version << std::endl;
-    std::cout << version.length() << std::endl;
-    std::getline(ss, proto, '/');
-    if (proto != "HTTP")
-        throw(std::logic_error("[Error] Version(Std::string) Protocol's Name"));
-    protocol_ = proto;
+    if (version.length() != 8)
+        throw Error::ErrorException(400);
 
-    std::getline(ss, vers, '.');
-    if (vers.length() != 1)
-        throw(std::logic_error("[Error] Version(Std::string) Digit's length"));
-    std::cout << vers << std::endl;
-    first_nb_ = convertInNb(vers);
+    std::getline(ss, tmp, '/');
+    if (tmp != "HTTP")
+        throw Error::ErrorException(400);
+    protocol_ = tmp;
 
-    ss >> vers;
-    if (vers.length() != 1)
-        throw(std::logic_error("[Error] Version(Std::string) Digit's length"));
-    std::cout << vers << std::endl;
-    sec_nb_ = convertInNb(vers);
+    std::getline(ss, tmp, '.');
+    if (tmp.length() != 1)
+        throw Error::ErrorException(400);
+    first_nb_ = convertInNb(tmp);
+
+    ss >> tmp;
+    if (tmp.length() != 1)
+        throw Error::ErrorException(400);
+    sec_nb_ = convertInNb(tmp);
+
+    isValid();
+}
+
+void Version::isValid() const
+{
+    if (first_nb_ != 1 || sec_nb_ !=  0)
+        throw Error::ErrorException(505);
 }
 
 int Version::convertInNb(std::string buffer)
@@ -76,7 +83,7 @@ int Version::convertInNb(std::string buffer)
     int nb;
 
     if (!isdigit(buffer.c_str()[0]))
-        throw(std::logic_error("[Error] Version(std::string) Need Digit"));
+        throw Error::ErrorException(400);
     
     nb = atoi(buffer.c_str());
     return (nb);

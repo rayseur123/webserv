@@ -23,6 +23,7 @@ SRCS_CONTENT :=		main.cpp \
 					Version.cpp \
 					Header.cpp \
 					Body.cpp \
+					Error.cpp \
 
 
 # ---------------------------------------------------------#

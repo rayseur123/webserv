@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <string>
+#include "Error.hpp"
 
 void Request::setMethod(Method const& method)
 {
@@ -100,9 +101,7 @@ Request::Request(std::string &request)
     request_line = splitLineByDel(getlineCRLF(ss), ' ');
 
     if (request_line.size() != 3)
-    {
-        throw(std::logic_error("[Error] Request size request line"));
-    }
+        throw Error::ErrorException(400);
 
     Method const m(request_line[0]);
     Uri const u(request_line[1]);

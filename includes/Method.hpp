@@ -5,6 +5,15 @@
 
 class Method
 {
+
+    #define POST 0
+    #define GET 1
+    #define DELETE 2
+    #define HEAD 3
+    #define UNLINK 4
+    #define LINK 5
+    #define PUT 6
+    
     private:
         int type_;
 

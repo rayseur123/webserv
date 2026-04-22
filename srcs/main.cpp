@@ -11,7 +11,7 @@ int	main(int ac, char **av)
 		(void)ac;
 		(void)av;
 
-		std::string buffin = " /test HTTP/1.0\r\nHost: exemple.fr\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: 27\r\n\r\nfield1=value1&field2=value2\r\n";
+		std::string buffin = "/test HTTP/1.0\r\nHost: exemple.fr\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: 27\r\n\r\nfield1=value1&field2=value2\r\n";
     	Request test(buffin);
 
 		std::vector<Client> client_vec;
@@ -23,7 +23,6 @@ int	main(int ac, char **av)
 		std::vector<Server> server_vec = block.makeServerVec();
 		
 		Network net(server_vec, client_vec);
-
 
 	}
 	catch(const std::exception& e)

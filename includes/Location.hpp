@@ -5,10 +5,7 @@
 #include <utility>
 #include <vector>
 #include <fstream>
-
-#define GET 1
-#define POST 2
-#define DELETE 4
+#include "Method.hpp"
 
 class Location
 {

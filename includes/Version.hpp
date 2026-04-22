@@ -11,6 +11,7 @@ class Version
         int         sec_nb_;
 
         int     convertInNb(std::string buffer);
+        void    isValid() const;
 
     public:
         

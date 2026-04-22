@@ -1,4 +1,5 @@
 #include "Method.hpp"
+#include "Error.hpp"
 
 void Method::setMethod(int const type)
 {
@@ -38,13 +39,21 @@ Method::Method():
 Method::Method(std::string method)
 {
     if (method == "GET")
-        type_ = 1;
+        type_ = GET;
     else if (method == "POST")
-        type_ = 2;
+        type_ = POST;
     else if (method == "DELETE")
-        type_ = 4;
-    else
-        throw(std::logic_error("[Error] Method(Std::string) Invalid Verb"));
+        type_ = DELETE;
+    else if (method == "HEAD")
+        throw Error::ErrorException(405);
+    else if (method == "LINK")
+        throw Error::ErrorException(405);
+    else if (method == "UNLINK")
+        throw Error::ErrorException(405);
+    else if (method == "PUT")
+        throw Error::ErrorException(405);
+    else 
+        throw Error::ErrorException(501);
 }
 
 Method::Method(Method const& to_copy)
