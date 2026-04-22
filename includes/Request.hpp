@@ -16,19 +16,22 @@ class Request
         Header  header_;
         Body    body_;
 
-    public:
+        
+        public:
 
+        bool    isValidForBody() const;
+        
         void    setMethod(Method const& method);
         void    setUri(Uri const& method);
         void    setVersion(Version const& version);
-        void    setHeader(Header const& type);
+        void    setHeader(Header& type);
         void    setBody(Body const& body);
-
+        
         Method  const&  getMethod()     const;
         Uri     const&  getUri()        const;
         Version const&  getVersion()    const;
-        Header  const&  getHeader()     const;
         Body    const&  getBody()       const;
+        Header&         getHeader();
 
         Request();
         Request(std::string &request);

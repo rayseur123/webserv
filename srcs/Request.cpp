@@ -21,7 +21,7 @@ void Request::setVersion(Version const& version)
     version_ = version;
 }
 
-void Request::setHeader(Header const& type)
+void Request::setHeader(Header& type)
 {
     header_ = type;
 }
@@ -46,7 +46,7 @@ Version const& Request::getVersion() const
     return version_;
 }
 
-Header const& Request::getHeader() const
+Header& Request::getHeader()
 {
     return header_;
 }
@@ -58,88 +58,29 @@ Body const& Request::getBody() const
 
 Request::Request(){}
 
-std::string getlineCRLF(std::stringstream &ss)
+
+bool Request::isValidForBody() const
 {
-    std::string line;
-
-    std::getline(ss, line, '\n');
-
-    if (*(line.end() - 1) == '\r')
-        line.erase(line.end() -1);
-    return line;
-}
-
-
-std::vector<std::string> splitLineByDel(std::string line, char del)
-{
-    std::vector<std::string> tmp;
-    std::stringstream ss(line);
-    std::string buffer;
-    
-    while (std::getline(ss, buffer, del))
-        tmp.push_back(buffer);
-    return (tmp);
-}
-
-bool headerIsAccepted(std::string param)
-{
-    if (param == "Host")
-        return 1;
-    if (param == "Content-Length")
-        return 1;
-    if (param == "Content-Type")
+    if (header_.has("Content-Length") && header_.has("Content-Type"))
         return 1;
     return 0;
 }
 
+
 Request::Request(std::string &request)
 {
-    // Get the first line of the http request
-    std::stringstream ss(request);
-    std::vector<std::string> request_line;
 
-    request_line = splitLineByDel(getlineCRLF(ss), ' ');
+    // // Get the content of the body
+    // if (header_.has("Content-Length"))
+    // {
+    //     std::string body_buff;
 
-    if (request_line.size() != 3)
-        throw Error::ErrorException(400);
-
-    Method const m(request_line[0]);
-    Uri const u(request_line[1]);
-    Version const v(request_line[2]);
-
-    method_ = m;
-    uri_ = u;
-    version_ = v;
-
-    // Get the Headers param
-    std::string line;
-    std::vector<std::string> param;
-
-    while (std::getline(ss, line, '\n'))
-    {
-        if (line == "\r")
-            break;
-
-        param = splitLineByDel(line, ':');
+    //     size_t pos = ss.tellg();
+    //     body_buff = request.substr(pos, header_.getContentLength());
         
-        if (headerIsAccepted(param[0]))
-        {
-            param[1].erase(0, 1);
-            header_.set(param[0], param[1]);
-        }
-    }
-
-    // Get the content of the body
-    if (header_.has("Content-Length"))
-    {
-        std::string body_buff;
-
-        size_t pos = ss.tellg();
-        body_buff = request.substr(pos, header_.getContentLength());
-        
-        Body b(body_buff);
-        body_ = b;
-    }
+    //     Body b(body_buff);
+    //     body_ = b;
+    // }
 }
 
 Request::Request(Request const& to_copy)

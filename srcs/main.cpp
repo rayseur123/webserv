@@ -10,8 +10,6 @@ int	main(int ac, char **av)
 		return (1);
 	try
 	{
-		std::string buffin = "/test HTTP/1.0\r\nHost: exemple.fr\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: 27\r\n\r\nfield1=value1&field2=value2\r\n";
-    	Request test(buffin);
 
 		std::string			buff;
 		

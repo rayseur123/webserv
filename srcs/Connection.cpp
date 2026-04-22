@@ -3,15 +3,20 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <Request.hpp>
 
 int Connection::getConnectionRequest() const
 {
     int bytes;
-    char buffer[100000] = {};
+    char buffer[10] = {};
 
     bytes = recv(fd_, buffer, sizeof(buffer), 0);
     if (!bytes)
         return (1);
+
+	std::string buffin(buffer);
+    Request test(buffin);
+
     std::cout << server_.getPort() << ": " << buffer << std::endl;
     return (0);
 }
