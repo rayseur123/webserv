@@ -5,19 +5,24 @@
 #include <unistd.h>
 #include <Request.hpp>
 
-int Connection::getConnectionRequest() const
+int Connection::handleConnectionRequest()
 {
     int bytes;
-    char buffer[10] = {};
+    char buffer[10000] = {};
 
     bytes = recv(fd_, buffer, sizeof(buffer), 0);
     if (!bytes)
-        return (1);
+		return (1);
 
-	std::string buffin(buffer);
-    Request test(buffin);
+	std::string tmp(buffer);
+	
+	parsing_request_.fillBuffer(tmp);
 
-    std::cout << server_.getPort() << ": " << buffer << std::endl;
+	if (parsing_request_.getStep() != FINISH)
+		return 0;
+	
+	std::cout << parsing_request_.getRequest() << std::endl;
+    // std::cout << server_.getPort() << ": " << buffer << std::endl;
     return (0);
 }
 
@@ -27,7 +32,7 @@ int		Connection::handleEvent(EpollManager& manager, int events)
 	if (events & (EPOLLERR | EPOLLRDHUP))
 		return (1);
 	if (events & (EPOLLIN | EPOLLPRI))
-		return (getConnectionRequest());
+		return (handleConnectionRequest());
 	// rajouter un if respond quand pour le http plus tard.
 	return (0);
 }
@@ -38,8 +43,8 @@ Listener const&   Connection::getServer() const
 }
 
 Connection::Connection(int fd, Listener& server)
-: ASocket(fd),
-  server_(server)
+: 	ASocket(fd),
+	server_(server)
 {}
 
 Connection::Connection(Connection const& to_copy)

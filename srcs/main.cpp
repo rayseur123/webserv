@@ -3,6 +3,7 @@
 #include "Block.hpp"
 #include "EpollManager.hpp"
 #include "Request.hpp"
+#include "Error.hpp"
 
 int	main(int ac, char **av)
 {
@@ -19,6 +20,10 @@ int	main(int ac, char **av)
 		std::vector<Listener> server_vec = block.makeServerVec();
 		
 		EpollManager net(server_vec);
+	}
+	catch (const Error::ErrorException &e)
+	{
+		std::cerr << e.get_code();
 	}
 	catch(const std::exception& e)
 	{

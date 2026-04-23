@@ -6,6 +6,7 @@
 #include "Header.hpp"
 #include "Body.hpp"
 #include "Uri.hpp"
+#include <vector>
 
 class Request
 {
@@ -20,6 +21,7 @@ class Request
         public:
 
         bool    isValidForBody() const;
+        void    addingInsideHeader(std::vector<std::string> param);
         
         void    setMethod(Method const& method);
         void    setUri(Uri const& method);
@@ -31,7 +33,7 @@ class Request
         Uri     const&  getUri()        const;
         Version const&  getVersion()    const;
         Body    const&  getBody()       const;
-        Header&         getHeader();
+        Header  const&  getHeader()     const;
 
         Request();
         Request(std::string &request);

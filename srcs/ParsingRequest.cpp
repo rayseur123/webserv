@@ -39,58 +39,9 @@ bool headerIsAccepted(std::string param)
     return 0;
 }
 
-void ParsingRequest::fill_request()
+void ParsingRequest::requestLine(std::string line)
 {
-    // std::stringstream ss(buffer_);
-    // std::vector<std::string> request_line;
-
-    // request_line = splitLineByDel(getlineCRLF(ss), ' ');
-
-    // if (request_line.size() != 3)
-    //     throw Error::ErrorException(400);
-
-    // Method const m(request_line[0]);
-    // Uri const u(request_line[1]);
-    // Version const v(request_line[2]);
-
-    // request_.setMethod(m);
-    // request_.setUri(u);
-    // request_.setVersion(v);
-
-    // Get the Headers param
-    // std::string line;
-    // std::vector<std::string> param;
-
-    // while (std::getline(ss, line, '\n'))
-    // {
-    //     if (line == "\r")
-    //         break;
-
-    //     param = splitLineByDel(line, ':');
-        
-    //     if (headerIsAccepted(param[0]))
-    //     {
-    //         param[1].erase(0, 1);
-    //         request_.getHeader().set(param[0], param[1]);
-    //     }
-    // }
-
-    // Get the content of the body
-    // if (header_.has("Content-Length"))
-    // {
-    //     std::string body_buff;
-
-    //     size_t pos = ss.tellg();
-    //     body_buff = request.substr(pos, header_.getContentLength());
-        
-    //     Body b(body_buff);
-    //     body_ = b;
-    // }
-}
-
-void ParsingRequest::requestLine()
-{
-    std::vector<std::string> request_line = splitLineByDel(buffer_, ' ');
+    std::vector<std::string> request_line = splitLineByDel(line, ' ');
 
     if (request_line.size() != 3)
         throw Error::ErrorException(400);
@@ -104,61 +55,78 @@ void ParsingRequest::requestLine()
     request_.setVersion(v);
 }
 
-void ParsingRequest::headerLine()
+void ParsingRequest::headerLine(std::string line)
 {
     std::vector<std::string> param;
 
 
-    param = splitLineByDel(buffer_, ':');
+    param = splitLineByDel(line, ':');
     
     if (headerIsAccepted(param[0]))
     {
         param[1].erase(0, 1);
-        request_.getHeader().set(param[0], param[1]);
+        request_.addingInsideHeader(param);
     }
 }
 
-void ParsingRequest::bodyLine()
+void ParsingRequest::bodyLine(std::string line)
 {
-
+    (void)line;
 }
 
 void ParsingRequest::fillBuffer(std::string tmp)
 {
     size_t pos;
-    
+    std::string line;
+
     buffer_.append(tmp);
-    while (true)
+    while (step_ != FINISH)
     {
-        //Maybe problem than buffer contain all but not \r\n 
         pos = buffer_.find("\r\n");
+        
         if (pos == std::string::npos)
             return;
-
+        
+        line = buffer_.substr(0, pos);
+        
         if (step_ == REQUEST)
         {
-            requestLine();
+            requestLine(line);
             buffer_.erase(0, pos + 2);
             step_++;
         }
         else if (step_ == HEADER)
         {
-            if (buffer_ == "\r\n" && request_.isValidForBody())
+            if (buffer_ == "\r\n")
                 step_++;
             else
             {
-                headerLine();
+                headerLine(line);
                 buffer_.erase(0, pos + 2);
             }
         }
         else if (step_ == BODY)
         {
-            bodyLine();
+            if (!request_.isValidForBody())
+            {
+                step_++;
+                return;
+            }
+            bodyLine(line);
             buffer_.erase(0, pos + 2);
             step_++;
         }
-        std::cout << buffer_;
     }
+}
+
+int ParsingRequest::getStep() const
+{
+    return step_;
+}
+
+Request const& ParsingRequest::getRequest() const
+{
+    return request_;
 }
 
 ParsingRequest const& ParsingRequest::operator=(ParsingRequest const& to_copy)
@@ -170,7 +138,7 @@ ParsingRequest const& ParsingRequest::operator=(ParsingRequest const& to_copy)
     request_ = to_copy.request_;
     step_ = to_copy.step_;
 
-    return;
+    return *this;
 }
 
 ParsingRequest::ParsingRequest(ParsingRequest const& to_copy)

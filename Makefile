@@ -25,6 +25,7 @@ SRCS_CONTENT :=		main.cpp \
 					Listener.cpp \
 					Location.cpp \
 					utils.cpp \
+					ParsingRequest.cpp \
 
 # ---------------------------------------------------------#
 #                       BUILD SOURCE                       #

@@ -52,7 +52,9 @@ Version::Version(std::string version)
     std::string tmp;
 
     if (version.length() != 8)
+    {
         throw Error::ErrorException(400);
+    }
 
     std::getline(ss, tmp, '/');
     if (tmp != "HTTP")
@@ -74,7 +76,7 @@ Version::Version(std::string version)
 
 void Version::isValid() const
 {
-    if (first_nb_ != 1 || sec_nb_ !=  0)
+    if (first_nb_ != 1 || sec_nb_ !=  1)
         throw Error::ErrorException(505);
 }
 

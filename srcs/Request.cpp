@@ -46,7 +46,7 @@ Version const& Request::getVersion() const
     return version_;
 }
 
-Header& Request::getHeader()
+Header const& Request::getHeader() const
 {
     return header_;
 }
@@ -59,6 +59,11 @@ Body const& Request::getBody() const
 Request::Request(){}
 
 
+void Request::addingInsideHeader(std::vector<std::string> param)
+{
+    header_.set(param[0], param[1]);
+}   
+
 bool Request::isValidForBody() const
 {
     if (header_.has("Content-Length") && header_.has("Content-Type"))
@@ -69,7 +74,7 @@ bool Request::isValidForBody() const
 
 Request::Request(std::string &request)
 {
-
+    (void)request;
     // // Get the content of the body
     // if (header_.has("Content-Length"))
     // {

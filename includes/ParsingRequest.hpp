@@ -8,7 +8,8 @@ enum
 {
     REQUEST,
     HEADER,
-    BODY
+    BODY,
+    FINISH 
 };
 
 class ParsingRequest
@@ -18,20 +19,21 @@ class ParsingRequest
         Request     request_;
         int         step_;
 
-        void    requestLine();
-        void    headerLine();
-        void    bodyLine();
+        void    requestLine(std::string line);
+        void    headerLine(std::string line);
+        void    bodyLine(std::string line);
 
     public:
 
         void fillBuffer(std::string tmp);
         
-        Request& const getRequest() const;
+        Request const&  getRequest() const;
+        int             getStep() const;
 
         ParsingRequest const& operator=(ParsingRequest const& to_copy);
 
         ParsingRequest();
-        ParsingRequest(Request const& to_copy);
+        ParsingRequest(ParsingRequest const& to_copy);
         ~ParsingRequest();
 };
 
