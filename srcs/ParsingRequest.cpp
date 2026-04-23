@@ -4,6 +4,7 @@
 #include "Request.hpp"
 #include <vector>
 #include "Error.hpp"
+#include "algorithm"
 
 std::string getlineCRLF(std::stringstream &ss)
 {
@@ -30,14 +31,15 @@ std::vector<std::string> splitLineByDel(std::string line, char del)
 
 bool headerIsAccepted(std::string param)
 {
-    if (param == "Host")
+    if (param == "host")
         return 1;
-    if (param == "Content-Length")
+    if (param == "content-length")
         return 1;
-    if (param == "Content-Type")
+    if (param == "content-type")
         return 1;
     return 0;
 }
+
 
 void ParsingRequest::requestLine(std::string line)
 {
@@ -55,6 +57,11 @@ void ParsingRequest::requestLine(std::string line)
     request_.setVersion(v);
 }
 
+void    toLowerString(std::string& tmp)
+{
+    std::transform(tmp.begin(), tmp.end(), tmp.begin(), tolower);
+}
+
 void ParsingRequest::headerLine(std::string line)
 {
     std::vector<std::string> param;
@@ -62,6 +69,7 @@ void ParsingRequest::headerLine(std::string line)
 
     param = splitLineByDel(line, ':');
     
+    toLowerString(param[0]);
     if (headerIsAccepted(param[0]))
     {
         param[1].erase(0, 1);
