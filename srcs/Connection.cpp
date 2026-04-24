@@ -8,14 +8,16 @@
 int Connection::handleConnectionRequest()
 {
     int bytes;
-    char buffer[10000] = {};
+    char buffer[10000]= {};
 
     bytes = recv(fd_, buffer, sizeof(buffer), 0);
     if (!bytes)
 		return (1);
+		
+	// std::string tmp(buffer, bytes);
+	std::string tmp;
 
-	std::string tmp(buffer);
-	
+	tmp = "GET /test HTTP/1.1\r\nHost: exemple.fr\r\nContent-Type: \r\nContent-Type: \r\nContent-Length: 270\r\n\r\nfield1=value1&field2=value2\r\n";
 	parsing_request_.fillBuffer(tmp);
 
 	if (parsing_request_.getStep() != FINISH)

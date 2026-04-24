@@ -51,6 +51,7 @@ Version::Version(std::string version)
     std::stringstream ss(version);
     std::string tmp;
 
+    std::cout << version << std::endl;
     if (version.length() != 8)
     {
         throw Error::ErrorException(400);

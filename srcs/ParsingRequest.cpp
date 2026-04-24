@@ -1,10 +1,10 @@
 #include "ParsingRequest.hpp"
-#include <iostream>
 #include <sstream>
 #include "Request.hpp"
 #include <vector>
 #include "Error.hpp"
 #include "algorithm"
+#include "utils.hpp"
 
 std::string getlineCRLF(std::stringstream &ss)
 {
@@ -31,6 +31,8 @@ std::vector<std::string> splitLineByDel(std::string line, char del)
 
 bool headerIsAccepted(std::string param)
 {
+    if (!keyIsValid(param))
+        throw Error::ErrorException(400);
     if (param == "host")
         return 1;
     if (param == "content-length")
@@ -39,7 +41,6 @@ bool headerIsAccepted(std::string param)
         return 1;
     return 0;
 }
-
 
 void ParsingRequest::requestLine(std::string line)
 {
@@ -68,6 +69,8 @@ void ParsingRequest::headerLine(std::string line)
 
 
     param = splitLineByDel(line, ':');
+    if (param.size() != 2)
+        throw Error::ErrorException(400);
     
     toLowerString(param[0]);
     if (headerIsAccepted(param[0]))
@@ -95,20 +98,23 @@ void ParsingRequest::fillBuffer(std::string tmp)
         if (pos == std::string::npos)
             return;
         
-        line = buffer_.substr(0, pos);
+        line = buffer_.substr(0, pos + 2);
         
         if (step_ == REQUEST)
         {
+            line.erase(pos, pos + 2);
             requestLine(line);
             buffer_.erase(0, pos + 2);
             step_++;
         }
         else if (step_ == HEADER)
         {
-            if (buffer_ == "\r\n")
+
+            if (line == "\r\n")
                 step_++;
             else
             {
+                line.erase(pos, pos + 2);
                 headerLine(line);
                 buffer_.erase(0, pos + 2);
             }
@@ -120,6 +126,7 @@ void ParsingRequest::fillBuffer(std::string tmp)
                 step_++;
                 return;
             }
+            line.erase(pos, pos + 2);
             bodyLine(line);
             buffer_.erase(0, pos + 2);
             step_++;

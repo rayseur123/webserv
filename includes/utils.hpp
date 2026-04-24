@@ -2,8 +2,11 @@
 #define UTILS_HPP
 
 #include <iostream>
+#include <vector>
 
 std::string messageError(std::string const& function_name);
+bool	    keyIsValid(std::string s);
+bool	    stringIsDigit(std::string s);
 
 template <typename T>
 std::ostream & operator<<(std::ostream& os, std::vector<T> list)

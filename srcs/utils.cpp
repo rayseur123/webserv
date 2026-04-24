@@ -1,6 +1,33 @@
 #include <errno.h>
 #include <cstring>
-#include <iostream>
+#include <string>
+
+bool	stringIsDigit(std::string s)
+{
+	std::string::iterator it;
+	
+	for (it = s.begin(); it != s.end(); it++)
+	{
+		if (!isdigit(*it))
+			return 0;
+	}
+	return 1;
+}
+
+bool	keyIsValid(std::string s)
+{
+	std::string::iterator it;
+
+	for (it = s.begin(); it != s.end(); it++)
+	{
+		if (!std::isalpha(*it))
+		{
+			if (*it != '-')
+				return 0;
+		}
+	}
+	return 1;
+}
 
 std::string messageError(std::string const& function_name)
 {

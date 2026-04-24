@@ -1,4 +1,5 @@
 #include "Uri.hpp"
+#include "Error.hpp"
 
 void Uri::setTarget(std::string const& target)
 {
@@ -8,11 +9,8 @@ void Uri::setTarget(std::string const& target)
 
 bool Uri::isValid(std::string const& target) const
 {
-    // Relative
     if(*target.begin() == '/')
-    {
         return 1;
-    }
     return 0;
 }
 
@@ -33,9 +31,13 @@ Uri const& Uri::operator=(Uri const& to_copy)
 
 Uri::Uri(){}
 
-Uri::Uri(std::string uri):
-    target_(uri)
-{}
+Uri::Uri(std::string uri)
+{
+    if (!isValid(uri))
+        throw Error::ErrorException(400);
+    target_ = uri;
+
+}
 
 Uri::Uri(Uri const& to_copy)
 {

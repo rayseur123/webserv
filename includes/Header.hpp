@@ -9,9 +9,10 @@ class Header
     private:
         std::map<std::string, std::string> headers_;
 
+        void    typeAccepted(std::string& value);
     public:
 
-        void set(const std::string key, const std::string value);
+        void set(const std::string& key, std::string& value);
         std::string& get(const std::string &key);
         std::map<std::string, std::string> const& getHeaders() const;
         bool has(const std::string &key) const;

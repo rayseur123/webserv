@@ -36,7 +36,6 @@ class Request
         Header  const&  getHeader()     const;
 
         Request();
-        Request(std::string &request);
         Request(Request const& to_copy);
         Request const& operator=(Request const& to_copy);
         ~Request();

@@ -1,41 +1,56 @@
 #include "Header.hpp"
 #include "algorithm"
 #include <sstream>
+#include "Error.hpp"
+#include "utils.hpp"
 
-void    Header::set(const std::string key, const std::string value)
+void Header::typeAccepted(std::string& value)
 {
-    headers_[key] = value;
+	if (value != "text/html")
+		value = "application/octet-stream";
+}
+
+void    Header::set(const std::string &key, std::string &value)
+{
+	if (has(key))
+		throw(Error::ErrorException(400));
+	if (key == "content-length")
+		if (!stringIsDigit(value))
+			throw(Error::ErrorException(400));
+	if (key == "content-type")
+		typeAccepted(value);
+	headers_[key] = value;
 }
 
 std::string& Header::get(const std::string &key)
 {
-    return headers_[key];
+	return headers_[key];
 }
 
 bool    Header::has(const std::string &key) const
 {
-    std::map<std::string, std::string>::const_iterator it;
+	std::map<std::string, std::string>::const_iterator it;
 
-    it = headers_.find(key);
-    if (it != headers_.end())
-        return 1;
-    return 0;
+	it = headers_.find(key);
+	if (it != headers_.end())
+		return 1;
+	return 0;
 }
 
 int     Header::getContentLength()
 {
-    std::stringstream ss;
-    int number;
+	std::stringstream ss;
+	int number;
 
-    ss << get("Content-Length");
-    ss >> number;
-    return number;
+	ss << get("Content-Length");
+	ss >> number;
+	return number;
 }
 
 Header const& Header::operator=(Header const& to_copy)
 {
-    headers_ = to_copy.headers_;   
-    return *this;
+	headers_ = to_copy.headers_;   
+	return *this;
 }
 
 Header::Header() 
@@ -43,7 +58,7 @@ Header::Header()
 
 Header::Header(Header const& to_copy)
 {
-    *this = to_copy;
+	*this = to_copy;
 }
 
 Header::~Header()
@@ -51,18 +66,18 @@ Header::~Header()
 
 std::map<std::string, std::string> const& Header::getHeaders() const
 {
-    return headers_;
+	return headers_;
 }
 
 std::ostream& operator<<(std::ostream& os, Header const& m)
 {
-    std::map<std::string, std::string>::const_iterator it;
+	std::map<std::string, std::string>::const_iterator it;
 
-    for(it = m.getHeaders().begin(); it != m.getHeaders().end(); ++it)
-    {
-        os << it->first;
-        os << ":";
-        os << it->second << std::endl;
-    }
-    return os;
+	for(it = m.getHeaders().begin(); it != m.getHeaders().end(); ++it)
+	{
+		os << it->first;
+		os << ":";
+		os << it->second << std::endl;
+	}
+	return os;
 }

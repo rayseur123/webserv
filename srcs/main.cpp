@@ -2,7 +2,6 @@
 #include "Listener.hpp"
 #include "Block.hpp"
 #include "EpollManager.hpp"
-#include "Request.hpp"
 #include "Error.hpp"
 
 int	main(int ac, char **av)

@@ -1,10 +1,6 @@
 #include "Request.hpp"
-#include <sstream>
 #include <vector>
-#include <string.h>
-#include <stdio.h>
 #include <string>
-#include "Error.hpp"
 
 void Request::setMethod(Method const& method)
 {
@@ -69,23 +65,6 @@ bool Request::isValidForBody() const
     if (header_.has("Content-Length") && header_.has("Content-Type"))
         return 1;
     return 0;
-}
-
-
-Request::Request(std::string &request)
-{
-    (void)request;
-    // // Get the content of the body
-    // if (header_.has("Content-Length"))
-    // {
-    //     std::string body_buff;
-
-    //     size_t pos = ss.tellg();
-    //     body_buff = request.substr(pos, header_.getContentLength());
-        
-    //     Body b(body_buff);
-    //     body_ = b;
-    // }
 }
 
 Request::Request(Request const& to_copy)
