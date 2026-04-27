@@ -4,11 +4,12 @@
 #include <iostream>
 #include <vector>
 
-std::string messageError(std::string const& function_name);
-bool	    keyIsValid(std::string s);
-bool	    stringIsDigit(std::string s);
-int         stoi(std::string s);
-void        toLowerString(std::string& tmp);
+std::string                 messageError(std::string const& function_name);
+bool	                    keyIsValid(std::string s);
+bool	                    stringIsDigit(std::string s);
+int                         stoi(std::string s);
+void                        toLowerString(std::string& tmp);
+std::vector<std::string>    splitLineByDel(std::string line, char del);
 
 
 template <typename T>

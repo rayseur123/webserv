@@ -17,8 +17,7 @@ int Connection::handleConnectionRequest()
 	// std::string tmp(buffer, bytes);
 	std::string tmp;
 
-	std::cout << tmp << std::endl;
-	tmp = "POST /upload HTTP/1.1\r\nHost: localhost\r\nTransfer-Encoding: chunked\r\n\r\nA\r\nHelloWorld\r\n0\r\n\r\n";
+	tmp = "GET /upload HTTP/1.1\r\nHost: localhost\r\nContent-Length: 42\r\nContent-Type: \r\n\r\naaaaa";
 	parsing_request_.fillBuffer(tmp);
 
 	if (parsing_request_.getStep() != FINISH)

@@ -1,21 +1,10 @@
 #include "ParsingRequest.hpp"
-#include <sstream>
+#include <climits>
+#include <cstddef>
 #include "Request.hpp"
 #include <vector>
 #include "Error.hpp"
-
 #include "utils.hpp"
-
-std::vector<std::string> splitLineByDel(std::string line, char del)
-{
-    std::vector<std::string> tmp;
-    std::stringstream ss(line);
-    std::string buffer;
-    
-    while (std::getline(ss, buffer, del))
-        tmp.push_back(buffer);
-    return (tmp);
-}
 
 bool headerIsAccepted(std::string param)
 {
@@ -33,11 +22,28 @@ bool headerIsAccepted(std::string param)
 }
 
 // Request LINE
-
-void ParsingRequest::requestLine(std::string line)
+void ParsingRequest::defineBodyType()
 {
-    std::vector<std::string> request_line = splitLineByDel(line, ' ');
+    Header tmp = request_.getHeader();
+    if (tmp.has("content-type") && tmp.has("content-type"))
+        body_type = LINE_BODY;
+    else if (tmp.has("transfer-encoding"))
+        body_type = CHUNK_BODY;
+    else
+    {
+        body_type = NO_BODY;
+        step_++;
+    }
+}
 
+void ParsingRequest::requestLine(std::string& line, size_t pos)
+{
+    std::vector<std::string> request_line;
+
+    line.erase(pos, pos + 2);
+
+    request_line = splitLineByDel(line, ' ');
+    
     if (request_line.size() != 3)
         throw Error::ErrorException(400);
 
@@ -48,85 +54,86 @@ void ParsingRequest::requestLine(std::string line)
     request_.setMethod(m);
     request_.setUri(u);
     request_.setVersion(v);
+
+    buffer_.erase(0, pos + 2);
+    step_++;
+
 }
 
 // Header LINE
 
-void ParsingRequest::headerLine(std::string line)
+void ParsingRequest::headerLine(std::string& line, size_t pos)
 {
     std::vector<std::string> param;
 
+    line.erase(pos, pos + 2);
 
     param = splitLineByDel(line, ':');
     if (param.size() < 2)
         throw Error::ErrorException(400);
     
-    toLowerString(param[0]);
+    toLowerString(param[0]);\
+
     if (headerIsAccepted(param[0]))
     {
         param[1].erase(0, 1);
         request_.addingInsideHeader(param);
     }
+
+    buffer_.erase(0, pos + 2);
 }
 
 
 // Body LINE
 
+void ParsingRequest::bodyLine(std::string& line, size_t pos)
+{
+    (void)line;
+    (void)pos;
+}
 
+// void ParsingRequest::bodyChunked(std::string& buffer)
+// {
 
+// }
 
-void ParsingRequest::fillBuffer(std::string tmp)
+void ParsingRequest::fillBuffer(std::string& tmp)
 {
     size_t pos;
     std::string line;
 
     buffer_.append(tmp);
-    while (step_ != FINISH && step_ != BODY_CHUNCK)
+    while (step_ != FINISH && body_type != CHUNK_BODY && body_type != NO_BODY)
     {
         pos = buffer_.find("\r\n");
-        
         if (pos == std::string::npos)
             return;
         
         line = buffer_.substr(0, pos + 2);
         
         if (step_ == REQUEST)
-        {
-            line.erase(pos, pos + 2);
-            requestLine(line);
-            buffer_.erase(0, pos + 2);
-            step_++;
-        }
+            requestLine(line, pos);
         else if (step_ == HEADER)
         {
             if (line == "\r\n")
-                step_++;
-            else
             {
-                line.erase(pos, pos + 2);
-                headerLine(line);
-                buffer_.erase(0, pos + 2);
+                step_++;
+                defineBodyType();
+                if (body_type == NO_BODY || body_type == CHUNK_BODY)
+                    return;
             }
+            else
+                headerLine(line, pos);
         }
         else if (step_ == BODY)
         {
-            if (request_.bodyIsLength())
-                step_ += request_.addingBodyLength(buffer_);
-            else if (request_.bodyIsChunked())
-            {
-                step_ = BODY_CHUNCK;
-                break;
-            }
-            else 
-            {
-                step_++;
-                return;
-            }
+            std::cout << "BODY_LINE" << std::endl;
+            step_ += request_.addingBodyLength(line);
         }
     }
-    if (step_ == BODY_CHUNCK)
+    if (step_ == CHUNK_BODY)
     {
-        step_ += request_.addingBodyChunked(buffer_);
+        std::cout << "PAS DE BODY" << std::endl;
     }
 }
 
@@ -192,7 +199,7 @@ ParsingRequest::ParsingRequest(ParsingRequest const& to_copy)
 }
 
 ParsingRequest::ParsingRequest():
-step_(0)
+step_(0), body_type(0)
 {}
 
 ParsingRequest::~ParsingRequest()

@@ -8,8 +8,15 @@ enum
     REQUEST,
     HEADER,
     BODY,
-    BODY_CHUNCK,
     FINISH 
+};
+
+enum
+{
+    UNDEFINED,
+    NO_BODY,
+    CHUNK_BODY,
+    LINE_BODY
 };
 
 class ParsingRequest
@@ -18,14 +25,16 @@ class ParsingRequest
         std::string buffer_;
         Request     request_;
         int         step_;
+        int         body_type;
 
-        void    requestLine(std::string line);
-        void    headerLine(std::string line);
-        void    bodyLine(std::string line);
+        void    defineBodyType();
+        void    requestLine(std::string& line, size_t pos);
+        void    headerLine(std::string& line, size_t pos);
+        void    bodyLine(std::string& line, size_t pos);
 
     public:
 
-        void fillBuffer(std::string tmp);
+        void fillBuffer(std::string& tmp);
         
         Request&    getRequest();
         int         getStep() const;

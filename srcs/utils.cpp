@@ -4,6 +4,7 @@
 #include <sstream>
 #include <iostream>
 #include "algorithm"
+#include <vector>
 
 
 bool	stringIsDigit(std::string s)
@@ -31,6 +32,17 @@ bool	keyIsValid(std::string s)
 		}
 	}
 	return 1;
+}
+
+std::vector<std::string> splitLineByDel(std::string line, char del)
+{
+    std::vector<std::string> tmp;
+    std::stringstream ss(line);
+    std::string buffer;
+    
+    while (std::getline(ss, buffer, del))
+        tmp.push_back(buffer);
+    return (tmp);
 }
 
 void    toLowerString(std::string& tmp)

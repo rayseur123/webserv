@@ -36,6 +36,8 @@ int    Body::lengthBody(std::string &line)
 {
     std::string tmp;
 
+    std::cout << writed_ << std::endl;
+    std::cout << length_ << std::endl;
     if (writed_ < length_)
     {
         // Check if it's okay to put a bigger number than potentialy the size of the string
@@ -77,6 +79,8 @@ writed_(0), length_(0)
 Body::Body(std::string content)
 {
     content_ = content;
+    writed_ = 0;
+    length_ = 0;
 }
 
 Body const& Body::operator=(Body const& to_copy)
