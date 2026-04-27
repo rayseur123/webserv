@@ -2,7 +2,6 @@
 #define CONNECTION_HPP
 
 #include "ASocket.hpp"
-#include <fstream>
 #include "ParsingRequest.hpp"
 
 class Listener;

@@ -8,6 +8,7 @@ enum
     REQUEST,
     HEADER,
     BODY,
+    BODY_CHUNCK,
     FINISH 
 };
 
@@ -26,8 +27,8 @@ class ParsingRequest
 
         void fillBuffer(std::string tmp);
         
-        Request const&  getRequest() const;
-        int             getStep() const;
+        Request&    getRequest();
+        int         getStep() const;
 
         ParsingRequest const& operator=(ParsingRequest const& to_copy);
 

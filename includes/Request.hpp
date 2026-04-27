@@ -17,11 +17,13 @@ class Request
         Header  header_;
         Body    body_;
 
-        
         public:
 
-        bool    isValidForBody() const;
-        void    addingInsideHeader(std::vector<std::string> param);
+        bool    bodyIsLength()    const;
+        bool    bodyIsChunked()   const;
+        void    addingInsideHeader(std::vector<std::string> &param);
+        int     addingBodyLength(std::string &line);
+        int     addingBodyChunked(std::string &container);
         
         void    setMethod(Method const& method);
         void    setUri(Uri const& method);
@@ -33,7 +35,7 @@ class Request
         Uri     const&  getUri()        const;
         Version const&  getVersion()    const;
         Body    const&  getBody()       const;
-        Header  const&  getHeader()     const;
+        Header  getHeader();
 
         Request();
         Request(Request const& to_copy);
@@ -41,6 +43,6 @@ class Request
         ~Request();
 };
 
-std::ostream& operator<<(std::ostream& os, Request const& r);
+std::ostream& operator<<(std::ostream& os, Request& r);
 
 #endif
