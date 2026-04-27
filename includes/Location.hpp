@@ -2,10 +2,7 @@
 #define LOCATION_HPP
 
 #include <iostream>
-#include <utility>
 #include <vector>
-#include <fstream>
-#include "Method.hpp"
 
 class Location
 {
