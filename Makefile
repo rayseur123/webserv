@@ -1,4 +1,4 @@
-NAME := webServ
+NAME := webserv
 
 # ---------------------------------------------------------#
 #                       DIRECTORIES                        #
@@ -26,6 +26,8 @@ SRCS_CONTENT :=		main.cpp \
 					Location.cpp \
 					utils.cpp \
 					ParsingRequest.cpp \
+					AResponse.cpp \
+					ResponseGet.cpp \
 
 # ---------------------------------------------------------#
 #                       BUILD SOURCE                       #

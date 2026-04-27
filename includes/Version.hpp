@@ -30,7 +30,7 @@ class Version
         Version();
         Version(std::string version);
         Version(Version const& to_copy);
-        Version const& operator=(Version const& to_copy);
+        Version& operator=(Version const& to_copy);
         ~Version();
 };
 

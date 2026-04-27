@@ -37,7 +37,7 @@ class Request
 
         Request();
         Request(Request const& to_copy);
-        Request const& operator=(Request const& to_copy);
+        Request& operator=(Request const& to_copy);
         ~Request();
 };
 

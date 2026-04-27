@@ -144,7 +144,7 @@ Request const& ParsingRequest::getRequest() const
     return request_;
 }
 
-ParsingRequest const& ParsingRequest::operator=(ParsingRequest const& to_copy)
+ParsingRequest& ParsingRequest::operator=(ParsingRequest const& to_copy)
 {
     if (this == &to_copy)
         return *this;

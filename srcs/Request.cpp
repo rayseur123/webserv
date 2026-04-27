@@ -72,7 +72,7 @@ Request::Request(Request const& to_copy)
     *this = to_copy;
 }
 
-Request const& Request::operator=(Request const& to_copy)
+Request& Request::operator=(Request const& to_copy)
 {
     if (this != &to_copy)
     {

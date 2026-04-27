@@ -18,7 +18,7 @@ Body::Body(std::string content)
     content_ = content;
 }
 
-Body const& Body::operator=(Body const& to_copy)
+Body& Body::operator=(Body const& to_copy)
 {
     if (this != &to_copy)
         content_ = to_copy.content_;

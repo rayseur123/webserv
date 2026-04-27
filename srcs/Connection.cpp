@@ -3,7 +3,8 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <unistd.h>
-#include <Request.hpp>
+#include "Request.hpp"
+#include "ResponseGet.hpp"
 
 int Connection::handleConnectionRequest()
 {
@@ -17,14 +18,16 @@ int Connection::handleConnectionRequest()
 	// std::string tmp(buffer, bytes);
 	std::string tmp;
 
-	tmp = "GET /test HTTP/1.1\r\nHost: exemple.fr\r\nContent-Type: \r\nContent-Type: \r\nContent-Length: 270\r\n\r\nfield1=value1&field2=value2\r\n";
+	tmp = "GET /test/ HTTP/1.1\r\nHost: exemple.fr\r\nContent-Type: \r\nContent-Length: 270\r\n\r\nfield1=value1&field2=value2\r\n";
 	parsing_request_.fillBuffer(tmp);
 
 	if (parsing_request_.getStep() != FINISH)
 		return 0;
+	Request request = parsing_request_.getRequest();
+	ResponseGet	response(request);
 	
-	std::cout << parsing_request_.getRequest() << std::endl;
-    // std::cout << server_.getPort() << ": " << buffer << std::endl;
+	std::cout << "uri : " << request.getUri() << std::endl;
+	response.buildResponseStr(server_.getLocations());
     return (0);
 }
 
@@ -53,7 +56,7 @@ Connection::Connection(Connection const& to_copy)
 :server_(to_copy.server_)
 {}
 
-Connection const&   Connection::operator=(Connection const& to_copy)
+Connection&   Connection::operator=(Connection const& to_copy)
 {
 	(void)to_copy;
 	return (*this);

@@ -2,7 +2,6 @@
 #define CONNECTION_HPP
 
 #include "ASocket.hpp"
-#include <fstream>
 #include "ParsingRequest.hpp"
 
 class Listener;
@@ -22,7 +21,7 @@ class	Connection : public ASocket
 
         Connection(int fd, Listener& server);
         Connection(Connection const& to_copy);
-        Connection const&   operator=(Connection const& to_copy);
+        Connection&   operator=(Connection const& to_copy);
         ~Connection();
 };
 

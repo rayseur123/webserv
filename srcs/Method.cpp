@@ -11,7 +11,7 @@ int Method::getMethod() const
     return type_;
 }
 
-Method const& Method::operator=(Method const& to_copy)
+Method& Method::operator=(Method const& to_copy)
 {
     if (this != &to_copy)
         type_ = to_copy.type_;

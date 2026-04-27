@@ -35,9 +35,9 @@ void	Listener::acceptNewConnection(EpollManager &manager)
 int	    Listener::handleEvent(EpollManager &manager, int events)
 {
 	if (events & (EPOLLERR | EPOLLRDHUP))
-        return (1);
-    else if (events & EPOLLIN)
-        acceptNewConnection(manager);
+		return (1);
+	else if (events & EPOLLIN)
+		acceptNewConnection(manager);
     return (0);
 
 	
@@ -151,7 +151,7 @@ std::pair<int, std::string> const&	Listener::getErrorPage() const
 	return (error_page_);
 }
 
-Listener const&   Listener::operator=(Listener const& to_copy)
+Listener&   Listener::operator=(Listener const& to_copy)
 {
 	if (&to_copy == this)
 		return (*this);

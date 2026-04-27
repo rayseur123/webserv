@@ -17,7 +17,7 @@ class Body
         Body();
         Body(std::string content);
         Body(Body const& to_copy);
-        Body const& operator=(Body const& to_copy);
+        Body& operator=(Body const& to_copy);
         ~Body();
 };
 

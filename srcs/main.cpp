@@ -17,7 +17,7 @@ int	main(int ac, char **av)
 		Block				block(file, Block::FILE, buff, "FILE");
 		
 		std::vector<Listener> server_vec = block.makeServerVec();
-		
+
 		EpollManager net(server_vec);
 	}
 	catch (const Error::ErrorException &e)

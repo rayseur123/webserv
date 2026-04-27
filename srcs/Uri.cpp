@@ -19,7 +19,7 @@ std::string const& Uri::getTarget() const
     return target_;
 }
 
-Uri const& Uri::operator=(Uri const& to_copy)
+Uri& Uri::operator=(Uri const& to_copy)
 {
     if (this != &to_copy)
     {

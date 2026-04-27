@@ -47,7 +47,7 @@ int     Header::getContentLength()
 	return number;
 }
 
-Header const& Header::operator=(Header const& to_copy)
+Header& Header::operator=(Header const& to_copy)
 {
 	headers_ = to_copy.headers_;   
 	return *this;

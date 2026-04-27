@@ -1,5 +1,28 @@
 #include "AResponse.hpp"
 #include "Request.hpp"
+#include <string>
+#include <vector>
+
+Location const&	AResponse::getGoodLocation(std::vector<Location> const& locations_vec) const
+{
+	std::vector<Location>::const_iterator	it;
+	std::vector<Location>::const_iterator	ret = locations_vec.begin();
+	std::string								uri = request_.getUri().getTarget();
+	int										best_value = 0;
+	
+	for (it = locations_vec.begin(); it != locations_vec.end(); ++it)
+	{
+		int	actual_value = it->getValue(uri);
+		if (actual_value == -1)
+			return (*it);
+		if (actual_value > best_value)
+		{
+			best_value = actual_value;
+			ret = it;
+		}
+	}	
+	return (*ret);
+}
 
 Request const&	AResponse::getRequest() const
 {
@@ -24,6 +47,10 @@ std::string const&	AResponse::getBody() const
 AResponse::AResponse()
 {}
 
+AResponse::AResponse(Request const& request)
+: request_(request)
+{}
+
 AResponse::AResponse(Request const& request, std::string const& request_line,
 				std::map<std::string, std::string> const& header_map, std::string const& body)
 : request_(request),
@@ -42,7 +69,7 @@ AResponse::AResponse(AResponse const& to_copy)
 AResponse::~AResponse()
 {}
 
-AResponse const&	AResponse::operator=(AResponse const& to_copy)
+AResponse&	AResponse::operator=(AResponse const& to_copy)
 {
 	if (&to_copy == this)
 		return (*this);

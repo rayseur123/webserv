@@ -29,7 +29,7 @@ class ParsingRequest
         Request const&  getRequest() const;
         int             getStep() const;
 
-        ParsingRequest const& operator=(ParsingRequest const& to_copy);
+        ParsingRequest& operator=(ParsingRequest const& to_copy);
 
         ParsingRequest();
         ParsingRequest(ParsingRequest const& to_copy);

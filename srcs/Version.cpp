@@ -92,7 +92,7 @@ int Version::convertInNb(std::string buffer)
     return (nb);
 }
 
-Version const& Version::operator=(Version const& to_copy)
+Version& Version::operator=(Version const& to_copy)
 {
     if (this != &to_copy)
     {

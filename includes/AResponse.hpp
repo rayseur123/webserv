@@ -16,6 +16,7 @@ class	AResponse
 		std::map<std::string, std::string>	header_map_;
 		std::string							body_;
 	public:
+		Location const&								getGoodLocation(std::vector<Location> const& locations_vec) const;
 		virtual std::string							buildResponseStr(std::vector<Location> const& locations_vec) const = 0;
 
 		Request const&								getRequest() const;
@@ -24,12 +25,13 @@ class	AResponse
 		std::string const&							getBody() const;
 
 		AResponse();
+		AResponse(Request const& request);
 		AResponse(Request const& request, std::string const& request_line,
 				std::map<std::string, std::string> const& header_map, std::string const& body);
 		AResponse(AResponse const& to_copy);
 		virtual ~AResponse();
 
-		AResponse const&	operator=(AResponse const& to_copy);
+		AResponse&	operator=(AResponse const& to_copy);
 };
 
 #endif

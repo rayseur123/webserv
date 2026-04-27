@@ -1,7 +1,37 @@
 #include "Location.hpp"
 #include <iostream>
+#include <string>
 #include <vector>
 #include <stdexcept>
+#include "Method.hpp"
+
+static std::string getNextWord(std::string const& str)
+{
+    return (str.substr(0, str.find_first_of('/')));
+}
+
+int     Location::getValue(std::string const& uri) const
+{
+    int value = 1;
+    std::string uri_temp = uri;
+    std::string path_temp = this->path_;
+
+    if (uri_temp == path_temp)
+        return (-1);
+    while (1)
+    {
+        if (getNextWord(uri_temp) == getNextWord(path_temp))
+            value++;
+        else
+        {
+            value--;
+            break;
+        }
+        uri_temp = uri_temp.substr(uri_temp.find_first_of('/') + 1);
+        path_temp = path_temp.substr(path_temp.find_first_of('/') + 1);
+    }
+    return (value);
+}
 
 void    Location::setRoot(std::string const& root)
 {
@@ -53,6 +83,11 @@ void    Location::setRedirect(std::string const& redirect)
     redirect_ = redirect;
 }
 
+void    Location::setPath(std::string const& name)
+{
+    path_ = name;
+}
+
 std::string const&  Location::getRoot() const
 {
     return (root_);
@@ -88,7 +123,12 @@ std::string const&  Location::getRedirect() const
     return (redirect_);
 }
 
-Location const& Location::operator=(Location const& to_copy)
+std::string const& Location::getPath() const
+{
+    return (path_);
+}
+
+Location& Location::operator=(Location const& to_copy)
 {
     if (this == &to_copy)
         return (*this);
@@ -99,12 +139,13 @@ Location const& Location::operator=(Location const& to_copy)
     upload_store_ = to_copy.upload_store_;
     cgi_pass_ = to_copy.cgi_pass_;
     redirect_ = to_copy.redirect_;
+    path_ = to_copy.path_;
     return (*this);
 }
 
 std::ostream& operator<<(std::ostream& os, Location const& to_print)
 {
-    os << "\t\tLOCATION {" << std::endl;
+    os << "\t\tLOCATION "<< to_print.getPath() << " {" << std::endl;
     os << "\t\t\troot: " << to_print.getRoot() << std::endl;
     os << "\t\t\tautoindex: " << (to_print.getAutoIndex() ? "on" : "off") << std::endl;
     
@@ -135,18 +176,21 @@ Location::Location()
     :root_("/www/data"),
     autoindex_(false),
     allow_methods_(0),
-    index_("index.html")
+    index_("index.html"),
+    path_("/")
 {}
 
 Location::Location(std::string const& root, bool autoindex, int allow_methods, std::string const& index,
-                std::string const& upload_store, std::string const& cgi_pass, std::string const& redirect)
+                std::string const& upload_store, std::string const& cgi_pass, std::string const& redirect,
+                std::string const& path)
     :root_(root),
     autoindex_(autoindex), 
     allow_methods_(allow_methods),
     index_(index),
     upload_store_(upload_store),
     cgi_pass_(cgi_pass),
-    redirect_(redirect)
+    redirect_(redirect),
+    path_(path)
 {}
 
 Location::Location(Location const& to_copy)
@@ -156,7 +200,8 @@ Location::Location(Location const& to_copy)
     index_(to_copy.index_),
     upload_store_(to_copy.upload_store_),
     cgi_pass_(to_copy.cgi_pass_),
-    redirect_(to_copy.redirect_)
+    redirect_(to_copy.redirect_),
+    path_(to_copy.path_)
 {}
 
 Location::~Location()

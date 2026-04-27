@@ -13,7 +13,7 @@ class Method
     #define UNLINK 4
     #define LINK 5
     #define PUT 6
-    
+
     private:
         int type_;
 
@@ -24,7 +24,7 @@ class Method
 
         bool            operator==(Method const& m) const;
         bool            operator!=(Method const& m) const;
-        Method const&   operator=(Method const& to_copy);
+        Method&   operator=(Method const& to_copy);
 
         Method();
         Method(std::string method);

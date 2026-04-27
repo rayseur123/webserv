@@ -15,7 +15,7 @@ class Uri
         std::string const&  getTarget() const;
         void    setTarget(std::string const& target);
 
-        Uri const&  operator=(Uri const& to_copy);
+        Uri&  operator=(Uri const& to_copy);
 
         Uri();
         Uri(std::string uri);

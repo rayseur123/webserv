@@ -19,7 +19,7 @@ class Header
         
         int getContentLength(); 
 
-        Header const& operator=(Header const& to_copy);
+        Header& operator=(Header const& to_copy);
 
         Header();
         Header(Header const& to_copy);
