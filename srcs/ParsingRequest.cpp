@@ -2,30 +2,18 @@
 #include <climits>
 #include <cstddef>
 #include "Request.hpp"
+#include <sstream>
+#include <string>
 #include <vector>
 #include "Error.hpp"
 #include "utils.hpp"
-
-bool headerIsAccepted(std::string param)
-{
-    if (!keyIsValid(param))
-        throw Error::ErrorException(400);
-    if (param == "host")
-        return 1;
-    if (param == "content-length")
-        return 1;
-    if (param == "content-type")
-        return 1;
-    if (param == "transfer-encoding")
-        return 1;
-    return 0;
-}
+#include <cstring>
 
 // Request LINE
 void ParsingRequest::defineBodyType()
 {
     Header tmp = request_.getHeader();
-    if (tmp.has("content-type") && tmp.has("content-type"))
+    if (tmp.has("content-type") && tmp.has("content-length"))
         body_type = LINE_BODY;
     else if (tmp.has("transfer-encoding"))
         body_type = CHUNK_BODY;
@@ -40,8 +28,7 @@ void ParsingRequest::requestLine(std::string& line, size_t pos)
 {
     std::vector<std::string> request_line;
 
-    line.erase(pos, pos + 2);
-
+    line.erase(pos, 2);
     request_line = splitLineByDel(line, ' ');
     
     if (request_line.size() != 3)
@@ -57,45 +44,44 @@ void ParsingRequest::requestLine(std::string& line, size_t pos)
 
     buffer_.erase(0, pos + 2);
     step_++;
-
 }
 
-// Header LINE
+std::vector<std::string> splitHeader(std::string &line)
+{
+    std::stringstream ss;
+    std::string tmp;
+    std::vector<std::string> buffer;
+
+    ss << line;
+
+    std::getline(ss, tmp, ':');
+    buffer.push_back(tmp);
+    std::getline(ss, tmp, ':');
+    buffer.push_back(tmp);
+    
+    return buffer;
+}
+
 
 void ParsingRequest::headerLine(std::string& line, size_t pos)
 {
     std::vector<std::string> param;
+    line.erase(pos, 2);
 
-    line.erase(pos, pos + 2);
+    param = splitHeader(line);
+    toLowerString(param[0]);
+    // if (keyIsValid(param[0]))
+    // {
+    //     throw Error::ErrorException(400);
+    // }
+    trimSpaceString(param[1]);
 
-    param = splitLineByDel(line, ':');
-    if (param.size() < 2)
-        throw Error::ErrorException(400);
-    
-    toLowerString(param[0]);\
-
-    if (headerIsAccepted(param[0]))
-    {
-        param[1].erase(0, 1);
-        request_.addingInsideHeader(param);
-    }
-
+    request_.addingInsideHeader(param);
     buffer_.erase(0, pos + 2);
+
 }
 
-
-// Body LINE
-
-void ParsingRequest::bodyLine(std::string& line, size_t pos)
-{
-    (void)line;
-    (void)pos;
-}
-
-// void ParsingRequest::bodyChunked(std::string& buffer)
-// {
-
-// }
+// Parsing Management
 
 void ParsingRequest::fillBuffer(std::string& tmp)
 {
@@ -112,29 +98,27 @@ void ParsingRequest::fillBuffer(std::string& tmp)
         line = buffer_.substr(0, pos + 2);
         
         if (step_ == REQUEST)
+        {
             requestLine(line, pos);
+        }
         else if (step_ == HEADER)
         {
             if (line == "\r\n")
             {
                 step_++;
                 defineBodyType();
+                buffer_.erase(0, 2);
                 if (body_type == NO_BODY || body_type == CHUNK_BODY)
-                    return;
+                    break;
             }
             else
                 headerLine(line, pos);
         }
-        else if (step_ == BODY)
-        {
-            std::cout << "BODY_LINE" << std::endl;
-            step_ += request_.addingBodyLength(line);
-        }
+        if (step_ == BODY)
+            step_ += request_.addingBodyLength(buffer_);
     }
     if (step_ == CHUNK_BODY)
-    {
-        std::cout << "PAS DE BODY" << std::endl;
-    }
+        step_ += request_.addingBodyChunked(buffer_);
 }
 
 

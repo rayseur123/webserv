@@ -14,10 +14,12 @@ int Connection::handleConnectionRequest()
     if (!bytes)
 		return (1);
 		
-	// std::string tmp(buffer, bytes);
-	std::string tmp;
+	std::string tmp(buffer, bytes);
+	// std::string tmp;
 
-	tmp = "GET /upload HTTP/1.1\r\nHost: localhost\r\nContent-Length: 42\r\nContent-Type: \r\n\r\naaaaa";
+	std::cout << tmp << std::endl << std::endl << std::endl;
+
+	// tmp = "GET /upload HTTP/1.1\r\nHost: localhost\r\nTransfer-Encoding: chunked\r\n\r\nA\r\nHelloWorld\r\n0\r\n\r\n";
 	parsing_request_.fillBuffer(tmp);
 
 	if (parsing_request_.getStep() != FINISH)

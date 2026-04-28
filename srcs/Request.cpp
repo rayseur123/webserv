@@ -119,7 +119,7 @@ std::ostream& operator<<(std::ostream& os, Request& r)
     os << "Method: "  << r.getMethod()  << std::endl;
     os << "URI: "     << r.getUri()     << std::endl;
     os << "Version: " << r.getVersion() << std::endl;
-    os << "Header: "  << std::endl <<  r.getHeader()  << std::endl;
+    os << "Header: "  << std::endl <<  r.getHeader();
     os << "Body: "    << r.getBody()    << std::endl;
 
     return os;

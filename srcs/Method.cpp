@@ -41,7 +41,9 @@ Method::Method(std::string method)
     if (method == "GET")
         type_ = GET;
     else if (method == "POST")
+    {
         type_ = POST;
+    }
     else if (method == "DELETE")
         type_ = DELETE;
     else if (method == "HEAD")
@@ -69,15 +71,15 @@ std::ostream & operator<<(std::ostream& os, Method const& m)
 {
     switch (m.getMethod())
     {
-    case 1:
+    case GET:
         os << "GET";
         break;
     
-    case 2:
+    case POST:
         os << "POST";
         break;
     
-    case 4:
+    case DELETE:
         os << "DELETE";
         break;
     }

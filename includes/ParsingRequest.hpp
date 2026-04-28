@@ -30,7 +30,6 @@ class ParsingRequest
         void    defineBodyType();
         void    requestLine(std::string& line, size_t pos);
         void    headerLine(std::string& line, size_t pos);
-        void    bodyLine(std::string& line, size_t pos);
 
     public:
 

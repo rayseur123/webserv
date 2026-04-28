@@ -34,6 +34,11 @@ bool	keyIsValid(std::string s)
 	return 1;
 }
 
+void	trimSpaceString(std::string &s)
+{
+	s.erase(0, s.find_first_not_of(' '));
+}
+
 std::vector<std::string> splitLineByDel(std::string line, char del)
 {
     std::vector<std::string> tmp;
