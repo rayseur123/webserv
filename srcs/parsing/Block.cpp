@@ -31,7 +31,7 @@ Block::makeLocation() const
 		if (directives_split.size() < 2)
 			throw std::invalid_argument("[ERROR] : Invalide directive. : " +
 										directives_split[0]);
-		else if (directives_split[0] == "root")
+		if (directives_split[0] == "root")
 			loc.setRoot(directives_split[1]);
 		else if (directives_split[0] == "allow_methods:")
 			loc.setAllowMethods(directives_split);
@@ -61,6 +61,7 @@ Block::makeLocationVec() const
 {
 	std::vector<Location> loc_vec;
 
+	loc_vec.reserve(blocks_vec_.size());
 	for (size_t i = 0; i < blocks_vec_.size(); ++i)
 		loc_vec.push_back(blocks_vec_[i].makeLocation());
 	return (loc_vec);
@@ -77,7 +78,7 @@ Block::makeServer() const
 		directives_split = splitDirective(directives_vec_[i]);
 		if (directives_split.size() < 2)
 			throw std::invalid_argument("[ERROR] : Invalide directive.");
-		else if (directives_split[0] == "client_max_body_size")
+		if (directives_split[0] == "client_max_body_size")
 			serv.setMaxClientRequestBody(directives_split[1]);
 		else if (directives_split[0] == "listen")
 			serv.setAddrAndPort(directives_split[1]);
