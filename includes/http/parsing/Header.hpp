@@ -6,24 +6,24 @@
 
 class Header
 {
-    private:
-        std::map<std::string, std::string> headers_;
+private:
+	std::map<std::string, std::string> headers_;
 
-        void    typeAccepted(std::string& value);
-    public:
+	void typeAccepted(std::string& value);
 
-        void set(const std::string& key, std::string& value);
-        std::string& get(const std::string &key);
-        std::map<std::string, std::string> const& getHeaders() const;
-        bool has(const std::string &key) const;
-        
-        int getContentLength(); 
+public:
+	void		 set(std::string const& key, std::string& value);
+	std::string& get(std::string const& key);
+	std::map<std::string, std::string> const& getHeaders() const;
+	bool									  has(std::string const& key) const;
 
-        Header& operator=(Header const& to_copy);
+	int getContentLength();
 
-        Header();
-        Header(Header const& to_copy);
-        ~Header();
+	Header& operator=(Header const& to_copy);
+
+	Header();
+	Header(Header const& to_copy);
+	~Header();
 };
 
 std::ostream& operator<<(std::ostream& os, Header const& m);
