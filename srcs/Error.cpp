@@ -1,4 +1,5 @@
 #include "Error.hpp"
+#include <cstdarg>
 
 
 Error::ErrorException::ErrorException():

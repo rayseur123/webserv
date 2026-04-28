@@ -1,4 +1,6 @@
 #include "Request.hpp"
+#include "Body.hpp"
+#include "Header.hpp"
 #include <vector>
 #include <string>
 
@@ -42,7 +44,7 @@ Version const& Request::getVersion() const
     return version_;
 }
 
-Header const& Request::getHeader() const
+Header Request::getHeader()
 {
     return header_;
 }
@@ -55,14 +57,38 @@ Body const& Request::getBody() const
 Request::Request(){}
 
 
-void Request::addingInsideHeader(std::vector<std::string> param)
+void Request::addingInsideHeader(std::vector<std::string> &param)
 {
     header_.set(param[0], param[1]);
 }   
 
-bool Request::isValidForBody() const
+bool Request::bodyIsLength() const
 {
-    if (header_.has("Content-Length") && header_.has("Content-Type"))
+    if (header_.has("content-length") && header_.has("content-type"))
+        return 1;
+    return 0;
+}
+
+bool Request::bodyIsChunked() const
+{
+    if (header_.has("transfer-encoding"))
+        return 1;
+    return 0; 
+}
+
+int    Request::addingBodyLength(std::string &line)
+{
+
+    body_.setLength(header_.getContentLength());
+
+    if (body_.lengthBody(line))
+        return 1;
+    return 0;
+}
+
+int    Request::addingBodyChunked(std::string &container)
+{
+    if (body_.chunkedBody(container))
         return 1;
     return 0;
 }
@@ -88,12 +114,12 @@ Request& Request::operator=(Request const& to_copy)
 Request::~Request()
 {}
 
-std::ostream& operator<<(std::ostream& os, Request const& r)
+std::ostream& operator<<(std::ostream& os, Request& r)
 {
     os << "Method: "  << r.getMethod()  << std::endl;
     os << "URI: "     << r.getUri()     << std::endl;
     os << "Version: " << r.getVersion() << std::endl;
-    os << "Header: "  << std::endl << r.getHeader()  << std::endl;
+    os << "Header: "  << std::endl <<  r.getHeader();
     os << "Body: "    << r.getBody()    << std::endl;
 
     return os;

@@ -1,6 +1,11 @@
 #include <errno.h>
 #include <cstring>
 #include <string>
+#include <sstream>
+#include <iostream>
+#include "algorithm"
+#include <vector>
+
 
 bool	stringIsDigit(std::string s)
 {
@@ -27,6 +32,38 @@ bool	keyIsValid(std::string s)
 		}
 	}
 	return 1;
+}
+
+void	trimSpaceString(std::string &s)
+{
+	s.erase(0, s.find_first_not_of(' '));
+}
+
+std::vector<std::string> splitLineByDel(std::string line, char del)
+{
+    std::vector<std::string> tmp;
+    std::stringstream ss(line);
+    std::string buffer;
+    
+    while (std::getline(ss, buffer, del))
+        tmp.push_back(buffer);
+    return (tmp);
+}
+
+void    toLowerString(std::string& tmp)
+{
+    std::transform(tmp.begin(), tmp.end(), tmp.begin(), tolower);
+}
+
+int    stoi(std::string s)
+{
+    std::stringstream ss;
+    int nb;
+    
+    ss << s;
+    ss >> std::hex >> nb;
+    
+    return nb;
 }
 
 std::string messageError(std::string const& function_name)

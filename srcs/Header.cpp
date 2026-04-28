@@ -18,6 +18,9 @@ void    Header::set(const std::string &key, std::string &value)
 			throw(Error::ErrorException(400));
 	if (key == "content-type")
 		typeAccepted(value);
+	if (key == "transfer-encoding")
+		if (value != "chunked")
+			throw(Error::ErrorException(400));
 	headers_[key] = value;
 }
 
@@ -41,7 +44,7 @@ int     Header::getContentLength()
 	std::stringstream ss;
 	int number;
 
-	ss << get("Content-Length");
+	ss << get("content-length");
 	ss >> number;
 	return number;
 }

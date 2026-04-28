@@ -15,8 +15,8 @@ int Connection::handleConnectionRequest()
     if (!bytes)
 		return (1);
 		
-	// std::string tmp(buffer, bytes);
-	std::string tmp;
+	std::string tmp(buffer, bytes);
+	// std::string tmp;
 
 	tmp = "GET /test/ HTTP/1.1\r\nHost: exemple.fr\r\nContent-Type: \r\nContent-Length: 270\r\n\r\nfield1=value1&field2=value2\r\n";
 	parsing_request_.fillBuffer(tmp);
@@ -26,7 +26,7 @@ int Connection::handleConnectionRequest()
 	Request request = parsing_request_.getRequest();
 	ResponseGet	response(request);
 	
-	std::cout << "uri : " << request.getUri() << std::endl;
+	std::cout << "uri : " << request.getUri();
 	response.buildResponseStr(server_.getLocations());
     return (0);
 }
