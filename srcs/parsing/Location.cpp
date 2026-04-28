@@ -1,11 +1,11 @@
-#include "Location.hpp"
+#include "parsing/Location.hpp"
 #include <climits>
 #include <cstddef>
 #include <iostream>
 #include <string>
 #include <vector>
 #include <stdexcept>
-#include "Method.hpp"
+#include "http/parsing/Method.hpp"
 
 int     Location::getValue(std::string const& uri) const
 {

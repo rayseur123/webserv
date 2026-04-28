@@ -1,7 +1,7 @@
-#include "Header.hpp"
+#include "http/parsing/Header.hpp"
 #include <sstream>
-#include "Error.hpp"
-#include "utils.hpp"
+#include "http/Error.hpp"
+#include "utils/utils.hpp"
 
 void Header::typeAccepted(std::string& value)
 {

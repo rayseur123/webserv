@@ -1,8 +1,6 @@
-#include "Version.hpp"
-#include <sstream> 
-#include <string>
+#include "http/parsing/Version.hpp"
 #include <cstdlib>
-#include "Error.hpp"
+#include "http/Error.hpp"
 
 
 void Version::setProtocol(std::string protocol)

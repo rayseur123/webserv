@@ -1,11 +1,11 @@
 #ifndef REQUEST_HPP
 #define REQUEST_HPP
 
-#include "Version.hpp"
-#include "Method.hpp"
-#include "Header.hpp"
-#include "Body.hpp"
-#include "Uri.hpp"
+#include "http/parsing/Version.hpp"
+#include "http/parsing/Method.hpp"
+#include "http/parsing/Header.hpp"
+#include "http/parsing/Body.hpp"
+#include "http/parsing/Uri.hpp"
 #include <vector>
 
 class Request

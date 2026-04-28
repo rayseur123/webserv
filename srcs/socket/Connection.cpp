@@ -1,10 +1,10 @@
-#include "Connection.hpp"
-#include "Listener.hpp"
+#include "socket/Connection.hpp"
+#include "socket/Listener.hpp"
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <unistd.h>
-#include "Request.hpp"
-#include "ResponseGet.hpp"
+#include "http/parsing/Request.hpp"
+#include "http/ResponseGet.hpp"
 
 int Connection::handleConnectionRequest()
 {

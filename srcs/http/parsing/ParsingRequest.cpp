@@ -1,12 +1,12 @@
-#include "ParsingRequest.hpp"
+#include "http/parsing/ParsingRequest.hpp"
 #include <climits>
 #include <cstddef>
-#include "Request.hpp"
+#include "http/parsing/Request.hpp"
 #include <sstream>
 #include <string>
 #include <vector>
-#include "Error.hpp"
-#include "utils.hpp"
+#include "http/Error.hpp"
+#include "utils/utils.hpp"
 #include <cstring>
 
 // Request LINE

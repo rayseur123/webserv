@@ -1,9 +1,9 @@
-#include "EpollManager.hpp"
+#include "epoll/EpollManager.hpp"
 #include "unistd.h"
-#include "ASocket.hpp"
-#include "utils.hpp"
-#include "Connection.hpp"
-#include "Listener.hpp"
+#include "socket/ASocket.hpp"
+#include "utils/utils.hpp"
+#include "socket/Connection.hpp"
+#include "socket/Listener.hpp"
 #include <utility>
 
 void	EpollManager::addConnection(std::pair<int, Connection*> const& newConnection)

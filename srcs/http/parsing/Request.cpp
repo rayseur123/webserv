@@ -1,6 +1,6 @@
-#include "Request.hpp"
-#include "Body.hpp"
-#include "Header.hpp"
+#include "http/parsing/Request.hpp"
+#include "http/parsing/Body.hpp"
+#include "http/parsing/Header.hpp"
 #include <vector>
 #include <string>
 

@@ -1,5 +1,5 @@
-#include "AResponse.hpp"
-#include "Request.hpp"
+#include "http/AResponse.hpp"
+#include "http/parsing/Request.hpp"
 #include <stdexcept>
 #include <string>
 #include <vector>

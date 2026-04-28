@@ -1,7 +1,7 @@
 #ifndef PARSING_REQUEST_HPP
 #define PARSING_REQUEST_HPP
 
-#include "Request.hpp"
+#include "http/parsing/Request.hpp"
 
 enum 
 {
