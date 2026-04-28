@@ -1,36 +1,31 @@
 #include "Location.hpp"
+#include <climits>
+#include <cstddef>
 #include <iostream>
 #include <string>
 #include <vector>
 #include <stdexcept>
 #include "Method.hpp"
 
-static std::string getNextWord(std::string const& str)
-{
-    return (str.substr(0, str.find_first_of('/')));
-}
-
 int     Location::getValue(std::string const& uri) const
 {
-    int value = 1;
-    std::string uri_temp = uri;
-    std::string path_temp = this->path_;
+    if (path_.size() == 1 && path_[0] == '/')
+        return (1);
 
-    if (uri_temp == path_temp)
-        return (-1);
-    while (1)
-    {
-        if (getNextWord(uri_temp) == getNextWord(path_temp))
-            value++;
-        else
-        {
-            value--;
-            break;
-        }
-        uri_temp = uri_temp.substr(uri_temp.find_first_of('/') + 1);
-        path_temp = path_temp.substr(path_temp.find_first_of('/') + 1);
-    }
-    return (value);
+    if (uri == path_)
+        return (INT_MAX);
+
+    if (uri.compare(0, path_.size(), path_) != 0)
+        return (0);
+
+    if (uri.size() > path_.size() && uri[path_.size()] != '/')
+        return (0);
+
+    int depth = 0;
+    for (size_t i = 0; i < path_.size(); ++i)
+        if (path_[i] == '/')
+            ++depth;
+    return (depth);
 }
 
 void    Location::setRoot(std::string const& root)

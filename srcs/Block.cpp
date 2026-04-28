@@ -45,7 +45,10 @@ Location    Block::makeLocation() const
         else
             throw std::invalid_argument("[ERROR] : Invalide directive." + directives_split[0]);
     }
-    loc.setPath(name_);
+    if (name_.find("location ") != std::string::npos)
+        loc.setPath(name_.substr(9));
+    else
+        loc.setPath(name_);
     return (loc);
 }
 
@@ -154,7 +157,7 @@ bool Block::parseToken(std::ifstream& file, std::string& buff,
             directives_vec_.push_back(content);
     }
     else if (sep_char == '{')
-        blocks_vec_.push_back(Block(file, type_ + 1, buff, content));
+        blocks_vec_.push_back(Block(file, type_ + 1, buff, content)); // ici
     else if (sep_char == '}')
         return (true);
     return (false);

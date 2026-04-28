@@ -1,26 +1,28 @@
 #include "AResponse.hpp"
 #include "Request.hpp"
+#include <stdexcept>
 #include <string>
 #include <vector>
 
 Location const&	AResponse::getGoodLocation(std::vector<Location> const& locations_vec) const
 {
 	std::vector<Location>::const_iterator	it;
-	std::vector<Location>::const_iterator	ret = locations_vec.begin();
+	std::vector<Location>::const_iterator	ret;
 	std::string								uri = request_.getUri().getTarget();
 	int										best_value = 0;
 	
 	for (it = locations_vec.begin(); it != locations_vec.end(); ++it)
 	{
 		int	actual_value = it->getValue(uri);
-		if (actual_value == -1)
-			return (*it);
 		if (actual_value > best_value)
 		{
 			best_value = actual_value;
 			ret = it;
 		}
-	}	
+	}
+	std::cout << best_value << std::endl;
+	if (best_value == 0)
+		throw std::logic_error("404");
 	return (*ret);
 }
 
