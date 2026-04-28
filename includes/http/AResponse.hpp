@@ -3,9 +3,8 @@
 
 #include <string>
 #include <map>
-#include <vector>
-#include "Request.hpp"
-#include "Location.hpp"
+#include "http/parsing/Request.hpp"
+#include "parsing/Location.hpp"
 
 class	AResponse
 {

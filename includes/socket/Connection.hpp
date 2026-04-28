@@ -1,8 +1,8 @@
 #ifndef CONNECTION_HPP
 #define CONNECTION_HPP
 
-#include "ASocket.hpp"
-#include "ParsingRequest.hpp"
+#include "socket/ASocket.hpp"
+#include "http/parsing/ParsingRequest.hpp"
 
 class Listener;
 class EpollManager;

@@ -1,8 +1,8 @@
 #include <vector>
-#include "Listener.hpp"
-#include "Block.hpp"
-#include "EpollManager.hpp"
-#include "Error.hpp"
+#include "socket/Listener.hpp"
+#include "parsing/Block.hpp"
+#include "epoll/EpollManager.hpp"
+#include "http/Error.hpp"
 
 int	main(int ac, char **av)
 {

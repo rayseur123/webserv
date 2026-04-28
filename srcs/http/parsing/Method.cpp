@@ -1,5 +1,5 @@
-#include "Method.hpp"
-#include "Error.hpp"
+#include "http/parsing/Method.hpp"
+#include "http/Error.hpp"
 
 void Method::setMethod(int const type)
 {

@@ -1,12 +1,12 @@
 #ifndef LISTENER_HPP
 #define LISTENER_HPP
 
-#include "ASocket.hpp"
+#include "socket/ASocket.hpp"
 #include <vector>
 #include <string>
 #include <utility>
-#include "Location.hpp"
-#include "EpollManager.hpp"
+#include "parsing/Location.hpp"
+#include "epoll/EpollManager.hpp"
 
 #define LISTEN_QUEUE 10
 

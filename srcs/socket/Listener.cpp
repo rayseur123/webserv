@@ -1,12 +1,12 @@
-#include "Listener.hpp"
+#include "socket/Listener.hpp"
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <cstdlib>
-#include "utils.hpp"
-#include "Connection.hpp"
+#include "utils/utils.hpp"
+#include "socket/Connection.hpp"
 
 void	Listener::acceptNewConnection(EpollManager &manager)
 {

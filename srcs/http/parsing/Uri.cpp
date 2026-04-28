@@ -1,5 +1,5 @@
-#include "Uri.hpp"
-#include "Error.hpp"
+#include "http/parsing/Uri.hpp"
+#include "http/Error.hpp"
 
 void Uri::setTarget(std::string const& target)
 {

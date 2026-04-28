@@ -4,36 +4,43 @@ NAME := webserv
 #                       DIRECTORIES                        #
 # ---------------------------------------------------------#
 
-SRCS_DIR := srcs/
+SRCS_DIR        := srcs/
+EPOLL_DIR       := $(SRCS_DIR)epoll/
+HTTP_DIR        := $(SRCS_DIR)http/
+HTTP_PARS_DIR   := $(SRCS_DIR)http/parsing/
+PARS_DIR        := $(SRCS_DIR)parsing/
+SOCKET_DIR      := $(SRCS_DIR)socket/
+UTILS_DIR       := $(SRCS_DIR)utils/
 
 # ---------------------------------------------------------#
 #                       SOURCE FILES                       #s
 # ---------------------------------------------------------#
 
-SRCS_CONTENT :=		main.cpp \
-					ASocket.cpp \
-					Block.cpp \
-					Request.cpp \
-					Method.cpp \
-					Uri.cpp \
-					Version.cpp \
-					Header.cpp \
-					Body.cpp \
-					Error.cpp \
-					Connection.cpp \
-					EpollManager.cpp \
-					Listener.cpp \
-					Location.cpp \
-					utils.cpp \
-					ParsingRequest.cpp \
-					AResponse.cpp \
-					ResponseGet.cpp \
+SRCS_CONTENT :=	$(SRCS_DIR)main.cpp \
+				$(EPOLL_DIR)EpollManager.cpp \
+				$(HTTP_DIR)AResponse.cpp \
+				$(HTTP_DIR)Code.cpp \
+				$(HTTP_DIR)Error.cpp \
+				$(HTTP_DIR)ResponseGet.cpp \
+				$(HTTP_PARS_DIR)Body.cpp \
+				$(HTTP_PARS_DIR)Header.cpp \
+				$(HTTP_PARS_DIR)Method.cpp \
+				$(HTTP_PARS_DIR)ParsingRequest.cpp \
+				$(HTTP_PARS_DIR)Request.cpp \
+				$(HTTP_PARS_DIR)Uri.cpp \
+				$(HTTP_PARS_DIR)Version.cpp \
+				$(PARS_DIR)Block.cpp \
+				$(PARS_DIR)Location.cpp \
+				$(SOCKET_DIR)ASocket.cpp \
+				$(SOCKET_DIR)Connection.cpp \
+				$(SOCKET_DIR)Listener.cpp \
+				$(UTILS_DIR)utils.cpp \
 
 # ---------------------------------------------------------#
 #                       BUILD SOURCE                       #
 # ---------------------------------------------------------#
 
-SRCS =	$(addprefix $(SRCS_DIR), $(SRCS_CONTENT)) \
+SRCS = $(SRCS_CONTENT) \
 
 # ---------------------------------------------------------#
 #                         HEADERS                          #
@@ -64,10 +71,9 @@ SYS_LIBS := $(addprefix -l, $(SYS_LIBS))
 #                           OBJS                           #
 # ---------------------------------------------------------#
 
-BUILD_DIR := .build/
-
-OBJS_DIR := $(addprefix $(BUILD_DIR), objs/)
-OBJS := $(addprefix $(OBJS_DIR), $(notdir $(SRCS:.cpp=.o)))
+BUILD_DIR   := .build/
+OBJS_DIR    := $(BUILD_DIR)objs/
+OBJS := $(patsubst $(SRCS_DIR)%.cpp, $(OBJS_DIR)%.o, $(SRCS))
 
 # ---------------------------------------------------------#
 #                           DEPS                           #
@@ -102,7 +108,7 @@ all: $(NAME)
 $(NAME): $(LIBS_TARGET) $(OBJS)
 	$(CC) $^ -o $@ $(SYS_LIBS)
 
-$(OBJS_DIR)%.o: $(SRCS_DIR)%.cpp $(SRCS_DIR)%.cpp
+$(OBJS_DIR)%.o: $(SRCS_DIR)%.cpp
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
 

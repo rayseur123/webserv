@@ -1,8 +1,8 @@
-#include "ResponseGet.hpp"
-#include "Request.hpp"
+#include "http/ResponseGet.hpp"
+#include "http/parsing/Request.hpp"
 #include <string>
-#include "Location.hpp"
-#include "AResponse.hpp"
+#include "parsing/Location.hpp"
+#include "http/AResponse.hpp"
 
 std::string	ResponseGet::buildResponseStr(std::vector<Location> const& locations_vec) const
 {

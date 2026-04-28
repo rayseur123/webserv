@@ -1,9 +1,9 @@
 #ifndef METHOD_GET
 #define METHOD_GET
 
-#include "AResponse.hpp"
-#include "Location.hpp"
-#include "Request.hpp"
+#include "http/AResponse.hpp"
+#include "parsing/Location.hpp"
+#include "http/parsing/Request.hpp"
 
 class	ResponseGet : public AResponse
 {
