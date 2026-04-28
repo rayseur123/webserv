@@ -3,18 +3,18 @@
 
 class EpollManager;
 
-class	ASocket
+class ASocket
 {
-	protected:
-		int	fd_;
+protected:
+	int fd_;
 
-	public:
-		int				getFd() const;
-		virtual int		handleEvent(EpollManager& manager, int events) = 0;
+public:
+	int			getFd() const;
+	virtual int handleEvent(EpollManager& manager, int events) = 0;
 
-		ASocket();
-		ASocket(int fd);
-		virtual ~ASocket();
+	ASocket();
+	ASocket(int fd);
+	virtual ~ASocket();
 };
 
 #endif

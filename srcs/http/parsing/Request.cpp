@@ -1,126 +1,143 @@
 #include "http/parsing/Request.hpp"
+#include <string>
+#include <vector>
 #include "http/parsing/Body.hpp"
 #include "http/parsing/Header.hpp"
-#include <vector>
-#include <string>
 
-void Request::setMethod(Method const& method)
+void
+Request::setMethod(Method const& method)
 {
-    method_ = method;
+	method_ = method;
 }
 
-void Request::setUri(Uri const& uri)
+void
+Request::setUri(Uri const& uri)
 {
-    uri_ = uri;
+	uri_ = uri;
 }
 
-void Request::setVersion(Version const& version)
+void
+Request::setVersion(Version const& version)
 {
-    version_ = version;
+	version_ = version;
 }
 
-void Request::setHeader(Header& type)
+void
+Request::setHeader(Header& type)
 {
-    header_ = type;
+	header_ = type;
 }
 
-void Request::setBody(Body const& body)
+void
+Request::setBody(Body const& body)
 {
-    body_ = body;
+	body_ = body;
 }
 
-Method const& Request::getMethod() const
+Method const&
+Request::getMethod() const
 {
-    return method_;
+	return method_;
 }
 
-Uri const& Request::getUri() const
+Uri const&
+Request::getUri() const
 {
-    return uri_;
+	return uri_;
 }
 
-Version const& Request::getVersion() const
+Version const&
+Request::getVersion() const
 {
-    return version_;
+	return version_;
 }
 
-Header Request::getHeader()
+Header
+Request::getHeader()
 {
-    return header_;
+	return header_;
 }
 
-Body const& Request::getBody() const
+Body const&
+Request::getBody() const
 {
-    return body_;
+	return body_;
 }
 
-Request::Request(){}
+Request::Request()
+{}
 
-
-void Request::addingInsideHeader(std::vector<std::string> &param)
+void
+Request::addingInsideHeader(std::vector<std::string>& param)
 {
-    header_.set(param[0], param[1]);
-}   
-
-bool Request::bodyIsLength() const
-{
-    if (header_.has("content-length") && header_.has("content-type"))
-        return 1;
-    return 0;
+	header_.set(param[0], param[1]);
 }
 
-bool Request::bodyIsChunked() const
+bool
+Request::bodyIsLength() const
 {
-    if (header_.has("transfer-encoding"))
-        return 1;
-    return 0; 
+	if (header_.has("content-length") && header_.has("content-type"))
+		return 1;
+	return 0;
 }
 
-int    Request::addingBodyLength(std::string &line)
+bool
+Request::bodyIsChunked() const
 {
-
-    body_.setLength(header_.getContentLength());
-
-    if (body_.lengthBody(line))
-        return 1;
-    return 0;
+	if (header_.has("transfer-encoding"))
+		return 1;
+	return 0;
 }
 
-int    Request::addingBodyChunked(std::string &container)
+int
+Request::addingBodyLength(std::string& line)
 {
-    if (body_.chunkedBody(container))
-        return 1;
-    return 0;
+
+	body_.setLength(header_.getContentLength());
+
+	if (body_.lengthBody(line))
+		return 1;
+	return 0;
+}
+
+int
+Request::addingBodyChunked(std::string& container)
+{
+	if (body_.chunkedBody(container))
+		return 1;
+	return 0;
 }
 
 Request::Request(Request const& to_copy)
 {
-    *this = to_copy;
+	*this = to_copy;
 }
 
-Request& Request::operator=(Request const& to_copy)
+Request&
+Request::operator=(Request const& to_copy)
 {
-    if (this != &to_copy)
-    {
-        method_  = to_copy.method_;
-        uri_     = to_copy.uri_;
-        version_ = to_copy.version_;
-        header_  = to_copy.header_;
-        body_    = to_copy.body_;
-    }
-    return *this;
+	if (this != &to_copy)
+	{
+		method_ = to_copy.method_;
+		uri_ = to_copy.uri_;
+		version_ = to_copy.version_;
+		header_ = to_copy.header_;
+		body_ = to_copy.body_;
+	}
+	return *this;
 }
 
 Request::~Request()
 {}
 
-std::ostream& operator<<(std::ostream& os, Request& r)
+std::ostream&
+operator<<(std::ostream& os, Request& r)
 {
-    os << "Method: "  << r.getMethod()  << std::endl;
-    os << "URI: "     << r.getUri()     << std::endl;
-    os << "Version: " << r.getVersion() << std::endl;
-    os << "Header: "  << std::endl <<  r.getHeader();
-    os << "Body: "    << r.getBody()    << std::endl;
+	os << "Method: " << r.getMethod() << std::endl;
+	os << "URI: " << r.getUri() << std::endl;
+	os << "Version: " << r.getVersion() << std::endl;
+	os << "Header: " << std::endl << r.getHeader();
+	os << "Body: " << r.getBody() << std::endl;
 
-    return os;
+	return os;
 }

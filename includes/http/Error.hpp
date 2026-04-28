@@ -5,22 +5,18 @@
 
 class Error
 {
-    private:
+private:
+public:
+	class ErrorException : public std::exception
+	{
+	private:
+		int code_;
 
-    public:
-
-
-    class ErrorException: public std::exception
-    {
-        private:
-            int code_;
-        
-        public:
-            int get_code() const;
-            ErrorException(int code);
-            ErrorException();
-    };
+	public:
+		int get_code() const;
+		ErrorException(int code);
+		ErrorException();
+	};
 };
-
 
 #endif

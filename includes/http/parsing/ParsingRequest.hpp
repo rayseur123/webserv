@@ -3,46 +3,45 @@
 
 #include "http/parsing/Request.hpp"
 
-enum 
+enum
 {
-    REQUEST,
-    HEADER,
-    BODY,
-    FINISH 
+	REQUEST,
+	HEADER,
+	BODY,
+	FINISH
 };
 
 enum
 {
-    UNDEFINED,
-    NO_BODY,
-    CHUNK_BODY,
-    LINE_BODY
+	UNDEFINED,
+	NO_BODY,
+	CHUNK_BODY,
+	LINE_BODY
 };
 
 class ParsingRequest
 {
-    private:
-        std::string buffer_;
-        Request     request_;
-        int         step_;
-        int         body_type;
+private:
+	std::string buffer_;
+	Request		request_;
+	int			step_;
+	int			body_type;
 
-        void    defineBodyType();
-        void    requestLine(std::string& line, size_t pos);
-        void    headerLine(std::string& line, size_t pos);
+	void defineBodyType();
+	void requestLine(std::string& line, size_t pos);
+	void headerLine(std::string& line, size_t pos);
 
-    public:
+public:
+	void fillBuffer(std::string& tmp);
 
-        void fillBuffer(std::string& tmp);
-        
-        Request&    getRequest();
-        int         getStep() const;
+	Request& getRequest();
+	int		 getStep() const;
 
-        ParsingRequest& operator=(ParsingRequest const& to_copy);
+	ParsingRequest& operator=(ParsingRequest const& to_copy);
 
-        ParsingRequest();
-        ParsingRequest(ParsingRequest const& to_copy);
-        ~ParsingRequest();
+	ParsingRequest();
+	ParsingRequest(ParsingRequest const& to_copy);
+	~ParsingRequest();
 };
 
 #endif

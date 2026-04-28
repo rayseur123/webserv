@@ -1,34 +1,33 @@
 #include "http/ResponseGet.hpp"
-#include "http/parsing/Request.hpp"
 #include <string>
-#include "parsing/Location.hpp"
 #include "http/AResponse.hpp"
+#include "http/parsing/Request.hpp"
+#include "parsing/Location.hpp"
 
-std::string	ResponseGet::buildResponseStr(std::vector<Location> const& locations_vec) const
+std::string
+ResponseGet::buildResponseStr(std::vector<Location> const& locations_vec) const
 {
 	Location const& location = getGoodLocation(locations_vec);
 	std::cout << location.getPath() << std::endl;
-	//std::cout << location;
-	std::string	ret;
+	// std::cout << location;
+	std::string ret;
 	return (ret);
 }
 
 ResponseGet::ResponseGet()
 {}
 
-ResponseGet::ResponseGet(Request const& request)
-: AResponse(request)
+ResponseGet::ResponseGet(Request const& request) : AResponse(request)
 {}
 
-ResponseGet::ResponseGet(ResponseGet const& to_copy)
-: AResponse(to_copy)
+ResponseGet::ResponseGet(ResponseGet const& to_copy) : AResponse(to_copy)
 {}
-
 
 ResponseGet::~ResponseGet()
 {}
 
-ResponseGet&	ResponseGet::operator=(ResponseGet const& to_copy)
+ResponseGet&
+ResponseGet::operator=(ResponseGet const& to_copy)
 {
 	if (this == &to_copy)
 		return (*this);
