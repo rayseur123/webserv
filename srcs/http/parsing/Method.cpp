@@ -24,30 +24,24 @@ Method::operator=(Method const& to_copy)
 bool
 Method::operator==(Method const& m) const
 {
-	if (type_ == m.type_)
-		return 1;
-	return 0;
+	return (type_ == m.type_);
 }
 
 bool
 Method::operator!=(Method const& m) const
 {
-	if (type_ != m.type_)
-		return 1;
-	return 0;
+	return (type_ != m.type_);
 }
 
 Method::Method() : type_(0)
 {}
 
-Method::Method(std::string method)
+Method::Method(std::string const& method)
 {
 	if (method == "GET")
 		type_ = GET;
 	else if (method == "POST")
-	{
 		type_ = POST;
-	}
 	else if (method == "DELETE")
 		type_ = DELETE;
 	else if (method == "HEAD")
@@ -58,14 +52,12 @@ Method::Method(std::string method)
 		throw Error::ErrorException(405);
 	else if (method == "PUT")
 		throw Error::ErrorException(405);
-	else
-		throw Error::ErrorException(501);
+
+	throw Error::ErrorException(501);
 }
 
-Method::Method(Method const& to_copy)
-{
-	*this = to_copy;
-}
+Method::Method(Method const& to_copy) : type_(to_copy.type_)
+{}
 
 Method::~Method()
 {}

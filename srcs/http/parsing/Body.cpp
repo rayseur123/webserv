@@ -2,8 +2,6 @@
 #include <cstdlib>
 #include <string>
 
-std::string body_buff;
-
 int
 Body::chunkedBody(std::string& container)
 {
@@ -11,13 +9,14 @@ Body::chunkedBody(std::string& container)
 
 	while (true)
 	{
-		size_t pos;
+		size_t pos = 0;
 
 		if (status_ == GETTING_LENGTH)
 		{
 			pos = container.find("\r\n");
 			if (pos == std::string::npos)
 				return 0;
+
 			length_ = std::strtoul(container.substr(0, pos).c_str(), &end, 16);
 
 			if (length_ == 0)
@@ -28,7 +27,7 @@ Body::chunkedBody(std::string& container)
 		}
 		if (status_ == READING)
 		{
-			if (container.size() < (size_t) length_ + 2)
+			if (container.size() < length_ + 2)
 				return 0;
 
 			content_ += container.substr(0, length_);
@@ -71,12 +70,12 @@ Body::setContent(std::string const& content)
 }
 
 void
-Body::setWrited(int writed)
+Body::setWrited(int nb)
 {
-	writed_ = writed;
+	writed_ = nb;
 }
 
-int
+size_t
 Body::getLength() const
 {
 	return length_;
@@ -88,7 +87,7 @@ Body::getContent() const
 	return content_;
 }
 
-int
+size_t
 Body::getWrited() const
 {
 	return writed_;
@@ -97,13 +96,9 @@ Body::getWrited() const
 Body::Body() : status_(0), writed_(0), length_(0)
 {}
 
-Body::Body(std::string content)
-{
-	content_ = content;
-	writed_ = 0;
-	length_ = 0;
-	status_ = 0;
-}
+Body::Body(std::string const& content) :
+	status_(0), writed_(0), length_(0), content_(content)
+{}
 
 Body&
 Body::operator=(Body const& to_copy)
@@ -113,10 +108,10 @@ Body::operator=(Body const& to_copy)
 	return *this;
 }
 
-Body::Body(Body const& to_copy)
-{
-	*this = to_copy;
-}
+Body::Body(Body const& to_copy) :
+	status_(to_copy.status_), writed_(to_copy.writed_),
+	length_(to_copy.status_), content_(to_copy.content_)
+{}
 
 Body::~Body()
 {}

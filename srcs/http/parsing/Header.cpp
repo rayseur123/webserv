@@ -38,16 +38,14 @@ Header::has(std::string const& key) const
 	std::map<std::string, std::string>::const_iterator it;
 
 	it = headers_.find(key);
-	if (it != headers_.end())
-		return 1;
-	return 0;
+	return (it != headers_.end());
 }
 
 int
 Header::getContentLength()
 {
 	std::stringstream ss;
-	int				  number;
+	int				  number = 0;
 
 	ss << get("content-length");
 	ss >> number;
@@ -57,17 +55,16 @@ Header::getContentLength()
 Header&
 Header::operator=(Header const& to_copy)
 {
-	headers_ = to_copy.headers_;
+	if (&to_copy == this)
+		headers_ = to_copy.headers_;
 	return *this;
 }
 
 Header::Header()
 {}
 
-Header::Header(Header const& to_copy)
-{
-	*this = to_copy;
-}
+Header::Header(Header const& to_copy) : headers_(to_copy.headers_)
+{}
 
 Header::~Header()
 {}
@@ -87,7 +84,7 @@ operator<<(std::ostream& os, Header const& m)
 	{
 		os << it->first;
 		os << ":";
-		os << it->second << std::endl;
+		os << it->second << '\n';
 	}
 	return os;
 }
