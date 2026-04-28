@@ -2,13 +2,8 @@
 #define LOCATION_HPP
 
 #include <iostream>
-#include <utility>
+#include <string>
 #include <vector>
-#include <fstream>
-
-#define GET 1
-#define POST 2
-#define DELETE 4
 
 class Location
 {
@@ -20,8 +15,11 @@ class Location
         std::string upload_store_;
         std::string cgi_pass_;
         std::string redirect_;
+        std::string path_;
 
     public:
+        int     getValue(std::string const& uri) const;
+
         void    setRoot(std::string const& root);
         void    setAllowMethods(std::vector<std::string> const& allow_methods);
         void    setAutoIndex(std::string const& autoindex);
@@ -29,6 +27,7 @@ class Location
         void    setUploadStore(std::string const& upload_store);
         void    setCgiPass(std::string const& cgi_pass);
         void    setRedirect(std::string const& redirect);
+        void    setPath(std::string const& name);
 
         std::string const&  getRoot() const;
         bool                getAutoIndex() const;
@@ -37,12 +36,14 @@ class Location
         std::string const&  getUploadStore() const;
         std::string const&  getCgiPass() const;
         std::string const&  getRedirect() const;
+        std::string const&  getPath() const;
 
         Location();
         Location(std::string const& root, bool autoindex, int allow_methods, std::string const& index,
-                std::string const& upload_store, std::string const& cgi_pass, std::string const& redirect);
+                std::string const& upload_store, std::string const& cgi_pass, std::string const& redirect,
+                std::string const& path);
         Location(Location const& to_copy);
-        Location const& operator=(Location const& to_copy);
+        Location& operator=(Location const& to_copy);
         ~Location();
 };
 

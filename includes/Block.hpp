@@ -29,7 +29,7 @@ class Block
 		bool 							getNextToken(std::ifstream& file, std::string& buff, 
                           						std::string& content, char& sep_char);
 
-		Block const&	operator=(Block const& to_copy);
+		Block&	operator=(Block const& to_copy);
 
 		Block();
 		Block(std::ifstream &file, int type, std::string& buff, std::string const& name);

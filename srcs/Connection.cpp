@@ -3,16 +3,31 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include "Request.hpp"
+#include "ResponseGet.hpp"
 
-int Connection::getConnectionRequest() const
+int Connection::handleConnectionRequest()
 {
     int bytes;
-    char buffer[100000] = {};
+    char buffer[10000]= {};
 
     bytes = recv(fd_, buffer, sizeof(buffer), 0);
     if (!bytes)
-        return (1);
-    std::cout << server_.getPort() << ": " << buffer << std::endl;
+		return (1);
+		
+	std::string tmp(buffer, bytes);
+	// std::string tmp;
+
+	tmp = "GET /test/ HTTP/1.1\r\nHost: exemple.fr\r\nContent-Type: \r\nContent-Length: 27\r\n\r\nfield1=value1&field2=value2\r\n";
+	parsing_request_.fillBuffer(tmp);
+
+	if (parsing_request_.getStep() != FINISH)
+		return 0;
+	std::cout << parsing_request_.getRequest() << std::endl;
+	//ResponseGet	response(request);
+	
+	//std::cout << "uri : " << request.getUri();
+	//response.buildResponseStr(server_.getLocations());
     return (0);
 }
 
@@ -22,7 +37,7 @@ int		Connection::handleEvent(EpollManager& manager, int events)
 	if (events & (EPOLLERR | EPOLLRDHUP))
 		return (1);
 	if (events & (EPOLLIN | EPOLLPRI))
-		return (getConnectionRequest());
+		return (handleConnectionRequest());
 	// rajouter un if respond quand pour le http plus tard.
 	return (0);
 }
@@ -33,15 +48,15 @@ Listener const&   Connection::getServer() const
 }
 
 Connection::Connection(int fd, Listener& server)
-: ASocket(fd),
-  server_(server)
+: 	ASocket(fd),
+	server_(server)
 {}
 
 Connection::Connection(Connection const& to_copy)
 :server_(to_copy.server_)
 {}
 
-Connection const&   Connection::operator=(Connection const& to_copy)
+Connection&   Connection::operator=(Connection const& to_copy)
 {
 	(void)to_copy;
 	return (*this);

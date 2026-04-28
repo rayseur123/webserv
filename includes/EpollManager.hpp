@@ -33,7 +33,7 @@ class EpollManager
 		EpollManager(std::vector<Listener> const& listener_vec);
 		EpollManager(EpollManager const& to_copy);
 
-		EpollManager const&	operator=(EpollManager const& to_copy);
+		EpollManager&	operator=(EpollManager const& to_copy);
 
 		~EpollManager();
 

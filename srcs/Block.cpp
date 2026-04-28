@@ -6,7 +6,6 @@
 #include <string>
 #include <sstream>
 #include <cstdlib>
-#include <utility>
 
 static std::vector<std::string> splitDirective(std::string const& directive)
 {
@@ -46,6 +45,10 @@ Location    Block::makeLocation() const
         else
             throw std::invalid_argument("[ERROR] : Invalide directive." + directives_split[0]);
     }
+    if (name_.find("location ") != std::string::npos)
+        loc.setPath(name_.substr(9));
+    else
+        loc.setPath(name_);
     return (loc);
 }
 
@@ -77,6 +80,7 @@ Listener  Block::makeServer() const
         else
             throw std::invalid_argument("[ERROR] : Invalide directive.");
     }
+    
     return (serv);
 }
 
@@ -153,7 +157,7 @@ bool Block::parseToken(std::ifstream& file, std::string& buff,
             directives_vec_.push_back(content);
     }
     else if (sep_char == '{')
-        blocks_vec_.push_back(Block(file, type_ + 1, buff, content));
+        blocks_vec_.push_back(Block(file, type_ + 1, buff, content)); // ici
     else if (sep_char == '}')
         return (true);
     return (false);
@@ -174,7 +178,7 @@ Block::Block(std::ifstream& file, int type, std::string& buff, std::string const
             + name_ + "' at end of file.");
 }
 	
-Block const&	Block::operator=(Block const& to_copy)
+Block&	Block::operator=(Block const& to_copy)
 {
 	if (&to_copy == this)
 		return (*this);

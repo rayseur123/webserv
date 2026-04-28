@@ -2,7 +2,7 @@
 #define CONNECTION_HPP
 
 #include "ASocket.hpp"
-#include <fstream>
+#include "ParsingRequest.hpp"
 
 class Listener;
 class EpollManager;
@@ -11,15 +11,17 @@ class	Connection : public ASocket
 {
 	private:
 		Listener const&	server_;
+        ParsingRequest parsing_request_;
+
 	public:
-        int                 getConnectionRequest() const;
+        int                 handleConnectionRequest();
 
         virtual int		    handleEvent(EpollManager& manager, int events);
 		Listener const&     getServer() const;
 
         Connection(int fd, Listener& server);
         Connection(Connection const& to_copy);
-        Connection const&   operator=(Connection const& to_copy);
+        Connection&   operator=(Connection const& to_copy);
         ~Connection();
 };
 

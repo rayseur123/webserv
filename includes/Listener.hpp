@@ -39,7 +39,7 @@ class Listener : public ASocket
 		Listener(Listener const& to_copy);
 		Listener(int fd, int max_client_request_body, std::string const& address,
             std::string const& port, std::vector<Location> const& locations_vec);
-		Listener const&   operator=(Listener const& to_copy);
+		Listener&   operator=(Listener const& to_copy);
 		~Listener();
 };
 

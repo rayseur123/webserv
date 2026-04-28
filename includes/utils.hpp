@@ -2,8 +2,16 @@
 #define UTILS_HPP
 
 #include <iostream>
+#include <vector>
 
-std::string messageError(std::string const& function_name);
+std::string                 messageError(std::string const& function_name);
+bool	                    keyIsValid(std::string s);
+bool	                    stringIsDigit(std::string s);
+int                         stoi(std::string s);
+void                        toLowerString(std::string& tmp);
+std::vector<std::string>    splitLineByDel(std::string line, char del);
+void	                    trimSpaceString(std::string &s);
+
 
 template <typename T>
 std::ostream & operator<<(std::ostream& os, std::vector<T> list)

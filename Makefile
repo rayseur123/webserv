@@ -1,4 +1,4 @@
-NAME := webServ
+NAME := webserv
 
 # ---------------------------------------------------------#
 #                       DIRECTORIES                        #
@@ -13,11 +13,21 @@ SRCS_DIR := srcs/
 SRCS_CONTENT :=		main.cpp \
 					ASocket.cpp \
 					Block.cpp \
+					Request.cpp \
+					Method.cpp \
+					Uri.cpp \
+					Version.cpp \
+					Header.cpp \
+					Body.cpp \
+					Error.cpp \
 					Connection.cpp \
 					EpollManager.cpp \
 					Listener.cpp \
 					Location.cpp \
 					utils.cpp \
+					ParsingRequest.cpp \
+					AResponse.cpp \
+					ResponseGet.cpp \
 
 # ---------------------------------------------------------#
 #                       BUILD SOURCE                       #
@@ -71,7 +81,7 @@ CPPFLAGS += -MMD -MP
 #                   CONFIG COMPILATION                     #
 # ---------------------------------------------------------#
 
-CFLAGS += -std=c++98 -Wall -Wextra -Werror
+CFLAGS += -std=c++98 -Wall -Wextra -Werror -g3
 
 CC = c++
 

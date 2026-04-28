@@ -69,7 +69,7 @@ EpollManager::EpollManager(std::vector<Listener> const& listener_vec)
 		Listener*	listener = new Listener(*it);
 		socket_map_.insert(std::make_pair(listener->createListenerSocket(), listener));
 	}
-
+    
 	instanceEpoll();
 	registerListenersToEpoll();
 	eventLoop();
@@ -80,7 +80,7 @@ EpollManager::EpollManager(EpollManager const& to_copy)
   socket_map_(to_copy.socket_map_)
 {}
 
-EpollManager const&	EpollManager::operator=(EpollManager const& to_copy)
+EpollManager&	EpollManager::operator=(EpollManager const& to_copy)
 {
 	if (this == &to_copy)
         return *this;
