@@ -9,7 +9,7 @@ private:
 	std::string target_;
 
 public:
-	bool isValid(std::string const& target) const;
+	static bool isValid(std::string const& target);
 
 	std::string const& getTarget() const;
 	void			   setTarget(std::string const& target);
@@ -17,7 +17,7 @@ public:
 	Uri& operator=(Uri const& to_copy);
 
 	Uri();
-	Uri(std::string uri);
+	explicit Uri(std::string const& uri);
 	Uri(Uri const& to_copy);
 	~Uri();
 };

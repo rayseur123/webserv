@@ -7,32 +7,32 @@
 #include "algorithm"
 
 bool
-stringIsDigit(std::string s)
+stringIsDigit(std::string const& s)
 {
-	std::string::iterator it;
+	std::string::const_iterator it;
 
 	for (it = s.begin(); it != s.end(); it++)
 	{
 		if (!isdigit(*it))
-			return 0;
+			return false;
 	}
-	return 1;
+	return true;
 }
 
 bool
-keyIsValid(std::string s)
+keyIsValid(std::string const& s)
 {
-	std::string::iterator it;
+	std::string::const_iterator it;
 
 	for (it = s.begin(); it != s.end(); it++)
 	{
 		if (!std::isalpha(*it))
 		{
 			if (*it != '-')
-				return 0;
+				return false;
 		}
 	}
-	return 1;
+	return true;
 }
 
 void
@@ -42,7 +42,7 @@ trimSpaceString(std::string& s)
 }
 
 std::vector<std::string>
-splitLineByDel(std::string line, char del)
+splitLineByDel(std::string const& line, char del)
 {
 	std::vector<std::string> tmp;
 	std::stringstream		 ss(line);
@@ -57,18 +57,6 @@ void
 toLowerString(std::string& tmp)
 {
 	std::transform(tmp.begin(), tmp.end(), tmp.begin(), tolower);
-}
-
-int
-stoi(std::string s)
-{
-	std::stringstream ss;
-	int				  nb;
-
-	ss << s;
-	ss >> std::hex >> nb;
-
-	return nb;
 }
 
 std::string

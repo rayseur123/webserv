@@ -25,7 +25,7 @@ public:
 	int	 addingBodyChunked(std::string& container);
 
 	void setMethod(Method const& method);
-	void setUri(Uri const& method);
+	void setUri(Uri const& uri);
 	void setVersion(Version const& version);
 	void setHeader(Header& type);
 	void setBody(Body const& body);

@@ -4,6 +4,8 @@
 #include <cstddef>
 #include <iostream>
 
+#define HEXA_BASE 16
+
 enum
 {
 	GETTING_LENGTH,

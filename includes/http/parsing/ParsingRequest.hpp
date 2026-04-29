@@ -27,6 +27,8 @@ private:
 	int			step_;
 	int			body_type;
 
+	static std::vector<std::string> splitHeader(std::string& line);
+
 	void defineBodyType();
 	void requestLine(std::string& line, size_t pos);
 	void headerLine(std::string& line, size_t pos);

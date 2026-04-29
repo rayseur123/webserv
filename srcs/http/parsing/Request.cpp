@@ -76,36 +76,27 @@ Request::addingInsideHeader(std::vector<std::string>& param)
 bool
 Request::bodyIsLength() const
 {
-	if (header_.has("content-length") && header_.has("content-type"))
-		return 1;
-	return 0;
+	return (header_.has("content-length") && header_.has("content-type"));
 }
 
 bool
 Request::bodyIsChunked() const
 {
-	if (header_.has("transfer-encoding"))
-		return 1;
-	return 0;
+	return (header_.has("transfer-encoding"));
 }
 
 int
 Request::addingBodyLength(std::string& line)
 {
-
 	body_.setLength(header_.getContentLength());
 
-	if (body_.lengthBody(line))
-		return 1;
-	return 0;
+	return (body_.lengthBody(line));
 }
 
 int
 Request::addingBodyChunked(std::string& container)
 {
-	if (body_.chunkedBody(container))
-		return 1;
-	return 0;
+	return (body_.chunkedBody(container));
 }
 
 Request::Request(Request const& to_copy)
@@ -133,11 +124,11 @@ Request::~Request()
 std::ostream&
 operator<<(std::ostream& os, Request& r)
 {
-	os << "Method: " << r.getMethod() << std::endl;
-	os << "URI: " << r.getUri() << std::endl;
-	os << "Version: " << r.getVersion() << std::endl;
-	os << "Header: " << std::endl << r.getHeader();
-	os << "Body: " << r.getBody() << std::endl;
+	os << "Method: " << r.getMethod() << '\n';
+	os << "URI: " << r.getUri() << '\n';
+	os << "Version: " << r.getVersion() << '\n';
+	os << "Header: " << '\n' << r.getHeader();
+	os << "Body: " << r.getBody() << '\n';
 
 	return os;
 }

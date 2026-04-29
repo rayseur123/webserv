@@ -9,11 +9,9 @@ Uri::setTarget(std::string const& target)
 }
 
 bool
-Uri::isValid(std::string const& target) const
+Uri::isValid(std::string const& target)
 {
-	if (*target.begin() == '/')
-		return 1;
-	return 0;
+	return (*target.begin() == '/');
 }
 
 std::string const&
@@ -35,7 +33,7 @@ Uri::operator=(Uri const& to_copy)
 Uri::Uri()
 {}
 
-Uri::Uri(std::string uri)
+Uri::Uri(std::string const& uri)
 {
 	if (!isValid(uri))
 		throw Error::ErrorException(400);

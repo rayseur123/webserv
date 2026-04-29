@@ -1,6 +1,7 @@
 # Prerequisites
 *.d
 *.json
+webserv
 
 # Compiled Object files
 *.slo

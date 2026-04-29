@@ -52,8 +52,8 @@ Method::Method(std::string const& method)
 		throw Error::ErrorException(405);
 	else if (method == "PUT")
 		throw Error::ErrorException(405);
-
-	throw Error::ErrorException(501);
+	else
+		throw Error::ErrorException(501);
 }
 
 Method::Method(Method const& to_copy) : type_(to_copy.type_)

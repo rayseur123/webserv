@@ -17,7 +17,8 @@ Body::chunkedBody(std::string& container)
 			if (pos == std::string::npos)
 				return 0;
 
-			length_ = std::strtoul(container.substr(0, pos).c_str(), &end, 16);
+			length_ =
+				std::strtoul(container.substr(0, pos).c_str(), &end, HEXA_BASE);
 
 			if (length_ == 0)
 				return 1;
@@ -32,7 +33,6 @@ Body::chunkedBody(std::string& container)
 
 			content_ += container.substr(0, length_);
 			container.erase(0, length_ + 2);
-			;
 			status_--;
 		}
 	}

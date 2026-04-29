@@ -49,7 +49,7 @@ ParsingRequest::requestLine(std::string& line, size_t pos)
 }
 
 std::vector<std::string>
-splitHeader(std::string& line)
+ParsingRequest::splitHeader(std::string& line)
 {
 	std::stringstream		 ss;
 	std::string				 tmp;
@@ -88,7 +88,7 @@ ParsingRequest::headerLine(std::string& line, size_t pos)
 void
 ParsingRequest::fillBuffer(std::string& tmp)
 {
-	size_t		pos;
+	size_t		pos = 0;
 	std::string line;
 
 	buffer_.append(tmp);
@@ -149,10 +149,9 @@ ParsingRequest::operator=(ParsingRequest const& to_copy)
 	return *this;
 }
 
-ParsingRequest::ParsingRequest(ParsingRequest const& to_copy)
-{
-	*this = to_copy;
-}
+ParsingRequest::ParsingRequest(ParsingRequest const& to_copy) :
+	step_(to_copy.step_), body_type(to_copy.body_type)
+{}
 
 ParsingRequest::ParsingRequest() : step_(0), body_type(0)
 {}
