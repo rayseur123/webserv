@@ -4,7 +4,7 @@
 #include <iostream>
 #include <map>
 
-class Header
+class Headers
 {
 private:
 	std::map<std::string, std::string> headers_;
@@ -19,13 +19,13 @@ public:
 
 	int getContentLength();
 
-	Header& operator=(Header const& to_copy);
+	Headers& operator=(Headers const& to_copy);
 
-	Header();
-	Header(Header const& to_copy);
-	~Header();
+	Headers();
+	Headers(Headers const& to_copy);
+	~Headers();
 };
 
-std::ostream& operator<<(std::ostream& os, Header const& m);
+std::ostream& operator<<(std::ostream& os, Headers const& m);
 
 #endif

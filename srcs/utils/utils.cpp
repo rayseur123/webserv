@@ -26,7 +26,7 @@ keyIsValid(std::string const& s)
 
 	for (it = s.begin(); it != s.end(); it++)
 	{
-		if (!std::isalpha(*it))
+		if (!isalpha(*it))
 		{
 			if (*it != '-')
 				return false;

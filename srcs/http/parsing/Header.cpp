@@ -4,14 +4,14 @@
 #include "utils/utils.hpp"
 
 void
-Header::typeAccepted(std::string& value)
+Headers::typeAccepted(std::string& value)
 {
 	if (value != "text/html")
 		value = "application/octet-stream";
 }
 
 void
-Header::set(std::string const& key, std::string& value)
+Headers::set(std::string const& key, std::string& value)
 {
 	if (has(key))
 		throw(Error::ErrorException(400));
@@ -27,13 +27,13 @@ Header::set(std::string const& key, std::string& value)
 }
 
 std::string&
-Header::get(std::string const& key)
+Headers::get(std::string const& key)
 {
 	return headers_[key];
 }
 
 bool
-Header::has(std::string const& key) const
+Headers::has(std::string const& key) const
 {
 	std::map<std::string, std::string>::const_iterator it;
 
@@ -42,7 +42,7 @@ Header::has(std::string const& key) const
 }
 
 int
-Header::getContentLength()
+Headers::getContentLength()
 {
 	std::stringstream ss;
 	int				  number = 0;
@@ -52,31 +52,31 @@ Header::getContentLength()
 	return number;
 }
 
-Header&
-Header::operator=(Header const& to_copy)
+Headers&
+Headers::operator=(Headers const& to_copy)
 {
 	if (&to_copy == this)
 		headers_ = to_copy.headers_;
 	return *this;
 }
 
-Header::Header()
+Headers::Headers()
 {}
 
-Header::Header(Header const& to_copy) : headers_(to_copy.headers_)
+Headers::Headers(Headers const& to_copy) : headers_(to_copy.headers_)
 {}
 
-Header::~Header()
+Headers::~Headers()
 {}
 
 std::map<std::string, std::string> const&
-Header::getHeaders() const
+Headers::getHeaders() const
 {
 	return headers_;
 }
 
 std::ostream&
-operator<<(std::ostream& os, Header const& m)
+operator<<(std::ostream& os, Headers const& m)
 {
 	std::map<std::string, std::string>::const_iterator it;
 

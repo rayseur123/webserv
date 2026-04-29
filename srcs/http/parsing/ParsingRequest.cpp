@@ -2,28 +2,14 @@
 #include <climits>
 #include <cstddef>
 #include <cstring>
-#include <sstream>
 #include <string>
+#include <utility>
 #include <vector>
 #include "http/Error.hpp"
 #include "http/parsing/Request.hpp"
 #include "utils/utils.hpp"
 
-// Request LINE
-void
-ParsingRequest::defineBodyType()
-{
-	Header tmp = request_.getHeader();
-	if (tmp.has("content-type") && tmp.has("content-length"))
-		body_type = LINE_BODY;
-	else if (tmp.has("transfer-encoding"))
-		body_type = CHUNK_BODY;
-	else
-	{
-		body_type = NO_BODY;
-		step_++;
-	}
-}
+// Parsing the line of REQUEST
 
 void
 ParsingRequest::requestLine(std::string& line, size_t pos)
@@ -36,54 +22,88 @@ ParsingRequest::requestLine(std::string& line, size_t pos)
 	if (request_line.size() != 3)
 		throw Error::ErrorException(400);
 
-	Method const  m(request_line[0]);
-	Uri const	  u(request_line[1]);
-	Version const v(request_line[2]);
-
-	request_.setMethod(m);
-	request_.setUri(u);
-	request_.setVersion(v);
+	request_.setMethod(request_line[0]);
+	request_.setUri(request_line[1]);
+	request_.setVersion(request_line[2]);
 
 	buffer_.erase(0, pos + 2);
 	step_++;
 }
 
-std::vector<std::string>
+// Parsing lines of HEADERS
+void
+ParsingRequest::defineBodyType()
+{
+	Headers tmp = request_.getHeader();
+
+	if (tmp.has("content-type") && tmp.has("content-length"))
+		body_type = LINE_BODY;
+	else if (tmp.has("transfer-encoding"))
+		body_type = CHUNK_BODY;
+	else
+	{
+		body_type = NO_BODY;
+		step_++;
+	}
+}
+
+std::pair<std::string, std::string>
 ParsingRequest::splitHeader(std::string& line)
 {
-	std::stringstream		 ss;
-	std::string				 tmp;
-	std::vector<std::string> buffer;
+	std::pair<std::string, std::string> head;
+	size_t								pos = 0;
 
-	ss << line;
+	pos = line.find(':');
+	if (pos == std::string::npos)
+		throw(Error::ErrorException(400));
 
-	std::getline(ss, tmp, ':');
-	buffer.push_back(tmp);
-	std::getline(ss, tmp, ':');
-	buffer.push_back(tmp);
+	head.first = line.substr(0, pos);
+	head.second = line.substr(pos + 1);
 
-	return buffer;
+	return head;
 }
 
 void
 ParsingRequest::headerLine(std::string& line, size_t pos)
 {
-	std::vector<std::string> param;
+	std::pair<std::string, std::string> head;
+
 	line.erase(pos, 2);
 
-	param = splitHeader(line);
-	toLowerString(param[0]);
-	// if (keyIsValid(param[0]))
-	// {
-	//     throw Error::ErrorException(400);
-	// }
-	trimSpaceString(param[1]);
+	head = splitHeader(line);
+	toLowerString(head.first);
 
-	request_.addingInsideHeader(param);
+	if (!keyIsValid(head.first))
+		throw Error::ErrorException(400);
+
+	trimSpaceString(head.second);
+	request_.addingInsideHeader(head);
 	buffer_.erase(0, pos + 2);
 }
 
 // Parsing Management
+
+bool
+ParsingRequest::handleEndHeaders(std::string const& line)
+{
+	if (line == "\r\n")
+	{
+		step_++;
+		buffer_.erase(0, 2);
+		defineBodyType();
+		return true;
+	}
+	return false;
+}
+
+void
+ParsingRequest::processBody()
+{
+	if (step_ == BODY && body_type == LINE_BODY)
+		step_ += request_.addingBodyLength(buffer_);
+	if (step_ == CHUNK_BODY)
+		step_ += request_.addingBodyChunked(buffer_);
+}
 
 void
 ParsingRequest::fillBuffer(std::string& tmp)
@@ -92,7 +112,7 @@ ParsingRequest::fillBuffer(std::string& tmp)
 	std::string line;
 
 	buffer_.append(tmp);
-	while (step_ != FINISH && body_type != CHUNK_BODY && body_type != NO_BODY)
+	while (step_ != FINISH && body_type < CHUNK_BODY)
 	{
 		pos = buffer_.find("\r\n");
 		if (pos == std::string::npos)
@@ -101,27 +121,15 @@ ParsingRequest::fillBuffer(std::string& tmp)
 		line = buffer_.substr(0, pos + 2);
 
 		if (step_ == REQUEST)
-		{
 			requestLine(line, pos);
-		}
 		else if (step_ == HEADER)
 		{
-			if (line == "\r\n")
-			{
-				step_++;
-				defineBodyType();
-				buffer_.erase(0, 2);
-				if (body_type == NO_BODY || body_type == CHUNK_BODY)
-					break;
-			}
-			else
-				headerLine(line, pos);
+			if (handleEndHeaders(line))
+				break;
+			headerLine(line, pos);
 		}
-		if (step_ == BODY)
-			step_ += request_.addingBodyLength(buffer_);
 	}
-	if (step_ == CHUNK_BODY)
-		step_ += request_.addingBodyChunked(buffer_);
+	processBody();
 }
 
 int

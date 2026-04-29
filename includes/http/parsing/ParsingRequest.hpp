@@ -1,6 +1,7 @@
 #ifndef PARSING_REQUEST_HPP
 #define PARSING_REQUEST_HPP
 
+#include <utility>
 #include "http/parsing/Request.hpp"
 
 enum
@@ -14,9 +15,9 @@ enum
 enum
 {
 	UNDEFINED,
-	NO_BODY,
+	LINE_BODY,
 	CHUNK_BODY,
-	LINE_BODY
+	NO_BODY
 };
 
 class ParsingRequest
@@ -27,8 +28,10 @@ private:
 	int			step_;
 	int			body_type;
 
-	static std::vector<std::string> splitHeader(std::string& line);
+	static std::pair<std::string, std::string> splitHeader(std::string& line);
+	bool handleEndHeaders(std::string const& line);
 
+	void processBody();
 	void defineBodyType();
 	void requestLine(std::string& line, size_t pos);
 	void headerLine(std::string& line, size_t pos);

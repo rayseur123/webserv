@@ -1,5 +1,7 @@
 #include "http/parsing/Request.hpp"
+#include <algorithm>
 #include <string>
+#include <utility>
 #include <vector>
 #include "http/parsing/Body.hpp"
 #include "http/parsing/Header.hpp"
@@ -11,9 +13,21 @@ Request::setMethod(Method const& method)
 }
 
 void
+Request::setMethod(std::string const& method)
+{
+	method_ = Method(method);
+}
+
+void
 Request::setUri(Uri const& uri)
 {
 	uri_ = uri;
+}
+
+void
+Request::setUri(std::string const& target)
+{
+	uri_ = Uri(target);
 }
 
 void
@@ -23,9 +37,15 @@ Request::setVersion(Version const& version)
 }
 
 void
-Request::setHeader(Header& type)
+Request::setVersion(std::string const& version)
 {
-	header_ = type;
+	version_ = Version(version);
+}
+
+void
+Request::setHeaders(Headers& type)
+{
+	headers_ = type;
 }
 
 void
@@ -52,10 +72,10 @@ Request::getVersion() const
 	return version_;
 }
 
-Header
+Headers
 Request::getHeader()
 {
-	return header_;
+	return headers_;
 }
 
 Body const&
@@ -68,27 +88,27 @@ Request::Request()
 {}
 
 void
-Request::addingInsideHeader(std::vector<std::string>& param)
+Request::addingInsideHeader(std::pair<std::string, std::string>& head)
 {
-	header_.set(param[0], param[1]);
+	headers_.set(head.first, head.second);
 }
 
 bool
 Request::bodyIsLength() const
 {
-	return (header_.has("content-length") && header_.has("content-type"));
+	return (headers_.has("content-length") && headers_.has("content-type"));
 }
 
 bool
 Request::bodyIsChunked() const
 {
-	return (header_.has("transfer-encoding"));
+	return (headers_.has("transfer-encoding"));
 }
 
 int
 Request::addingBodyLength(std::string& line)
 {
-	body_.setLength(header_.getContentLength());
+	body_.setLength(headers_.getContentLength());
 
 	return (body_.lengthBody(line));
 }
@@ -112,7 +132,7 @@ Request::operator=(Request const& to_copy)
 		method_ = to_copy.method_;
 		uri_ = to_copy.uri_;
 		version_ = to_copy.version_;
-		header_ = to_copy.header_;
+		headers_ = to_copy.headers_;
 		body_ = to_copy.body_;
 	}
 	return *this;

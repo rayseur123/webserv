@@ -21,8 +21,8 @@ private:
 	int type_;
 
 public:
-	int	 getMethod() const;
-	void setMethod(int type);
+	int	 getType() const;
+	void setType(int type);
 
 	bool	operator==(Method const& m) const;
 	bool	operator!=(Method const& m) const;

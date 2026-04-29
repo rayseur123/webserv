@@ -19,13 +19,13 @@ Connection::handleConnectionRequest()
 	std::string tmp(buffer, bytes);
 	// std::string tmp;
 
-	tmp = "GET /test/ HTTP/1.1\r\nHost: exemple.fr\r\nContent-Type: "
-		  "\r\nContent-Length: 27\r\n\r\nfield1=value1&field2=value2\r\n";
+	// tmp = "GET /test/ HTTP/1.1\r\nHost: exemple.fr\r\nContent-Type: "
+	//   "\r\nContent-Length: 27\r\n\r\nfield1=value1&field2=value2\r\n";
 	parsing_request_.fillBuffer(tmp);
 
 	if (parsing_request_.getStep() != FINISH)
 		return 0;
-	std::cout << parsing_request_.getRequest() << std::endl;
+	std::cout << parsing_request_.getRequest() << '\n';
 	// ResponseGet	response(request);
 
 	// std::cout << "uri : " << request.getUri();
