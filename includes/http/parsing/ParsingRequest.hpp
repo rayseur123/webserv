@@ -6,22 +6,23 @@
 
 enum
 {
-	REQUEST,
-	HEADER,
-	BODY,
-	FINISH
-};
-
-enum
-{
 	UNDEFINED,
 	LINE_BODY,
 	CHUNK_BODY,
 	NO_BODY
 };
 
+enum
+{
+	REQUEST,
+	HEADER,
+	BODY,
+	FINISH
+};
+
 class ParsingRequest
 {
+
 private:
 	std::string buffer_;
 	Request		request_;
@@ -38,6 +39,7 @@ private:
 
 public:
 	void fillBuffer(std::string& tmp);
+	void resetParsingAndRequest();
 
 	Request& getRequest();
 	int		 getStep() const;

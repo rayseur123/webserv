@@ -19,6 +19,8 @@ public:
 	virtual int		handleEvent(EpollManager& manager, int events);
 	Listener const& getServer() const;
 
+	void setMaxClientRequestBody();
+
 	Connection(int fd, Listener& server);
 	Connection(Connection const& to_copy);
 	Connection& operator=(Connection const& to_copy);

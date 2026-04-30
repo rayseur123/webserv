@@ -1,6 +1,7 @@
 #include "http/parsing/Version.hpp"
 #include <cstdlib>
 #include "http/Error.hpp"
+#include "utils/utils.hpp"
 
 void
 Version::setProtocol(std::string const& protocol)
@@ -50,25 +51,16 @@ Version::Version(std::string const& version)
 	std::stringstream ss(version);
 	std::string		  tmp;
 
-	// PATCH ICI LA VERSION CA NE SE LIMITE PAS A 8
-	if (version.length() != 8)
-	{
-		throw Error::ErrorException(400);
-	}
-
 	std::getline(ss, tmp, '/');
 	if (tmp != "HTTP")
 		throw Error::ErrorException(400);
 	protocol_ = tmp;
 
 	std::getline(ss, tmp, '.');
-	if (tmp.length() != 1)
-		throw Error::ErrorException(400);
 	first_nb_ = convertInNb(tmp);
 
 	ss >> tmp;
-	if (tmp.length() != 1)
-		throw Error::ErrorException(400);
+
 	sec_nb_ = convertInNb(tmp);
 
 	isValid();
@@ -77,7 +69,7 @@ Version::Version(std::string const& version)
 void
 Version::isValid() const
 {
-	if (first_nb_ != 1 || sec_nb_ != 1)
+	if (first_nb_ != 1 || sec_nb_ > 1)
 		throw Error::ErrorException(505);
 }
 

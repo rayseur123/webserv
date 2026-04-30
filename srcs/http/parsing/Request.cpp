@@ -124,6 +124,16 @@ Request::Request(Request const& to_copy)
 	*this = to_copy;
 }
 
+void
+Request::resetRequest()
+{
+	method_ = Method();
+	uri_ = Uri();
+	version_ = Version();
+	headers_ = Headers();
+	body_ = Body();
+}
+
 Request&
 Request::operator=(Request const& to_copy)
 {

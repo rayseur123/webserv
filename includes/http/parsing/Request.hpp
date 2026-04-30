@@ -34,6 +34,8 @@ public:
 	void setHeaders(std::string const& method);
 	void setBody(Body const& body);
 
+	void resetRequest();
+
 	Method const&  getMethod() const;
 	Uri const&	   getUri() const;
 	Version const& getVersion() const;

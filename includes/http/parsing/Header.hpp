@@ -14,6 +14,7 @@ public:
 
 	void		 set(std::string const& key, std::string& value);
 	std::string& get(std::string const& key);
+
 	std::map<std::string, std::string> const& getHeaders() const;
 	bool									  has(std::string const& key) const;
 

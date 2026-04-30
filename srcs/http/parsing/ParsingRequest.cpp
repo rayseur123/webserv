@@ -2,15 +2,16 @@
 #include <climits>
 #include <cstddef>
 #include <cstring>
+#include <ostream>
 #include <string>
 #include <utility>
 #include <vector>
 #include "http/Error.hpp"
+#include "http/parsing/Body.hpp"
 #include "http/parsing/Request.hpp"
 #include "utils/utils.hpp"
 
 // Parsing the line of REQUEST
-
 void
 ParsingRequest::requestLine(std::string& line, size_t pos)
 {
@@ -36,10 +37,10 @@ ParsingRequest::defineBodyType()
 {
 	Headers tmp = request_.getHeader();
 
-	if (tmp.has("content-type") && tmp.has("content-length"))
-		body_type = LINE_BODY;
-	else if (tmp.has("transfer-encoding"))
+	if (tmp.has("transfer-encoding"))
 		body_type = CHUNK_BODY;
+	else if (tmp.has("content-type") && tmp.has("content-length"))
+		body_type = LINE_BODY;
 	else
 	{
 		body_type = NO_BODY;
@@ -101,7 +102,7 @@ ParsingRequest::processBody()
 {
 	if (step_ == BODY && body_type == LINE_BODY)
 		step_ += request_.addingBodyLength(buffer_);
-	if (step_ == CHUNK_BODY)
+	if (step_ == BODY && body_type == CHUNK_BODY)
 		step_ += request_.addingBodyChunked(buffer_);
 }
 
@@ -112,7 +113,7 @@ ParsingRequest::fillBuffer(std::string& tmp)
 	std::string line;
 
 	buffer_.append(tmp);
-	while (step_ != FINISH && body_type < CHUNK_BODY)
+	while (step_ != FINISH)
 	{
 		pos = buffer_.find("\r\n");
 		if (pos == std::string::npos)
@@ -124,12 +125,26 @@ ParsingRequest::fillBuffer(std::string& tmp)
 			requestLine(line, pos);
 		else if (step_ == HEADER)
 		{
-			if (handleEndHeaders(line))
+			if (!handleEndHeaders(line))
+				headerLine(line, pos);
+			if (body_type == LINE_BODY)
 				break;
-			headerLine(line, pos);
+		}
+		if (step_ == BODY && body_type == CHUNK_BODY)
+		{
+			step_ += request_.addingBodyChunked(buffer_);
 		}
 	}
-	processBody();
+	if (step_ == BODY && body_type == LINE_BODY)
+		step_ += request_.addingBodyLength(buffer_);
+}
+
+void
+ParsingRequest::resetParsingAndRequest()
+{
+	step_ = 0;
+	body_type = 0;
+	request_.resetRequest();
 }
 
 int

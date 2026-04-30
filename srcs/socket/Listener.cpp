@@ -61,6 +61,7 @@ Listener::setNoBlockingFd()
 int
 Listener::createListenerSocket()
 {
+	int		 option = 1;
 	addrinfo hints = {};
 	hints.ai_family = AF_UNSPEC; // IPv4 / IPv6
 	hints.ai_socktype =
@@ -82,6 +83,8 @@ Listener::createListenerSocket()
 					 addr_try->ai_protocol);
 		if (fd_ == -1)
 			continue;
+
+		setsockopt(fd_, SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option));
 
 		if (bind(fd_, addr_try->ai_addr, addr_try->ai_addrlen) == 0)
 			break;

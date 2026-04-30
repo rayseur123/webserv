@@ -7,12 +7,16 @@ class Uri
 {
 private:
 	std::string target_;
+	std::string query_;
 
 public:
 	static bool isValid(std::string const& target);
 
 	std::string const& getTarget() const;
-	void			   setTarget(std::string const& target);
+	std::string const& getQuery() const;
+
+	void setTarget(std::string const& target);
+	void setQuery(std::string const& query);
 
 	Uri& operator=(Uri const& to_copy);
 

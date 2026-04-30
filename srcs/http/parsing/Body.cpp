@@ -1,41 +1,50 @@
 #include "http/parsing/Body.hpp"
 #include <cstdlib>
 #include <string>
+#include "http/Error.hpp"
 
 int
 Body::chunkedBody(std::string& container)
 {
 	char* end = NULL;
 
-	while (true)
+	size_t pos = 0;
+
+	if (status_ == GETTING_LENGTH)
 	{
-		size_t pos = 0;
+		pos = container.find("\r\n");
+		if (pos == std::string::npos)
+			return 0;
 
-		if (status_ == GETTING_LENGTH)
-		{
-			pos = container.find("\r\n");
-			if (pos == std::string::npos)
-				return 0;
+		length_ =
+			std::strtoul(container.substr(0, pos).c_str(), &end, HEXA_BASE);
 
-			length_ =
-				std::strtoul(container.substr(0, pos).c_str(), &end, HEXA_BASE);
+		container.erase(0, pos + 2);
+		if (length_ == 0)
+			return 1;
 
-			if (length_ == 0)
-				return 1;
-
-			container.erase(0, pos + 2);
-			status_++;
-		}
-		if (status_ == READING)
-		{
-			if (container.size() < length_ + 2)
-				return 0;
-
-			content_ += container.substr(0, length_);
-			container.erase(0, length_ + 2);
-			status_--;
-		}
+		status_++;
 	}
+	if (status_ == READING)
+	{
+		std::string tmp;
+		size_t		last = 0;
+
+		if (container.size() < length_ + 2)
+			return 0;
+
+		tmp = container.substr(0, length_);
+
+		last = container.find("\r\n");
+		if (last != length_)
+			throw(Error::ErrorException(400));
+
+		content_ += container.substr(0, length_);
+
+		container.erase(0, length_ + 2);
+		status_--;
+	}
+	return 0;
 }
 
 int

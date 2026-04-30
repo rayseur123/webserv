@@ -56,7 +56,8 @@ Headers&
 Headers::operator=(Headers const& to_copy)
 {
 	if (&to_copy == this)
-		headers_ = to_copy.headers_;
+		return *this;
+	headers_ = to_copy.headers_;
 	return *this;
 }
 
