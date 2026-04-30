@@ -2,6 +2,7 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include "http/parsing/ParsingRequest.hpp"
 #include "http/parsing/Request.hpp"
 #include "http/ResponseGet.hpp"
 #include "socket/Listener.hpp"
@@ -19,17 +20,18 @@ Connection::handleConnectionRequest()
 	std::string tmp(buffer, bytes);
 	// std::string tmp;
 
-	tmp = "GET /test/ HTTP/1.1\r\nHost: exemple.fr\r\nContent-Type: "
-		  "\r\nContent-Length: 27\r\n\r\nfield1=value1&field2=value2\r\n";
+	// tmp = "GET / HTTP/1.1\r\nHost: exemple.fr\r\nContent-Type: "
+	//		  "\r\nContent-Length: 27\r\n\r\nfield1=value1&field2=value2\r\n";
 	parsing_request_.fillBuffer(tmp);
+	std::cout << parsing_request_ << '\n';
 
 	if (parsing_request_.getStep() != FINISH)
 		return 0;
-	std::cout << parsing_request_.getRequest() << std::endl;
-	// ResponseGet	response(request);
+	ResponseGet response(parsing_request_.getRequest());
 
-	// std::cout << "uri : " << request.getUri();
-	// response.buildResponseStr(server_.getLocations());
+	std::string response_str =
+		response.buildResponseStr(server_.getLocations());
+	send(fd_, response_str.c_str(), response_str.size(), 0);
 	return (0);
 }
 

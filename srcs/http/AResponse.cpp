@@ -21,7 +21,6 @@ AResponse::getGoodLocation(std::vector<Location> const& locations_vec) const
 			ret = it;
 		}
 	}
-	std::cout << best_value << std::endl;
 	if (best_value == 0)
 		throw std::logic_error("404");
 	return (*ret);

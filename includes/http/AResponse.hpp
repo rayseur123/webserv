@@ -3,6 +3,7 @@
 
 #include <map>
 #include <string>
+
 #include "http/parsing/Request.hpp"
 #include "parsing/Location.hpp"
 
@@ -18,6 +19,7 @@ protected:
 public:
 	Location const&
 	getGoodLocation(std::vector<Location> const& locations_vec) const;
+
 	virtual std::string
 	buildResponseStr(std::vector<Location> const& locations_vec) const = 0;
 
