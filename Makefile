@@ -1,4 +1,5 @@
 NAME := webserv
+MOD ?= normal
 
 # ---------------------------------------------------------#
 #                       DIRECTORIES                        #
@@ -71,7 +72,7 @@ SYS_LIBS := $(addprefix -l, $(SYS_LIBS))
 #                           OBJS                           #
 # ---------------------------------------------------------#
 
-BUILD_DIR   := .build/
+BUILD_DIR   := .build/$(MOD)/
 OBJS_DIR    := $(BUILD_DIR)objs/
 OBJS := $(patsubst $(SRCS_DIR)%.cpp, $(OBJS_DIR)%.o, $(SRCS))
 
@@ -87,7 +88,7 @@ CPPFLAGS += -MMD -MP
 #                   CONFIG COMPILATION                     #
 # ---------------------------------------------------------#
 
-CFLAGS += -std=c++98 -Wall -Wextra -Werror -g3
+CFLAGS += -std=c++98
 
 CC = c++
 
@@ -95,7 +96,9 @@ CC = c++
 #                           MOD                            #
 # ---------------------------------------------------------#
 
-ifeq ($(MOD), debug)
+ifeq ($(MOD), normal)
+	CFLAGS += -Wall -Werror -Wextra
+else ifeq ($(MOD), debug)
 	CFLAGS += -g3
 endif
 
