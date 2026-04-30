@@ -1,5 +1,4 @@
 NAME := webserv
-MOD ?= normal
 
 # ---------------------------------------------------------#
 #                       DIRECTORIES                        #
@@ -72,9 +71,10 @@ SYS_LIBS := $(addprefix -l, $(SYS_LIBS))
 #                           OBJS                           #
 # ---------------------------------------------------------#
 
-BUILD_DIR   := .build/$(MOD)/
-OBJS_DIR    := $(BUILD_DIR)objs/
-OBJS := $(patsubst $(SRCS_DIR)%.cpp, $(OBJS_DIR)%.o, $(SRCS))
+MAKE_DIR 	:= .build/
+BUILD_DIR   := .build/
+OBJS_DIR    = $(BUILD_DIR)objs/
+OBJS = $(patsubst $(SRCS_DIR)%.cpp, $(OBJS_DIR)%.o, $(SRCS))
 
 # ---------------------------------------------------------#
 #                           DEPS                           #
@@ -96,10 +96,25 @@ CC = c++
 #                           MOD                            #
 # ---------------------------------------------------------#
 
-ifeq ($(MOD), normal)
+MOD ?=
+
+MODE_TRACE	:= $(BUILD_DIR)/.mode_trace
+LAST_MOD	:= $(shell cat $(MODE_TRACE) 2>/dev/null)
+
+ifneq ($(MOD), )
+	BUILD_DIR := $(BUILD_DIR)$(MOD)/
+else
+	BUILD_DIR := $(BUILD_DIR)normal/
+endif
+
+ifeq ($(MOD), )
 	CFLAGS += -Wall -Werror -Wextra
 else ifeq ($(MOD), debug)
 	CFLAGS += -g3
+endif
+
+ifneq ($(LAST_MOD), $(MOD))
+$(NAME): force
 endif
 
 # ---------------------------------------------------------#
@@ -109,7 +124,8 @@ endif
 all: $(NAME)
 
 $(NAME): $(LIBS_TARGET) $(OBJS)
-	$(CC) $^ -o $@ $(SYS_LIBS)
+	@echo $(MOD) > $(MODE_TRACE)
+	$(CC) $(OBJS) -o $@ $(SYS_LIBS)
 
 $(OBJS_DIR)%.o: $(SRCS_DIR)%.cpp
 	@mkdir -p $(dir $@)
@@ -128,12 +144,11 @@ force:
 # ---------------------------------------------------------#
 
 clean:
-	rm -rf $(BUILD_DIR)
+	rm -rf $(MAKE_DIR)
 	$(foreach lib,$(LIBS_TARGET),$(MAKE) -C $(dir $(lib)) clean;)
 
 fclean: clean
 	rm -rf $(NAME)
-	$(foreach lib,$(LIBS_TARGET),$(MAKE) -C $(dir $(lib)) fclean;)
 
 re:
 	$(MAKE) fclean
