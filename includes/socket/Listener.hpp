@@ -4,32 +4,34 @@
 #include <string>
 #include <utility>
 #include <vector>
+
 #include "epoll/EpollManager.hpp"
 #include "parsing/Location.hpp"
 #include "socket/ASocket.hpp"
 
 #define LISTEN_QUEUE 10
+#define BASE		 10
 
 class Listener : public ASocket
 {
 private:
-	int							max_client_request_body_;
-	std::string					address_;
-	std::string					port_;
-	std::vector<Location>		locations_vec_;
-	std::pair<int, std::string> error_page_;
+	int										 max_client_request_body_;
+	std::string								 address_;
+	std::string								 port_;
+	std::vector<Location>					 locations_vec_;
+	std::pair<std::vector<int>, std::string> error_page_;
 
 public:
 	void acceptNewConnection(EpollManager& manager);
 	void setNoBlockingFd();
 	int	 createListenerSocket();
-	int	 handleEvent(EpollManager& manager, int events);
+	int	 handleEvent(EpollManager& manager, uint32_t events);
 
-	int								   getMaxClientRequestBody() const;
-	std::string const&				   getPort() const;
-	std::string const&				   getAddress() const;
-	std::vector<Location> const&	   getLocations() const;
-	std::pair<int, std::string> const& getErrorPage() const;
+	int							 getMaxClientRequestBody() const;
+	std::string const&			 getPort() const;
+	std::string const&			 getAddress() const;
+	std::vector<Location> const& getLocations() const;
+	std::pair<std::vector<int>, std::string> const& getErrorPage() const;
 
 	void setLocations(std::vector<Location> const& location_vec);
 	void setMaxClientRequestBody(std::string const& max_client_request_body);

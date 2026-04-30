@@ -1,6 +1,8 @@
 #ifndef ASOCKET_HPP
 #define ASOCKET_HPP
 
+#include <stdint.h>
+
 class EpollManager;
 
 class ASocket
@@ -10,7 +12,7 @@ protected:
 
 public:
 	int			getFd() const;
-	virtual int handleEvent(EpollManager& manager, int events) = 0;
+	virtual int handleEvent(EpollManager& manager, uint32_t events) = 0;
 
 	ASocket();
 	ASocket(int fd);

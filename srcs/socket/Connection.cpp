@@ -34,7 +34,7 @@ Connection::handleConnectionRequest()
 }
 
 int
-Connection::handleEvent(EpollManager& manager, int events)
+Connection::handleEvent(EpollManager& manager, uint32_t events)
 {
 	(void) manager;
 	if (events & (EPOLLERR | EPOLLRDHUP))

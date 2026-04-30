@@ -1,11 +1,12 @@
-#include "parsing/Location.hpp"
 #include <climits>
 #include <cstddef>
 #include <iostream>
 #include <stdexcept>
 #include <string>
 #include <vector>
+
 #include "http/parsing/Method.hpp"
+#include "parsing/Location.hpp"
 
 int
 Location::getValue(std::string const& uri) const
@@ -161,10 +162,10 @@ Location::operator=(Location const& to_copy)
 std::ostream&
 operator<<(std::ostream& os, Location const& to_print)
 {
-	os << "\t\tLOCATION " << to_print.getPath() << " {" << std::endl;
-	os << "\t\t\troot: " << to_print.getRoot() << std::endl;
+	os << "\t\tLOCATION " << to_print.getPath() << " {" << '\n';
+	os << "\t\t\troot: " << to_print.getRoot() << '\n';
 	os << "\t\t\tautoindex: " << (to_print.getAutoIndex() ? "on" : "off")
-	   << std::endl;
+	   << '\n';
 
 	os << "\t\t\tmethods: ";
 	int m = to_print.getAllowMethods();
@@ -174,18 +175,18 @@ operator<<(std::ostream& os, Location const& to_print)
 		os << "POST ";
 	if (m & DELETE)
 		os << "DELETE ";
-	os << std::endl;
+	os << '\n';
 
 	if (!to_print.getIndex().empty())
-		os << "\t\t\tindex: " << to_print.getIndex() << std::endl;
+		os << "\t\t\tindex: " << to_print.getIndex() << '\n';
 	if (!to_print.getRedirect().empty())
-		os << "\t\t\tredirect: " << to_print.getRedirect() << std::endl;
+		os << "\t\t\tredirect: " << to_print.getRedirect() << '\n';
 	if (!to_print.getUploadStore().empty())
-		os << "\t\t\tupload: " << to_print.getUploadStore() << std::endl;
+		os << "\t\t\tupload: " << to_print.getUploadStore() << '\n';
 	if (!to_print.getCgiPass().empty())
-		os << "\t\t\tcgi: " << to_print.getCgiPass() << std::endl;
+		os << "\t\t\tcgi: " << to_print.getCgiPass() << '\n';
 
-	os << "\t\t}" << std::endl;
+	os << "\t\t}" << '\n';
 	return (os);
 }
 
