@@ -3,6 +3,7 @@
 #include <unistd.h>
 
 #include "http/Code.hpp"
+#include "http/parsing/Method.hpp"
 #include "http/parsing/ParsingRequest.hpp"
 #include "http/parsing/Request.hpp"
 #include "http/ResponseGet.hpp"
@@ -35,8 +36,14 @@ Connection::handleConnectionRequest()
 
 	// ResponseGet	response(request);
 	ResponseGet response(parsing_request_.getRequest());
+	Request		request = parsing_request_.getRequest();
 
-	std::string response_str = response.buildResponse(server_.getLocations());
+	std::string response_str;
+	if (request.getMethod().getType() == GET)
+	{
+		ResponseGet response(request);
+		response_str = response.buildResponse(server_.getLocations());
+	}
 	send(fd_, response_str.c_str(), response_str.size(), 0);
 	return (0);
 }
