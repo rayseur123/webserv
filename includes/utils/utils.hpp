@@ -5,11 +5,10 @@
 #include <vector>
 
 std::string				 messageError(std::string const& function_name);
-bool					 keyIsValid(std::string s);
-bool					 stringIsDigit(std::string s);
-int						 stoi(std::string s);
+bool					 keyIsValid(std::string const& s);
+bool					 stringIsDigit(std::string const& s);
 void					 toLowerString(std::string& tmp);
-std::vector<std::string> splitLineByDel(std::string line, char del);
+std::vector<std::string> splitLineByDel(std::string const& line, char del);
 void					 trimSpaceString(std::string& s);
 
 template<typename T>

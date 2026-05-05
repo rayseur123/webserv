@@ -1,6 +1,4 @@
-#include <vector>
 #include "epoll/EpollManager.hpp"
-#include "http/Error.hpp"
 #include "parsing/Block.hpp"
 #include "socket/Listener.hpp"
 
@@ -20,10 +18,6 @@ main(int ac, char** av)
 		std::vector<Listener> server_vec = block.makeServerVec();
 
 		EpollManager net(server_vec);
-	}
-	catch (Error::ErrorException const& e)
-	{
-		std::cerr << e.get_code();
 	}
 	catch (std::exception const& e)
 	{

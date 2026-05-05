@@ -10,15 +10,15 @@ private:
 	int			first_nb_;
 	int			sec_nb_;
 
-	int	 convertInNb(std::string buffer);
-	void isValid() const;
+	static int convertInNb(std::string const& buffer);
+	void	   isValid() const;
 
 public:
 	std::string getProtocol() const;
 	int			getFirstNb() const;
 	int			getSecNb() const;
 
-	void setProtocol(std::string protocol);
+	void setProtocol(std::string const& protocol);
 	void setFirstNb(int nb);
 	void setSecNb(int nb);
 
@@ -27,7 +27,7 @@ public:
 	bool operator<=(Version const& m) const;
 
 	Version();
-	Version(std::string version);
+	explicit Version(std::string const& version);
 	Version(Version const& to_copy);
 	Version& operator=(Version const& to_copy);
 	~Version();
