@@ -12,7 +12,7 @@
 #include <string>
 #include <sys/types.h>
 
-#define GET_CHECKER (1u << 0)
+#define GET_CHECKER (1u << 0u)
 
 namespace
 {
@@ -33,14 +33,13 @@ ResponseGet::buildResponse(std::vector<Location> const& locations_vec)
 	std::string		body;
 
 	if (location.checkAllowMethods(GET_CHECKER) == 1)
-		throw std::logic_error("400");
+		throw std::logic_error("4001");
 
 	file_path = location.buildPath(request_);
 	if (!location.getIndex().empty())
 		file_path += location.getIndex();
 
 	int fd = open(file_path.c_str(), O_DIRECTORY | O_CLOEXEC);
-
 	if (fd != -1 && location.getAutoIndex()) // its a folder
 	{
 		DIR* dir = opendir(file_path.c_str());
@@ -57,7 +56,7 @@ ResponseGet::buildResponse(std::vector<Location> const& locations_vec)
 		body = readFileContent(file);
 		error_code_ = 200;
 	}
-	setBody(body);
+	setBody(body, file_path);
 	return (buildResponseStr());
 }
 
@@ -79,7 +78,7 @@ ResponseGet::operator=(ResponseGet const& to_copy)
 	if (this == &to_copy)
 		return (*this);
 	request_ = to_copy.request_;
-	request_line_ = to_copy.request_line_;
+	status_line_ = to_copy.status_line_;
 	header_vec_ = to_copy.header_vec_;
 	body_ = to_copy.body_;
 	return (*this);

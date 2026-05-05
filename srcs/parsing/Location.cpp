@@ -12,13 +12,20 @@ std::string
 Location::buildPath(Request const& request) const
 {
 	std::string uri(request.getUri().getTarget());
-	return (root_ + uri.substr(0, path_.length())); // corriger ici
+	std::string suffix = uri.substr(path_.length());
+	std::string root = root_;
+
+	if (!suffix.empty() && suffix[0] != '/' &&
+		(root.empty() || root[root.length() - 1] != '/'))
+		return root + "/" + suffix;
+	return root + suffix;
 }
 
 int
 Location::checkAllowMethods(unsigned int actual_methods) const
 {
-	if ((allow_methods_ & actual_methods) == 1)
+	std::cout << "allow :" << allow_methods_ << std::endl;
+	if ((allow_methods_ & actual_methods) != 0)
 		return (0);
 	return (1);
 }
@@ -48,7 +55,22 @@ Location::getValue(std::string const& uri) const
 void
 Location::setRoot(std::string const& root)
 {
-	root_ = root;
+	if (root.empty())
+	{
+		root_ = ".";
+		return;
+	}
+
+	std::string temp = root;
+	if (temp.length() > 1 && temp[temp.length() - 1] == '/')
+		temp.erase(temp.length() - 1);
+
+	if (temp.find("./") == 0)
+		root_ = temp;
+	else if (temp[0] != '/')
+		root_ = "/" + temp;
+	else
+		root_ = "./" + temp;
 }
 
 void
@@ -83,7 +105,14 @@ Location::setAutoIndex(std::string const& autoindex)
 void
 Location::setIndex(std::string const& index)
 {
-	index_ = index;
+	std::string temp = index;
+
+	if (index[0] != '/')
+		temp = "/" + temp;
+
+	if (temp.length() > 1 && temp[temp.length() - 1] == '/')
+		temp.erase(temp.length() - 1);
+	index_ = temp;
 }
 
 void

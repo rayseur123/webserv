@@ -46,20 +46,48 @@ AResponse::generateAutoIndex(std::string const& path, std::string const& uri)
 	DIR* dir = opendir(path.c_str());
 	if (dir == NULL)
 		throw std::logic_error("404");
-	std::string	   ret(uri + "<br><br>");
+
+	std::string ret;
+	ret += "<!DOCTYPE html><html><head><meta charset='UTF-8'>";
+	ret += "<title>Index of " + uri + "</title>";
+	ret += "<style>";
+	ret += "body{margin:0;background:#0f0f0f;color:#e0e0e0;font-family:'"
+		   "Courier New',monospace;}";
+	ret += "header{padding:2rem;border-bottom:1px solid #2a2a2a;}";
+	ret += "h1{margin:0;font-size:1.1rem;font-weight:normal;color:#888;}";
+	ret += "h1 span{color:#fff;}";
+	ret += "table{width:100%;border-collapse:collapse;}";
+	ret += "tr{border-bottom:1px solid #1a1a1a;transition:background .15s;}";
+	ret += "tr:hover{background:#1a1a1a;}";
+	ret += "td{padding:.7rem 2rem;font-size:.9rem;}";
+	ret += "td:first-child{color:#5b9bd5;}";
+	ret += "a{color:inherit;text-decoration:none;}";
+	ret += "a:hover{text-decoration:underline;}";
+	ret += "</style></head><body>";
+	ret += "<header><h1>Index of <span>" + uri + "</span></h1></header>";
+	ret += "<table>";
+
 	struct dirent* content = readdir(dir);
 	while (content != NULL)
 	{
-		ret += "- ";
+		ret += "<tr><td><a href='";
+		ret += uri;
+		if (uri[uri.length() - 1] != '/')
+			ret += '/';
 		ret += content->d_name;
-		ret += "<br>";
+		ret += "'>";
+		ret += content->d_name;
+		ret += "</a></td></tr>";
 		content = readdir(dir);
 	}
+
+	ret += "</table></body></html>";
+	closedir(dir);
 	return (ret);
 }
 
 void
-AResponse::setBody(std::string const& body)
+AResponse::setBody(std::string const& body, std::string const& file_path)
 {
 	body_ = body;
 
@@ -79,13 +107,14 @@ AResponse::setBody(std::string const& body)
 		}
 		if (it->find("Content-Type:") != std::string::npos)
 		{
+			*it = "Content-Type: " + findType(file_path);
 			foundType = true;
 		}
 	}
 	if (!foundLen)
 		header_vec_.push_back("Content-Length: " + ss.str());
 	if (!foundType)
-		header_vec_.push_back("Content-Type: text/html");
+		header_vec_.push_back("Content-Type: " + findType(file_path));
 }
 
 void
@@ -103,6 +132,13 @@ AResponse::setResponseCode(int code)
 	error_code_ = code;
 }
 
+std::string
+AResponse::findType(std::string const& file_name) const
+{
+	(void) file_name;
+	return ("text/html"); // fonction a changer
+}
+
 Request const&
 AResponse::getRequest() const
 {
@@ -112,7 +148,7 @@ AResponse::getRequest() const
 std::string const&
 AResponse::getRequestLine() const
 {
-	return (request_line_);
+	return (status_line_);
 }
 
 std::vector<std::string> const&
@@ -167,15 +203,15 @@ AResponse::AResponse() : error_code_()
 AResponse::AResponse(Request const& request) : request_(request), error_code_()
 {}
 
-AResponse::AResponse(Request const& request, std::string const& request_line,
+AResponse::AResponse(Request const& request, std::string const& status_line,
 					 std::vector<std::string> const& header_vec,
 					 std::string const&				 body) :
-	request_(request), request_line_(request_line), header_vec_(header_vec),
+	request_(request), status_line_(status_line), header_vec_(header_vec),
 	body_(body), error_code_()
 {}
 
 AResponse::AResponse(AResponse const& to_copy) :
-	request_(to_copy.request_), request_line_(to_copy.request_line_),
+	request_(to_copy.request_), status_line_(to_copy.status_line_),
 	header_vec_(to_copy.header_vec_), body_(to_copy.body_), error_code_()
 {}
 
@@ -188,7 +224,7 @@ AResponse::operator=(AResponse const& to_copy)
 	if (&to_copy == this)
 		return (*this);
 	request_ = to_copy.request_;
-	request_line_ = to_copy.request_line_;
+	status_line_ = to_copy.status_line_;
 	header_vec_ = to_copy.header_vec_;
 	body_ = to_copy.body_;
 	return (*this);
