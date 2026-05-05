@@ -14,55 +14,51 @@
 
 #define GET_CHECKER (1u << 0)
 
+namespace
+{
+	std::string
+	readFileContent(std::ifstream const& file)
+	{
+		std::stringstream sstr;
+		sstr << file.rdbuf();
+		return (sstr.str());
+	}
+} // namespace
+
 std::string
-ResponseGet::buildResponseStr(std::vector<Location> const& locations_vec) const
+ResponseGet::buildResponse(std::vector<Location> const& locations_vec)
 {
 	Location const& location = getGoodLocation(locations_vec);
 	std::string		file_path;
 	std::string		body;
 
-	unsigned int allow_method = location.getAllowMethods();
-	if ((allow_method & GET_CHECKER) == 0)
+	if (location.checkAllowMethods(GET_CHECKER) == 1)
 		throw std::logic_error("400");
-	file_path = location.getRoot() + request_.getUri().getTarget();
+
+	file_path = location.buildPath(request_);
+	if (!location.getIndex().empty())
+		file_path += location.getIndex();
 
 	int fd = open(file_path.c_str(), O_DIRECTORY | O_CLOEXEC);
-	if (fd != -1 && location.getAutoIndex())
+
+	if (fd != -1 && location.getAutoIndex()) // its a folder
 	{
-		std::cout << "test" << '\n';
 		DIR* dir = opendir(file_path.c_str());
 		if (dir == NULL)
 			throw std::logic_error("404 file not find1");
-		// envoyer le dir content
-	}
-	else if (fd != -1 && !location.getIndex().empty())
-	{
-
-		file_path += location.getIndex();
-		std::ifstream file(file_path.c_str());
-		if (!file.is_open())
-			throw std::logic_error("404 file not find2");
-		std::stringstream sstr;
-		sstr << file.rdbuf();
-		body = sstr.str();
+		body = generateAutoIndex(file_path, request_.getUri().getTarget());
+		error_code_ = 200;
 	}
 	else
 	{
 		std::ifstream file(file_path.c_str());
 		if (!file.is_open())
 			throw std::logic_error("404 file not find3");
-		std::stringstream sstr;
-		sstr << file.rdbuf();
-		body = sstr.str();
+		body = readFileContent(file);
+		error_code_ = 200;
 	}
-	std::string		  ret("HTTP/1.0 200 OK\r\n");
-	std::stringstream ss;
-	ss << body.length();
-	ret += "Content-Length: ";
-	ret += ss.str();
-	ret += "\r\n\r\n";
-	ret += body;
-	return (ret);
+	setBody(body);
+	return (buildResponseStr());
 }
 
 ResponseGet::ResponseGet()
@@ -84,7 +80,7 @@ ResponseGet::operator=(ResponseGet const& to_copy)
 		return (*this);
 	request_ = to_copy.request_;
 	request_line_ = to_copy.request_line_;
-	header_map_ = to_copy.header_map_;
+	header_vec_ = to_copy.header_vec_;
 	body_ = to_copy.body_;
 	return (*this);
 }

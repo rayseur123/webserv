@@ -8,6 +8,21 @@
 #include "http/parsing/Method.hpp"
 #include "parsing/Location.hpp"
 
+std::string
+Location::buildPath(Request const& request) const
+{
+	std::string uri(request.getUri().getTarget());
+	return (root_ + uri.substr(0, path_.length())); // corriger ici
+}
+
+int
+Location::checkAllowMethods(unsigned int actual_methods) const
+{
+	if ((allow_methods_ & actual_methods) == 1)
+		return (0);
+	return (1);
+}
+
 int
 Location::getValue(std::string const& uri) const
 {
@@ -191,8 +206,7 @@ operator<<(std::ostream& os, Location const& to_print)
 }
 
 Location::Location() :
-	root_("/www/data"), autoindex_(false), allow_methods_(0),
-	index_("index.html"), path_("/")
+	root_("/www/data"), autoindex_(false), allow_methods_(0), path_("/")
 {}
 
 Location::Location(std::string const& root, bool autoindex, int allow_methods,
