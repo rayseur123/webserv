@@ -1,4 +1,4 @@
-#include "http/ResponseGet.hpp"
+#include "http/ResponsePost.hpp"
 #include "http/AResponse.hpp"
 #include "http/parsing/Request.hpp"
 #include "parsing/Location.hpp"
@@ -13,7 +13,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#define GET_CHECKER (1u << 0u)
+#define POST_CHECKER (1u << 1u)
+#define CHMOD		 0644
 
 namespace
 {
@@ -27,57 +28,49 @@ namespace
 } // namespace
 
 std::string
-ResponseGet::buildResponse(std::vector<Location> const& locations_vec)
+ResponsePost::buildResponse(std::vector<Location> const& locations_vec)
 {
 	// Le deplacer car present dans les 3 methods
 	Location const& location = getGoodLocation(locations_vec);
 	std::string		file_path;
 	std::string		body;
 
-	if (location.checkAllowMethods(GET_CHECKER) == 1)
+	if (location.checkAllowMethods(POST_CHECKER) == 1)
 		throw std::logic_error("400");
 
 	file_path = location.buildPath(request_);
 	if (!location.getIndex().empty())
 		file_path += location.getIndex();
 	// jusque ici
-
 	int fd = open(file_path.c_str(), O_DIRECTORY | O_CLOEXEC);
 	if (fd != -1 && location.getAutoIndex()) // its a folder
 	{
-		DIR* dir = opendir(file_path.c_str());
-		if (dir == NULL)
-			throw std::logic_error("404 file not find1");
-		body = generateAutoIndex(file_path, request_.getUri().getTarget());
-		error_code_ = 200;
+		int fd = open(file_path.c_str(),
+					  O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, CHMOD);
+		std::ofstream new_file(file_path.c_str());
+		error_code_ = 201;
 	}
 	else
-	{
-		std::ifstream file(file_path.c_str());
-		if (!file.is_open())
-			throw std::logic_error("404 file not find3");
-		body = readFileContent(file);
-		error_code_ = 200;
-	}
+	{}
 	close(fd);
 	setBody(body, file_path);
 	return (buildResponseStr());
 }
 
-ResponseGet::ResponseGet()
+ResponsePost::ResponsePost()
 {}
 
-ResponseGet::ResponseGet(Request const& request) : AResponse(request)
+ResponsePost::ResponsePost(Request const& request) : AResponse(request)
 {}
 
-ResponseGet::ResponseGet(ResponseGet const& to_copy) : AResponse(to_copy)
+ResponsePost::ResponsePost(ResponsePost const& to_copy) : AResponse(to_copy)
 {}
 
-ResponseGet::~ResponseGet()
+ResponsePost::~ResponsePost()
 {}
 
-ResponseGet&
-ResponseGet::operator=(ResponseGet const& to_copy)
+ResponsePost&
+ResponsePost::operator=(ResponsePost const& to_copy)
 {
 	if (this == &to_copy)
 		return (*this);

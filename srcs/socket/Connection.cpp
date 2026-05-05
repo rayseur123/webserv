@@ -2,7 +2,9 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "http/parsing/Method.hpp"
 #include "http/parsing/ParsingRequest.hpp"
+#include "http/parsing/Request.hpp"
 #include "http/ResponseGet.hpp"
 #include "socket/Connection.hpp"
 #include "socket/Listener.hpp"
@@ -22,9 +24,14 @@ Connection::handleConnectionRequest()
 
 	if (parsing_request_.getStep() != FINISH)
 		return 0;
-	ResponseGet response(parsing_request_.getRequest());
+	Request request = parsing_request_.getRequest();
 
-	std::string response_str = response.buildResponse(server_.getLocations());
+	std::string response_str;
+	if (request.getMethod().getMethod() == GET)
+	{
+		ResponseGet response(request);
+		response_str = response.buildResponse(server_.getLocations());
+	}
 	send(fd_, response_str.c_str(), response_str.size(), 0);
 	return (0);
 }
