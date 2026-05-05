@@ -1,5 +1,5 @@
 #include "http/parsing/Method.hpp"
-#include "http/Error.hpp"
+#include "http/Code.hpp"
 
 void
 Method::setType(int const type)
@@ -16,8 +16,9 @@ Method::getType() const
 Method&
 Method::operator=(Method const& to_copy)
 {
-	if (this != &to_copy)
-		type_ = to_copy.type_;
+	if (this == &to_copy)
+		return *this;
+	type_ = to_copy.type_;
 	return *this;
 }
 
@@ -45,15 +46,15 @@ Method::Method(std::string const& method)
 	else if (method == "DELETE")
 		type_ = DELETE;
 	else if (method == "HEAD")
-		throw Error::ErrorException(405);
+		throw Code(405);
 	else if (method == "LINK")
-		throw Error::ErrorException(405);
+		throw Code(405);
 	else if (method == "UNLINK")
-		throw Error::ErrorException(405);
+		throw Code(405);
 	else if (method == "PUT")
-		throw Error::ErrorException(405);
+		throw Code(405);
 	else
-		throw Error::ErrorException(501);
+		throw Code(501);
 }
 
 Method::Method(Method const& to_copy) : type_(to_copy.type_)

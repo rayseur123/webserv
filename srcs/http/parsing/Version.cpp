@@ -1,6 +1,6 @@
 #include "http/parsing/Version.hpp"
 #include <cstdlib>
-#include "http/Error.hpp"
+#include "http/Code.hpp"
 #include "utils/utils.hpp"
 
 void
@@ -43,7 +43,7 @@ Version::Version(Version const& to_copy) :
 	first_nb_(to_copy.first_nb_), sec_nb_(to_copy.sec_nb_)
 {}
 
-Version::Version() : protocol_("HTTP"), first_nb_(1), sec_nb_(0)
+Version::Version() : first_nb_(0), sec_nb_(0)
 {}
 
 Version::Version(std::string const& version)
@@ -53,7 +53,7 @@ Version::Version(std::string const& version)
 
 	std::getline(ss, tmp, '/');
 	if (tmp != "HTTP")
-		throw Error::ErrorException(400);
+		throw Code(400);
 	protocol_ = tmp;
 
 	std::getline(ss, tmp, '.');
@@ -69,8 +69,8 @@ Version::Version(std::string const& version)
 void
 Version::isValid() const
 {
-	if (first_nb_ != 1 || sec_nb_ > 1)
-		throw Error::ErrorException(505);
+	if ((first_nb_ != 1 && sec_nb_ != 0) || (first_nb_ != 1 && sec_nb_ != 1))
+		throw Code(505);
 }
 
 int
@@ -83,7 +83,7 @@ Version::convertInNb(std::string const& buffer)
 	for (it = buffer.begin(); it != buffer.end(); it++)
 	{
 		if (!isdigit(*it))
-			throw Error::ErrorException(400);
+			throw Code(400);
 	}
 
 	ss << buffer;
@@ -95,12 +95,11 @@ Version::convertInNb(std::string const& buffer)
 Version&
 Version::operator=(Version const& to_copy)
 {
-	if (this != &to_copy)
-	{
-		protocol_ = to_copy.protocol_;
-		first_nb_ = to_copy.first_nb_;
-		sec_nb_ = to_copy.sec_nb_;
-	}
+	if (this == &to_copy)
+		return *this;
+	protocol_ = to_copy.protocol_;
+	first_nb_ = to_copy.first_nb_;
+	sec_nb_ = to_copy.sec_nb_;
 	return *this;
 }
 

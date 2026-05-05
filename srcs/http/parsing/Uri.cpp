@@ -1,5 +1,5 @@
 #include "http/parsing/Uri.hpp"
-#include "http/Error.hpp"
+#include "http/Code.hpp"
 
 void
 Uri::setTarget(std::string const& target)
@@ -35,11 +35,12 @@ Uri::getQuery() const
 Uri&
 Uri::operator=(Uri const& to_copy)
 {
-	if (this != &to_copy)
-	{
-		target_ = to_copy.target_;
-		query_ = to_copy.query_;
-	}
+	if (this == &to_copy)
+		return *this;
+
+	target_ = to_copy.target_;
+	query_ = to_copy.query_;
+
 	return *this;
 }
 
@@ -50,7 +51,7 @@ Uri::Uri(std::string const& uri)
 {
 	size_t pos = 0;
 	if (!isValid(uri))
-		throw Error::ErrorException(400);
+		throw Code(400);
 
 	pos = uri.find('?');
 	if (pos != std::string::npos)
@@ -59,9 +60,7 @@ Uri::Uri(std::string const& uri)
 		query_ = uri.substr(pos + 1);
 	}
 	else
-	{
 		target_ = uri;
-	}
 }
 
 Uri::Uri(Uri const& to_copy) : target_(to_copy.target_), query_(to_copy.query_)

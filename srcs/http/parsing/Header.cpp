@@ -1,6 +1,6 @@
 #include "http/parsing/Header.hpp"
 #include <sstream>
-#include "http/Error.hpp"
+#include "http/Code.hpp"
 #include "utils/utils.hpp"
 
 void
@@ -14,15 +14,15 @@ void
 Headers::set(std::string const& key, std::string& value)
 {
 	if (has(key))
-		throw(Error::ErrorException(400));
+		throw(Code(400));
 	if (key == "content-length")
 		if (!stringIsDigit(value))
-			throw(Error::ErrorException(400));
+			throw(Code(400));
 	if (key == "content-type")
 		typeAccepted(value);
 	if (key == "transfer-encoding")
 		if (value != "chunked")
-			throw(Error::ErrorException(400));
+			throw(Code(400));
 	headers_[key] = value;
 }
 

@@ -1,7 +1,7 @@
 #include "http/parsing/Body.hpp"
 #include <cstdlib>
 #include <string>
-#include "http/Error.hpp"
+#include "http/Code.hpp"
 
 int
 Body::chunkedBody(std::string& container)
@@ -31,17 +31,23 @@ Body::chunkedBody(std::string& container)
 		size_t		last = 0;
 
 		if (container.size() < length_ + 2)
+		{
 			return 0;
+		}
 
 		tmp = container.substr(0, length_);
 
+		container.erase(0, length_);
+
 		last = container.find("\r\n");
-		if (last != length_)
-			throw(Error::ErrorException(400));
+		if (last != 0)
+		{
+			throw Code(400);
+		}
 
-		content_ += container.substr(0, length_);
+		content_ += tmp;
 
-		container.erase(0, length_ + 2);
+		container.erase(0, 2);
 		status_--;
 	}
 	return 0;
@@ -52,16 +58,21 @@ Body::lengthBody(std::string& line)
 {
 	std::string tmp;
 
+	std::cout << "Line: " << line << '\n';
 	if (writed_ < length_)
 	{
 		tmp = line.substr(0, length_ - writed_);
 		content_.append(tmp);
 		writed_ += tmp.length();
-		line.erase(0, tmp.length());
+		line.erase(0, tmp.length() + 2);
 	}
 
 	if (writed_ >= length_)
+	{
+		std::cout << "writed:" << writed_ << std::endl;
+		std::cout << "length:" << length_ << std::endl;
 		return 1;
+	}
 
 	return 0;
 }
@@ -112,8 +123,13 @@ Body::Body(std::string const& content) :
 Body&
 Body::operator=(Body const& to_copy)
 {
-	if (this != &to_copy)
-		content_ = to_copy.content_;
+	if (this == &to_copy)
+		return *this;
+
+	status_ = to_copy.status_;
+	writed_ = to_copy.writed_;
+	length_ = to_copy.length_;
+	content_ = to_copy.content_;
 	return *this;
 }
 

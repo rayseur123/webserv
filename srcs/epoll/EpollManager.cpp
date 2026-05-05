@@ -1,5 +1,6 @@
-#include "epoll/EpollManager.hpp"
 #include <utility>
+
+#include "epoll/EpollManager.hpp"
 #include "socket/ASocket.hpp"
 #include "socket/Connection.hpp"
 #include "socket/Listener.hpp"
@@ -24,7 +25,7 @@ void
 EpollManager::registerListenersToEpoll()
 {
 	std::map<int, ASocket*>::iterator it;
-	epoll_event						  ev;
+	epoll_event						  ev = {};
 
 	for (it = socket_map_.begin(); it != socket_map_.end(); it++)
 	{
@@ -46,11 +47,10 @@ EpollManager::eventLoop()
 		for (int i = 0; i < nb_events; ++i)
 		{
 			int fd = events_[i].data.fd;
-			if (socket_map_[fd]->handleEvent(*this, events_[i].events))
+			if (socket_map_[fd]->handleEvent(*this, events_[i].events) == 1)
 			{
 				std::map<int, ASocket*>::iterator it = socket_map_.find(fd);
-				std::cout << "The fd " << fd << " has been shut down."
-						  << std::endl;
+				std::cout << "The fd " << fd << " has been shut down." << '\n';
 				socket_map_.erase(it);
 				epoll_ctl(epoll_fd_, EPOLL_CTL_DEL, fd, NULL);
 			}
@@ -64,10 +64,11 @@ EpollManager::getEpollFd() const
 	return (epoll_fd_);
 }
 
-EpollManager::EpollManager()
+EpollManager::EpollManager() : epoll_fd_(-1), events_()
 {}
 
-EpollManager::EpollManager(std::vector<Listener> const& listener_vec)
+EpollManager::EpollManager(std::vector<Listener> const& listener_vec) :
+	epoll_fd_(-1), events_()
 {
 	std::vector<Listener>::const_iterator it;
 
@@ -84,7 +85,7 @@ EpollManager::EpollManager(std::vector<Listener> const& listener_vec)
 }
 
 EpollManager::EpollManager(EpollManager const& to_copy) :
-	epoll_fd_(to_copy.epoll_fd_), socket_map_(to_copy.socket_map_)
+	epoll_fd_(to_copy.epoll_fd_), events_(), socket_map_(to_copy.socket_map_)
 {}
 
 EpollManager&

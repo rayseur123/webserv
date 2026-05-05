@@ -137,14 +137,13 @@ Request::resetRequest()
 Request&
 Request::operator=(Request const& to_copy)
 {
-	if (this != &to_copy)
-	{
-		method_ = to_copy.method_;
-		uri_ = to_copy.uri_;
-		version_ = to_copy.version_;
-		headers_ = to_copy.headers_;
-		body_ = to_copy.body_;
-	}
+	if (this == &to_copy)
+		return *this;
+	method_ = to_copy.method_;
+	uri_ = to_copy.uri_;
+	version_ = to_copy.version_;
+	headers_ = to_copy.headers_;
+	body_ = to_copy.body_;
 	return *this;
 }
 
