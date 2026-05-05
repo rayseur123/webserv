@@ -4,7 +4,10 @@
 #include <fstream>
 #include <string>
 #include <vector>
+
 #include "socket/Listener.hpp"
+
+#define LOC_SIZE 9
 
 class Block
 {
@@ -27,8 +30,6 @@ public:
 
 	bool parseToken(std::ifstream& file, std::string& buff,
 					std::string const& content, char sep_char);
-	bool getNextToken(std::ifstream& file, std::string& buff,
-					  std::string& content, char& sep_char);
 
 	Block& operator=(Block const& to_copy);
 

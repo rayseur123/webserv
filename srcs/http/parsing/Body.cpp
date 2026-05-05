@@ -12,7 +12,6 @@ Body::chunkedBody(std::string& container)
 
 	if (status_ == GETTING_LENGTH)
 	{
-		std::cout << "container:" << container << std::endl;
 		pos = container.find("\r\n");
 		if (pos == std::string::npos)
 			return 0;
@@ -24,7 +23,6 @@ Body::chunkedBody(std::string& container)
 		if (length_ == 0)
 			return 1;
 
-		std::cout << "container2:" << container << std::endl;
 		status_++;
 	}
 	if (status_ == READING)
@@ -43,7 +41,9 @@ Body::chunkedBody(std::string& container)
 
 		last = container.find("\r\n");
 		if (last != 0)
+		{
 			throw Code(400);
+		}
 
 		content_ += tmp;
 

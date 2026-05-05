@@ -143,6 +143,8 @@ ParsingRequest::fillBuffer(std::string& tmp)
 			catch (Code& c)
 			{
 				code_ = c.getCode();
+				step_ = FINISH;
+				return;
 			}
 		}
 	}

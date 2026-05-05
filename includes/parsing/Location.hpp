@@ -5,19 +5,24 @@
 #include <string>
 #include <vector>
 
+#include "http/parsing/Request.hpp"
+
 class Location
 {
 private:
-	std::string root_;
-	bool		autoindex_;
-	int			allow_methods_ : 3;
-	std::string index_;
-	std::string upload_store_;
-	std::string cgi_pass_;
-	std::string redirect_;
-	std::string path_;
+	std::string	 root_;
+	bool		 autoindex_;
+	unsigned int allow_methods_ : 3;
+	std::string	 index_;
+	std::string	 upload_store_;
+	std::string	 cgi_pass_;
+	std::string	 redirect_;
+	std::string	 path_;
 
 public:
+	int			checkAllowMethods(unsigned int actual_methods) const;
+	std::string buildPath(Request const& request) const;
+
 	int getValue(std::string const& uri) const;
 
 	void setRoot(std::string const& root);

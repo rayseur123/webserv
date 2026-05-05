@@ -1,11 +1,34 @@
-#include "parsing/Location.hpp"
 #include <climits>
 #include <cstddef>
 #include <iostream>
 #include <stdexcept>
 #include <string>
 #include <vector>
+
 #include "http/parsing/Method.hpp"
+#include "parsing/Location.hpp"
+
+std::string
+Location::buildPath(Request const& request) const
+{
+	std::string uri(request.getUri().getTarget());
+	std::string suffix = uri.substr(path_.length());
+	std::string root = root_;
+
+	if (!suffix.empty() && suffix[0] != '/' &&
+		(root.empty() || root[root.length() - 1] != '/'))
+		return root + "/" + suffix;
+	return root + suffix;
+}
+
+int
+Location::checkAllowMethods(unsigned int actual_methods) const
+{
+	std::cout << "allow :" << allow_methods_ << std::endl;
+	if ((allow_methods_ & actual_methods) != 0)
+		return (0);
+	return (1);
+}
 
 int
 Location::getValue(std::string const& uri) const
@@ -32,7 +55,22 @@ Location::getValue(std::string const& uri) const
 void
 Location::setRoot(std::string const& root)
 {
-	root_ = root;
+	if (root.empty())
+	{
+		root_ = ".";
+		return;
+	}
+
+	std::string temp = root;
+	if (temp.length() > 1 && temp[temp.length() - 1] == '/')
+		temp.erase(temp.length() - 1);
+
+	if (temp.find("./") == 0)
+		root_ = temp;
+	else if (temp[0] != '/')
+		root_ = "/" + temp;
+	else
+		root_ = "./" + temp;
 }
 
 void
@@ -67,7 +105,14 @@ Location::setAutoIndex(std::string const& autoindex)
 void
 Location::setIndex(std::string const& index)
 {
-	index_ = index;
+	std::string temp = index;
+
+	if (index[0] != '/')
+		temp = "/" + temp;
+
+	if (temp.length() > 1 && temp[temp.length() - 1] == '/')
+		temp.erase(temp.length() - 1);
+	index_ = temp;
 }
 
 void
@@ -161,10 +206,10 @@ Location::operator=(Location const& to_copy)
 std::ostream&
 operator<<(std::ostream& os, Location const& to_print)
 {
-	os << "\t\tLOCATION " << to_print.getPath() << " {" << std::endl;
-	os << "\t\t\troot: " << to_print.getRoot() << std::endl;
+	os << "\t\tLOCATION " << to_print.getPath() << " {" << '\n';
+	os << "\t\t\troot: " << to_print.getRoot() << '\n';
 	os << "\t\t\tautoindex: " << (to_print.getAutoIndex() ? "on" : "off")
-	   << std::endl;
+	   << '\n';
 
 	os << "\t\t\tmethods: ";
 	int m = to_print.getAllowMethods();
@@ -174,24 +219,23 @@ operator<<(std::ostream& os, Location const& to_print)
 		os << "POST ";
 	if (m & DELETE)
 		os << "DELETE ";
-	os << std::endl;
+	os << '\n';
 
 	if (!to_print.getIndex().empty())
-		os << "\t\t\tindex: " << to_print.getIndex() << std::endl;
+		os << "\t\t\tindex: " << to_print.getIndex() << '\n';
 	if (!to_print.getRedirect().empty())
-		os << "\t\t\tredirect: " << to_print.getRedirect() << std::endl;
+		os << "\t\t\tredirect: " << to_print.getRedirect() << '\n';
 	if (!to_print.getUploadStore().empty())
-		os << "\t\t\tupload: " << to_print.getUploadStore() << std::endl;
+		os << "\t\t\tupload: " << to_print.getUploadStore() << '\n';
 	if (!to_print.getCgiPass().empty())
-		os << "\t\t\tcgi: " << to_print.getCgiPass() << std::endl;
+		os << "\t\t\tcgi: " << to_print.getCgiPass() << '\n';
 
-	os << "\t\t}" << std::endl;
+	os << "\t\t}" << '\n';
 	return (os);
 }
 
 Location::Location() :
-	root_("/www/data"), autoindex_(false), allow_methods_(0),
-	index_("index.html"), path_("/")
+	root_("/www/data"), autoindex_(false), allow_methods_(0), path_("/")
 {}
 
 Location::Location(std::string const& root, bool autoindex, int allow_methods,

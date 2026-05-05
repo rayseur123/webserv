@@ -1,4 +1,3 @@
-#include "socket/Connection.hpp"
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -7,23 +6,20 @@
 #include "http/parsing/ParsingRequest.hpp"
 #include "http/parsing/Request.hpp"
 #include "http/ResponseGet.hpp"
+#include "socket/Connection.hpp"
 #include "socket/Listener.hpp"
 
 int
 Connection::handleConnectionRequest()
 {
-	int	 bytes;
-	char buffer[10000] = {};
+	size_t bytes = 0;
+	char   buffer[10000] = {};
 
 	bytes = recv(fd_, buffer, sizeof(buffer), 0);
-	if (!bytes)
+	if (bytes == 0)
 		return (1);
 
 	std::string tmp(buffer, bytes);
-	// std::string tmp;
-
-	// tmp = "GET /test/ HTTP/1.1\r\nHost: exemple.fr\r\nContent-Type: "
-	//   "\r\nContent-Length: 200\r\n\r\nfield1=value1&field2=value2\r\n";
 	parsing_request_.fillBuffer(tmp);
 
 	if (parsing_request_.getStep() != FINISH)
@@ -36,17 +32,17 @@ Connection::handleConnectionRequest()
 	}
 	else
 		std::cout << parsing_request_.getRequest() << '\n';
-	parsing_request_.resetParsingAndRequest();
 
 	// ResponseGet	response(request);
+	ResponseGet response(parsing_request_.getRequest());
 
-	// std::cout << "uri : " << request.getUri();
-	// response.buildResponseStr(server_.getLocations());
+	std::string response_str = response.buildResponse(server_.getLocations());
+	send(fd_, response_str.c_str(), response_str.size(), 0);
 	return (0);
 }
 
 int
-Connection::handleEvent(EpollManager& manager, int events)
+Connection::handleEvent(EpollManager& manager, uint32_t events)
 {
 	(void) manager;
 	if (events & (EPOLLERR | EPOLLRDHUP))

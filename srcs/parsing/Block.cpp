@@ -1,23 +1,77 @@
 #include "parsing/Block.hpp"
-#include <iostream>
 #include "socket/Listener.hpp"
 
 #include <cstdlib>
+#include <iostream>
 #include <sstream>
 #include <string>
 #include <vector>
 
-static std::vector<std::string>
-splitDirective(std::string const& directive)
+namespace
 {
-	std::vector<std::string> params_vec;
-	std::stringstream		 ss(directive);
-	std::string				 word;
+	std::vector<std::string>
+	splitDirective(std::string const& directive)
+	{
+		std::vector<std::string> params_vec;
+		std::stringstream		 ss(directive);
+		std::string				 word;
 
-	while (ss >> word)
-		params_vec.push_back(word);
-	return (params_vec);
-}
+		while ((ss >> word) != NULL)
+			params_vec.push_back(word);
+		return (params_vec);
+	}
+
+	bool
+	getNextToken(std::ifstream& file, std::string& buff, std::string& content,
+				 char& sep_char)
+	{
+		std::string line;
+
+		while (file.good() || !buff.empty())
+		{
+			if (!buff.empty())
+			{
+				line = buff;
+				buff.clear();
+			}
+			else
+				std::getline(file, line);
+
+			size_t start = line.find_first_not_of(" \t\r\n");
+			if (start == std::string::npos)
+				continue;
+
+			std::string token = line.substr(start);
+			size_t		sep = token.find_first_of("{};");
+
+			if (sep == std::string::npos)
+				throw std::runtime_error("[ERROR] : Syntax error: line '" +
+										 token +
+										 "' is missing a ';' separator.");
+
+			sep_char = token[sep];
+			content = token.substr(0, sep);
+			size_t end = content.find_last_not_of(" \t\r\n");
+			content =
+				(end != std::string::npos) ? content.substr(0, end + 1) : "";
+			buff = token.substr(sep + 1);
+			return (true);
+		}
+		return (false);
+	}
+
+	std::string
+	getBlockNameByType(int type)
+	{
+		if (type == Block::FILE)
+			return ("FILE");
+		if (type == Block::SERVER)
+			return ("SERVER");
+		if (type == Block::LOCATION)
+			return ("LOCATION");
+		return ("ERROR_NAME");
+	}
+} // namespace
 
 Location
 Block::makeLocation() const
@@ -50,7 +104,7 @@ Block::makeLocation() const
 										directives_split[0]);
 	}
 	if (name_.find("location ") != std::string::npos)
-		loc.setPath(name_.substr(9));
+		loc.setPath(name_.substr(LOC_SIZE));
 	else
 		loc.setPath(name_);
 	return (loc);
@@ -95,6 +149,7 @@ std::vector<Listener>
 Block::makeServerVec() const
 {
 	std::vector<Listener> server_vec;
+	server_vec.reserve(blocks_vec_.size());
 	for (size_t i = 0; i < blocks_vec_.size(); ++i)
 		server_vec.push_back(blocks_vec_[i].makeServer());
 	return (server_vec);
@@ -125,43 +180,6 @@ Block::getName() const
 }
 
 bool
-Block::getNextToken(std::ifstream& file, std::string& buff,
-					std::string& content, char& sep_char)
-{
-	std::string line;
-
-	while (file.good() || !buff.empty())
-	{
-		if (!buff.empty())
-		{
-			line = buff;
-			buff.clear();
-		}
-		else
-			std::getline(file, line);
-
-		size_t start = line.find_first_not_of(" \t\r\n");
-		if (start == std::string::npos)
-			continue;
-
-		std::string token = line.substr(start);
-		size_t		sep = token.find_first_of("{};");
-
-		if (sep == std::string::npos)
-			throw std::runtime_error("[ERROR] : Syntax error: line '" + token +
-									 "' is missing a ';' separator.");
-
-		sep_char = token[sep];
-		content = token.substr(0, sep);
-		size_t end = content.find_last_not_of(" \t\r\n");
-		content = (end != std::string::npos) ? content.substr(0, end + 1) : "";
-		buff = token.substr(sep + 1);
-		return (true);
-	}
-	return (false);
-}
-
-bool
 Block::parseToken(std::ifstream& file, std::string& buff,
 				  std::string const& content, char sep_char)
 {
@@ -181,7 +199,7 @@ Block::Block(std::ifstream& file, int type, std::string& buff,
 			 std::string const& name) : type_(type), name_(name)
 {
 	std::string content;
-	char		sep_char;
+	char		sep_char = 0;
 
 	while (getNextToken(file, buff, content, sep_char))
 		if (parseToken(file, buff, content, sep_char))
@@ -204,33 +222,21 @@ Block::operator=(Block const& to_copy)
 	return (*this);
 }
 
-static std::string
-getBlockNameByType(int type)
-{
-	if (type == Block::FILE)
-		return ("FILE");
-	else if (type == Block::SERVER)
-		return ("SERVER");
-	else if (type == Block::LOCATION)
-		return ("LOCATION");
-	return ("ERROR_NAME");
-}
-
 std::ostream&
 operator<<(std::ostream& os, Block const& to_print)
 {
 	static int depth = 0;
 
-	std::string				 indent(depth, '\t');
-	std::string				 name = getBlockNameByType(to_print.getType());
-	std::vector<std::string> directives = to_print.getDirectives();
-	std::vector<Block>		 blocks = to_print.getBlocks();
+	std::string indent(depth, '\t');
+	std::string name = getBlockNameByType(to_print.getType());
+	std::vector<std::string> const& directives = to_print.getDirectives();
+	std::vector<Block> const&		blocks = to_print.getBlocks();
 
-	os << indent << "\033[1;34m" << name << "\033[0m {" << std::endl;
+	os << indent << "\033[1;34m" << name << "\033[0m {" << '\n';
 
 	for (size_t i = 0; i < directives.size(); ++i)
 	{
-		os << indent << "\t" << directives[i] << std::endl;
+		os << indent << "\t" << directives[i] << '\n';
 	}
 
 	depth++;
@@ -239,11 +245,11 @@ operator<<(std::ostream& os, Block const& to_print)
 		os << blocks[i];
 	}
 	depth--;
-	os << indent << "}" << std::endl;
+	os << indent << "}" << '\n';
 	return os;
 }
 
-Block::Block()
+Block::Block() : type_(0)
 {}
 
 Block::Block(Block const& to_copy) :

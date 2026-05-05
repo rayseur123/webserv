@@ -4,6 +4,8 @@
 #include "http/parsing/ParsingRequest.hpp"
 #include "socket/ASocket.hpp"
 
+#include <stdint.h>
+
 class Listener;
 class EpollManager;
 
@@ -17,7 +19,7 @@ private:
 public:
 	int handleConnectionRequest();
 
-	virtual int		handleEvent(EpollManager& manager, int events);
+	virtual int		handleEvent(EpollManager& manager, uint32_t events);
 	Listener const& getServer() const;
 
 	void setMaxClientRequestBody();

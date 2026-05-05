@@ -8,6 +8,18 @@
 #include "socket/Connection.hpp"
 #include "utils/utils.hpp"
 
+#include "socket/Connection.hpp"
+#include "utils/utils.hpp"
+
+#include <cstdlib>
+#include <fcntl.h>
+#include <netdb.h>
+#include <string>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <vector>
+
 void
 Listener::acceptNewConnection(EpollManager& manager)
 {
@@ -36,11 +48,11 @@ Listener::acceptNewConnection(EpollManager& manager)
 }
 
 int
-Listener::handleEvent(EpollManager& manager, int events)
+Listener::handleEvent(EpollManager& manager, uint32_t events)
 {
 	if (events & (EPOLLERR | EPOLLRDHUP))
 		return (1);
-	else if (events & EPOLLIN)
+	if (events & EPOLLIN)
 		acceptNewConnection(manager);
 	return (0);
 
@@ -126,7 +138,7 @@ Listener::setMaxClientRequestBody(std::string const& max_client_request_body)
 void
 Listener::setAddrAndPort(std::string const& addr_and_port)
 {
-	size_t index = addr_and_port.find(":");
+	size_t index = addr_and_port.find(':');
 	if (index == std::string::npos)
 		throw std::invalid_argument("[ERROR] : Invalide port");
 	address_ = addr_and_port.substr(0, index);
@@ -136,10 +148,21 @@ Listener::setAddrAndPort(std::string const& addr_and_port)
 void
 Listener::setErrorPage(std::vector<std::string> const& error_page)
 {
-	if (error_page.size() != 3)
+	if (error_page.size() < 3)
 		throw std::invalid_argument(" [ERROR] :Invalide error page format");
 
-	error_page_ = std::make_pair(atoi(error_page[1].c_str()), error_page[2]);
+	std::vector<std::string>::const_iterator it;
+	std::vector<int>						 temp;
+
+	temp.reserve(error_page.size() - 1);
+	for (it = error_page.begin(); it != error_page.end(); ++it)
+	{
+		char*	endPtr = NULL;
+		int64_t val = strtol(it->c_str(), &endPtr, BASE);
+		if (endPtr != it->c_str())
+			temp.push_back(static_cast<int>(val));
+	}
+	error_page_ = std::make_pair(temp, error_page.back());
 }
 
 std::string const&
@@ -166,7 +189,7 @@ Listener::getLocations() const
 	return (locations_vec_);
 }
 
-std::pair<int, std::string> const&
+std::pair<std::vector<int>, std::string> const&
 Listener::getErrorPage() const
 {
 	return (error_page_);
@@ -210,15 +233,23 @@ std::ostream&
 operator<<(std::ostream& os, Listener const& to_print)
 {
 	os << "SERVER [" << to_print.getAddress() << ":" << to_print.getPort()
-	   << "]" << std::endl;
+	   << "]" << '\n';
 	os << "\tclient_max_body_size: " << to_print.getMaxClientRequestBody()
-	   << std::endl;
+	   << '\n';
 
-	std::pair<int, std::string> err = to_print.getErrorPage();
-	if (err.first != 0)
+	std::pair<std::vector<int>, std::string> err = to_print.getErrorPage();
+	if (!err.first.empty())
 	{
-		os << "\terror_page: " << err.first << " -> " << err.second
-		   << std::endl;
+		os << "\terror_page: ";
+		for (std::vector<int>::const_iterator it = err.first.begin();
+			 it != err.first.end(); ++it)
+		{
+			os << *it;
+			std::vector<int>::const_iterator next = it;
+			if (++next != err.first.end())
+				os << ", ";
+		}
+		os << " -> " << err.second << '\n';
 	}
 
 	std::vector<Location> const& locs = to_print.getLocations();
@@ -227,6 +258,6 @@ operator<<(std::ostream& os, Listener const& to_print)
 		os << locs[i];
 	}
 
-	os << "--------------------------------------" << std::endl;
+	os << "--------------------------------------" << '\n';
 	return (os);
 }

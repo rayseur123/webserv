@@ -8,11 +8,10 @@
 class ResponseGet : public AResponse
 {
 public:
-	std::string
-	buildResponseStr(std::vector<Location> const& locations_vec) const;
+	std::string buildResponse(std::vector<Location> const& locations_vec);
 
 	ResponseGet();
-	ResponseGet(Request const& request);
+	explicit ResponseGet(Request const& request);
 	ResponseGet(ResponseGet const& to_copy);
 	~ResponseGet();
 	ResponseGet& operator=(ResponseGet const& to_copy);
