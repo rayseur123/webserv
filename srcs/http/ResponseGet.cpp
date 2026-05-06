@@ -61,7 +61,7 @@ ResponseGet::buildResponse(std::vector<Location> const& locations_vec)
 		body = readFileContent(file);
 		error_code_ = 200;
 	}
-	setBody(body, file_path);
+	setBody(body);
 	return (buildResponseStr());
 }
 
