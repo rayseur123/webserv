@@ -16,6 +16,7 @@ private:
 	Version version_;
 	Headers headers_;
 	Body	body_;
+	int		code_;
 
 public:
 	bool bodyIsLength() const;
@@ -24,18 +25,20 @@ public:
 	int	 addingBodyLength(std::string& line);
 	int	 addingBodyChunked(std::string& container);
 
+	void setCode(int code);
 	void setMethod(Method const& method);
 	void setMethod(std::string const& method);
 	void setUri(Uri const& uri);
 	void setUri(std::string const& target);
 	void setVersion(Version const& version);
-	void setVersion(std::string const& version);
+	void setVersion(std::string& version);
 	void setHeaders(Headers& type);
 	void setHeaders(std::string const& method);
 	void setBody(Body const& body);
 
 	void resetRequest();
 
+	int			   getCode();
 	Method const&  getMethod() const;
 	Uri const&	   getUri() const;
 	Version const& getVersion() const;

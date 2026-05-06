@@ -78,128 +78,80 @@ build_error_response(int error_code)
 	std::string ret;
 	switch (error_code)
 	{
-		case 100:
-			ret = "100 Continue";
-			break;
-		case 101:
-			ret = "101 Switching Protocols";
-			break;
-		case 200:
-			ret = "200 OK";
-			break;
-		case 201:
-			ret = "201 Created";
-			break;
-		case 202:
-			ret = "202 Accepted";
-			break;
-		case 203:
-			ret = "203 Non-Authoritative Information";
-			break;
-		case 204:
-			ret = "204 No Content";
-			break;
-		case 205:
-			ret = "205 Reset Content";
-			break;
-		case 206:
-			ret = "206 Partial Content";
-			break;
-		case 300:
-			ret = "300 Multiple Choices";
-			break;
-		case 301:
-			ret = "301 Moved Permanently";
-			break;
-		case 302:
-			ret = "302 Found";
-			break;
-		case 303:
-			ret = "303 See Other";
-			break;
-		case 304:
-			ret = "304 Not Modified";
-			break;
-		case 305:
-			ret = "305 Use Proxy";
-			break;
-		case 307:
-			ret = "307 Temporary Redirect";
-			break;
 		case 400:
-			ret = "400 Bad Request";
+			ret = "HTTP/1.0 400 Bad Request\r\n\r\n";
 			break;
 		case 401:
-			ret = "401 Unauthorized";
+			ret = "HTTP/1.0 401 Unauthorized\r\n\r\n";
 			break;
 		case 402:
-			ret = "402 Payment Required";
+			ret = "HTTP/1.0 402 Payment Required\r\n\r\n";
 			break;
 		case 403:
-			ret = "403 Forbidden";
+			ret = "HTTP/1.0 403 Forbidden\r\n\r\n";
 			break;
 		case 404:
-			ret = "404 Not Found";
+			ret = "HTTP/1.0 404 Not Found\r\n\r\n";
 			break;
 		case 405:
-			ret = "405 Method Not Allowed";
+			ret = "HTTP/1.0 405 Method Not Allowed\r\n\r\n";
 			break;
 		case 406:
-			ret = "406 Not Acceptable";
+			ret = "HTTP/1.0 406 Not Acceptable\r\n\r\n";
 			break;
 		case 407:
-			ret = "407 Proxy Authentication Required";
+			ret = "HTTP/1.0 407 Proxy Authentication Required\r\n\r\n";
 			break;
 		case 408:
-			ret = "408 Request Timeout";
+			ret = "HTTP/1.0 408 Request Timeout\r\n\r\n";
 			break;
 		case 409:
-			ret = "409 Conflict";
+			ret = "HTTP/1.0 409 Conflict\r\n\r\n";
 			break;
 		case 410:
-			ret = "410 Gone";
+			ret = "HTTP/1.0 410 Gone\r\n\r\n";
 			break;
 		case 411:
-			ret = "411 Length Required";
+			ret = "HTTP/1.0 411 Length Required\r\n\r\n";
 			break;
 		case 412:
-			ret = "412 Precondition Failed";
+			ret = "HTTP/1.0 412 Precondition Failed\r\n\r\n";
 			break;
 		case 413:
-			ret = "413 Payload Too Large";
+			ret = "HTTP/1.0 413 Payload Too Large\r\n\r\n";
 			break;
 		case 414:
-			ret = "414 URI Too Long";
+			ret = "HTTP/1.0 414 URI Too Long\r\n\r\n";
 			break;
 		case 415:
-			ret = "415 Unsupported Media Type";
+			ret = "HTTP/1.0 415 Unsupported Media Type\r\n\r\n";
 			break;
 		case 416:
-			ret = "416 Range Not Satisfiable";
+			ret = "HTTP/1.0 416 Range Not Satisfiable\r\n\r\n";
 			break;
 		case 417:
-			ret = "417 Expectation Failed";
+			ret = "HTTP/1.0 417 Expectation Failed\r\n\r\n";
 			break;
 		case 500:
-			ret = "500 Internal Server Error";
+			ret = "HTTP/1.0 500 Internal Server Error\r\n\r\n";
 			break;
 		case 501:
-			ret = "501 Not Implemented";
+			ret = "HTTP/1.0 501 Not Implemented\r\n\r\n";
 			break;
 		case 502:
-			ret = "502 Bad Gateway";
+			ret = "HTTP/1.0 502 Bad Gateway\r\n\r\n";
 			break;
 		case 503:
-			ret = "503 Service Unavailable";
+			ret = "HTTP/1.0 503 Service Unavailable\r\n\r\n";
 			break;
 		case 504:
-			ret = "504 Gateway Timeout";
+			ret = "HTTP/1.0 504 Gateway Timeout\r\n\r\n";
 			break;
 		case 505:
-			ret = "505 HTTP Version Not Supported";
+			ret = "HTTP/1.0 505 HTTP Version Not Supported\r\n\r\n";
 			break;
 		default:
-			ret = "500 Internal Server Error";
+			ret = "HTTP/1.0 500 Internal Server Error\r\n\r\n";
 			break;
 	}
 	return (ret);

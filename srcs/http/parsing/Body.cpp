@@ -58,7 +58,6 @@ Body::lengthBody(std::string& line)
 {
 	std::string tmp;
 
-	std::cout << "Line: " << line << '\n';
 	if (writed_ < length_)
 	{
 		tmp = line.substr(0, length_ - writed_);
@@ -69,8 +68,6 @@ Body::lengthBody(std::string& line)
 
 	if (writed_ >= length_)
 	{
-		std::cout << "writed:" << writed_ << std::endl;
-		std::cout << "length:" << length_ << std::endl;
 		return 1;
 	}
 

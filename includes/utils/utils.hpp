@@ -10,6 +10,7 @@ bool					 stringIsDigit(std::string const& s);
 void					 toLowerString(std::string& tmp);
 std::vector<std::string> splitLineByDel(std::string const& line, char del);
 void					 trimSpaceString(std::string& s);
+std::string				 build_error_response(int error_code);
 
 template<typename T>
 std::ostream&

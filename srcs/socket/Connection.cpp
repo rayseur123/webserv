@@ -11,11 +11,18 @@
 #include "socket/Listener.hpp"
 #include "utils/utils.hpp"
 
+bool
+Connection::bodyLengthValid()
+{
+	return (parsing_request_.getRequest().getBody().getLength() <=
+			server_.getMaxClientRequestBody());
+}
+
 int
 Connection::handleConnectionRequest()
 {
 	size_t bytes = 0;
-	char   buffer[10000] = {};
+	char   buffer[1] = {};
 
 	bytes = recv(fd_, buffer, sizeof(buffer), 0);
 	if (bytes == 0)
@@ -27,7 +34,10 @@ Connection::handleConnectionRequest()
 	if (parsing_request_.getStep() != FINISH)
 		return 0;
 
-	Request		request = parsing_request_.getRequest();
+	Request request = parsing_request_.getRequest();
+
+	request.setCode(parsing_request_.getCode());
+
 	std::string response_str;
 	if (request.getCode() != 0)
 		response_str = build_error_response(request.getCode());
@@ -46,6 +56,7 @@ Connection::handleConnectionRequest()
 		}
 	}
 	send(fd_, response_str.c_str(), response_str.size(), 0);
+	parsing_request_.resetParsingAndRequest();
 	return (0);
 }
 
@@ -67,12 +78,10 @@ Connection::getServer() const
 	return (server_);
 }
 
-Connection::Connection(int fd, Listener& server) :
-	ASocket(fd), server_(server), code()
+Connection::Connection(int fd, Listener& server) : ASocket(fd), server_(server)
 {}
 
-Connection::Connection(Connection const& to_copy) :
-	server_(to_copy.server_), code()
+Connection::Connection(Connection const& to_copy) : server_(to_copy.server_)
 {}
 
 Connection&

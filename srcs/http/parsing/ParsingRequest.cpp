@@ -29,7 +29,6 @@ ParsingRequest::requestLine(std::string& line, size_t pos)
 	}
 	catch (Code& c)
 	{
-		std::cout << "REQUEST LINE ERROR \n";
 		code_ = c.getCode();
 	}
 
@@ -45,7 +44,7 @@ ParsingRequest::defineBodyType()
 
 	if (tmp.has("transfer-encoding"))
 		body_type = CHUNK_BODY;
-	else if (tmp.has("content-type") && tmp.has("content-length"))
+	else if (tmp.has("content-length"))
 		body_type = LINE_BODY;
 	else
 	{
@@ -102,6 +101,11 @@ ParsingRequest::handleEndHeaders(std::string const& line)
 {
 	if (line == "\r\n")
 	{
+		if (body_type == TRAILER)
+		{
+			step_ = FINISH;
+			return true;
+		}
 		step_++;
 		buffer_.erase(0, 2);
 		defineBodyType();
@@ -136,29 +140,40 @@ ParsingRequest::fillBuffer(std::string& tmp)
 		}
 		if (step_ == BODY && body_type == CHUNK_BODY)
 		{
-			try
-			{
-				step_ += request_.addingBodyChunked(buffer_);
-			}
-			catch (Code& c)
-			{
-				code_ = c.getCode();
-				step_ = FINISH;
+			if (handleBodyChunk())
 				return;
-			}
 		}
 	}
 	if (step_ == BODY && body_type == LINE_BODY)
+		handleBodyLine();
+}
+
+bool
+ParsingRequest::handleBodyChunk()
+{
+	try
 	{
-		try
+		step_ += request_.addingBodyChunked(buffer_);
+		if (step_ == FINISH)
 		{
-			step_ += request_.addingBodyLength(buffer_);
+			step_ = HEADER;
+			body_type = TRAILER;
 		}
-		catch (Code& c)
-		{
-			code_ = c.getCode();
-		}
+		return false;
 	}
+	catch (Code& c)
+	{
+		code_ = c.getCode();
+		step_ = FINISH;
+		return true;
+	}
+	return false;
+}
+
+void
+ParsingRequest::handleBodyLine()
+{
+	step_ += request_.addingBodyLength(buffer_);
 }
 
 void

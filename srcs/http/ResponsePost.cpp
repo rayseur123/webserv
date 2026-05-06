@@ -2,6 +2,7 @@
 #include "http/AResponse.hpp"
 #include "http/parsing/Request.hpp"
 #include "parsing/Location.hpp"
+#include "utils/utils.hpp"
 
 #include <cstdio>
 #include <cstdlib>
@@ -48,27 +49,24 @@ namespace
 std::string
 ResponsePost::buildResponse(std::vector<Location> const& locations_vec)
 {
-	// Le deplacer car present dans les 3 methods
 	Location const& location = getGoodLocation(locations_vec);
 	std::string		file_path;
 
 	if (location.checkAllowMethods(POST_CHECKER) == 1)
-		throw std::logic_error("400");
+		return (build_error_response(400));
 
 	file_path = location.buildPathPost(request_);
-	// jusque ici
 	int fd = open(file_path.c_str(), O_DIRECTORY | O_CLOEXEC);
-
 	if (fd != -1 && location.getAutoIndex())
 	{
 		file_path += "/" + generate_filename();
 		close(open(file_path.c_str(), O_CREAT | O_CLOEXEC, CHMOD));
 		error_code_ = 201;
 	}
-
+	close(fd);
 	std::ofstream file(file_path.c_str());
 	if (!file.is_open())
-		throw std::logic_error("404 file not find");
+		return (build_error_response(404));
 	file << request_.getBody().getContent();
 
 	return (buildResponseStr());
