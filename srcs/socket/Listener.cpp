@@ -171,7 +171,7 @@ Listener::getPort() const
 	return (port_);
 }
 
-int
+size_t
 Listener::getMaxClientRequestBody() const
 {
 	return (max_client_request_body_);

@@ -4,6 +4,8 @@
 *.html
 *.conf
 
+webserv
+
 # Compiled Object files
 *.slo
 *.lo

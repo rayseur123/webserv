@@ -43,25 +43,36 @@ Version::Version(Version const& to_copy) :
 	first_nb_(to_copy.first_nb_), sec_nb_(to_copy.sec_nb_)
 {}
 
-Version::Version() : first_nb_(0), sec_nb_(0)
+Version::Version() : first_nb_(-1), sec_nb_(-1)
 {}
 
-Version::Version(std::string const& version)
+Version::Version(std::string version)
 {
-	std::stringstream ss(version);
-	std::string		  tmp;
 
-	std::getline(ss, tmp, '/');
+	if (version.length() < 8)
+		throw Code(400);
+
+	// Protocol
+	std::string tmp;
+	size_t		pos = 0;
+
+	pos = version.find('/');
+	if (pos == std::string::npos)
+		throw Code(400);
+
+	tmp = version.substr(0, pos);
 	if (tmp != "HTTP")
 		throw Code(400);
+
 	protocol_ = tmp;
 
-	std::getline(ss, tmp, '.');
-	first_nb_ = convertInNb(tmp);
+	version.erase(0, pos + 1);
 
-	ss >> tmp;
-
-	sec_nb_ = convertInNb(tmp);
+	// Version
+	pos = version.find('.');
+	first_nb_ = convertInNb(version.substr(0, pos));
+	version.erase(0, pos + 1);
+	sec_nb_ = convertInNb(version);
 
 	isValid();
 }
@@ -69,8 +80,10 @@ Version::Version(std::string const& version)
 void
 Version::isValid() const
 {
-	if ((first_nb_ != 1 && sec_nb_ != 0) || (first_nb_ != 1 && sec_nb_ != 1))
-		throw Code(505);
+	if (first_nb_ == 1)
+		if (sec_nb_ == 0 || sec_nb_ == 1)
+			return;
+	throw Code(505);
 }
 
 int

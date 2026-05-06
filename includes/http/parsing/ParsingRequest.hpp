@@ -1,45 +1,62 @@
 #ifndef PARSING_REQUEST_HPP
 #define PARSING_REQUEST_HPP
 
-#include "http/parsing/Request.hpp"
 #include <utility>
+#include "http/parsing/Request.hpp"
 
-enum { UNDEFINED, LINE_BODY, CHUNK_BODY, NO_BODY, TRAILER };
+enum
+{
+	UNDEFINED,
+	LINE_BODY,
+	CHUNK_BODY,
+	NO_BODY,
+	TRAILER
+};
 
-enum { REQUEST, HEADER, BODY, FINISH };
+enum
+{
+	REQUEST,
+	HEADER,
+	BODY,
+	FINISH
+};
 
-class ParsingRequest {
+class ParsingRequest
+{
 
 private:
-  std::string buffer_;
-  Request request_;
-  int step_;
-  int body_type;
-  int code_;
+	std::string buffer_;
+	Request		request_;
+	int			step_;
+	int			body_type;
+	int			code_;
 
-  std::pair<std::string, std::string> splitHeader(std::string &line);
-  bool handleEndHeaders(std::string const &line);
+	std::pair<std::string, std::string> splitHeader(std::string& line);
+	bool handleEndHeaders(std::string const& line);
 
-  void processBody();
-  void defineBodyType();
-  void requestLine(std::string &line, size_t pos);
-  void headerLine(std::string &line, size_t pos);
+	void processBody();
+	void defineBodyType();
+	void requestLine(std::string& line, size_t pos);
+	void headerLine(std::string& line, size_t pos);
+
+	void handleBodyLine();
+	bool handleBodyChunk();
 
 public:
-  void fillBuffer(std::string &tmp);
-  void resetParsingAndRequest();
+	void fillBuffer(std::string& tmp);
+	void resetParsingAndRequest();
 
-  Request &getRequest();
-  int getStep() const;
-  int getCode() const;
+	Request& getRequest();
+	int		 getStep() const;
+	int		 getCode() const;
 
-  void setCode(int nb);
+	void setCode(int nb);
 
-  ParsingRequest &operator=(ParsingRequest const &to_copy);
+	ParsingRequest& operator=(ParsingRequest const& to_copy);
 
-  ParsingRequest();
-  ParsingRequest(ParsingRequest const &to_copy);
-  ~ParsingRequest();
+	ParsingRequest();
+	ParsingRequest(ParsingRequest const& to_copy);
+	~ParsingRequest();
 };
 
 #endif

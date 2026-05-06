@@ -9,6 +9,13 @@
 #include "socket/Connection.hpp"
 #include "socket/Listener.hpp"
 
+bool
+Connection::bodyLengthValid()
+{
+	return (parsing_request_.getRequest().getBody().getLength() <=
+			server_.getMaxClientRequestBody());
+}
+
 int
 Connection::handleConnectionRequest()
 {
@@ -24,7 +31,14 @@ Connection::handleConnectionRequest()
 
 	if (parsing_request_.getStep() != FINISH)
 		return 0;
+
 	Request request = parsing_request_.getRequest();
+
+	request.setCode(parsing_request_.getCode());
+
+	// Check Max Body
+	if (!bodyLengthValid())
+		request.setCode(413);
 
 	std::string response_str;
 	if (request.getMethod().getType() == GET)
@@ -33,6 +47,7 @@ Connection::handleConnectionRequest()
 		response_str = response.buildResponse(server_.getLocations());
 	}
 	send(fd_, response_str.c_str(), response_str.size(), 0);
+	parsing_request_.resetParsingAndRequest();
 	return (0);
 }
 

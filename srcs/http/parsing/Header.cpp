@@ -4,13 +4,6 @@
 #include "utils/utils.hpp"
 
 void
-Headers::typeAccepted(std::string& value)
-{
-	if (value != "text/html")
-		value = "application/octet-stream";
-}
-
-void
 Headers::set(std::string const& key, std::string& value)
 {
 	if (has(key))
@@ -18,8 +11,6 @@ Headers::set(std::string const& key, std::string& value)
 	if (key == "content-length")
 		if (!stringIsDigit(value))
 			throw(Code(400));
-	if (key == "content-type")
-		typeAccepted(value);
 	if (key == "transfer-encoding")
 		if (value != "chunked")
 			throw(Code(400));

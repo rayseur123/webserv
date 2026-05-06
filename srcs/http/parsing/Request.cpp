@@ -7,6 +7,12 @@
 #include "http/parsing/Header.hpp"
 
 void
+Request::setCode(int code)
+{
+	code_ = code;
+}
+
+void
 Request::setMethod(Method const& method)
 {
 	method_ = method;
@@ -37,7 +43,7 @@ Request::setVersion(Version const& version)
 }
 
 void
-Request::setVersion(std::string const& version)
+Request::setVersion(std::string& version)
 {
 	version_ = Version(version);
 }
@@ -52,6 +58,12 @@ void
 Request::setBody(Body const& body)
 {
 	body_ = body;
+}
+
+int
+Request::getCode()
+{
+	return code_;
 }
 
 Method const&

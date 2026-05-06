@@ -8,7 +8,6 @@ Method::setType(int const type)
 }
 
 int
-
 Method::getType() const
 {
 	return type_;
