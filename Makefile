@@ -4,6 +4,8 @@ NAME := webserv
 #                       DIRECTORIES                        #
 # ---------------------------------------------------------#
 
+MAKEFLAGS += --jobs
+
 SRCS_DIR        := srcs/
 EPOLL_DIR       := $(SRCS_DIR)epoll/
 HTTP_DIR        := $(SRCS_DIR)http/

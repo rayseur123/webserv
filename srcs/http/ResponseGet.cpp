@@ -35,7 +35,7 @@ ResponseGet::buildResponse(std::vector<Location> const& locations_vec)
 	std::string		file_path;
 	std::string		body;
 
-	if (location.checkAllowMethods(GET_CHECKER) == 1)
+	if (!location.checkAllowMethods(GET_CHECKER))
 		return (build_error_response(400));
 
 	file_path = location.buildPath(request_);
