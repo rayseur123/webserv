@@ -3,27 +3,37 @@
 
 #include <iostream>
 
-enum { POST, GET, DELETE, HEAD, UNLINK, LINK, PUT };
-
-class Method {
-
-private:
-  int type_;
-
-public:
-  int getType() const;
-  void setType(int type);
-
-  bool operator==(Method const &m) const;
-  bool operator!=(Method const &m) const;
-  Method &operator=(Method const &to_copy);
-
-  Method();
-  explicit Method(std::string const &method);
-  Method(Method const &to_copy);
-  ~Method();
+enum
+{
+	GET = 1,
+	POST = 2,
+	DELETE = 4,
+	HEAD,
+	UNLINK,
+	LINK,
+	PUT
 };
 
-std::ostream &operator<<(std::ostream &os, Method const &m);
+class Method
+{
+
+private:
+	int type_;
+
+public:
+	int	 getType() const;
+	void setType(int type);
+
+	bool	operator==(Method const& m) const;
+	bool	operator!=(Method const& m) const;
+	Method& operator=(Method const& to_copy);
+
+	Method();
+	explicit Method(std::string const& method);
+	Method(Method const& to_copy);
+	~Method();
+};
+
+std::ostream& operator<<(std::ostream& os, Method const& m);
 
 #endif

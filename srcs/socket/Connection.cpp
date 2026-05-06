@@ -5,6 +5,7 @@
 #include "http/parsing/Method.hpp"
 #include "http/parsing/ParsingRequest.hpp"
 #include "http/parsing/Request.hpp"
+#include "http/ResponseDelete.hpp"
 #include "http/ResponseGet.hpp"
 #include "http/ResponsePost.hpp"
 #include "socket/Connection.hpp"
@@ -40,7 +41,10 @@ Connection::handleConnectionRequest()
 
 	std::string response_str;
 	if (request.getCode() != 0)
+	{
+		std::cout << "code:" << request.getCode() << std::endl;
 		response_str = build_error_response(request.getCode());
+	}
 	else
 	{
 		int type = request.getMethod().getType();
@@ -52,6 +56,12 @@ Connection::handleConnectionRequest()
 		else if (type == POST)
 		{
 			ResponsePost response(request);
+			response_str = response.buildResponse(server_.getLocations());
+		}
+		else if (type == DELETE)
+		{
+			std::cout << "First step for delete" << std::endl;
+			ResponseDelete response(request);
 			response_str = response.buildResponse(server_.getLocations());
 		}
 	}
