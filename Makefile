@@ -20,7 +20,6 @@ SRCS_CONTENT :=	$(SRCS_DIR)main.cpp \
 				$(EPOLL_DIR)EpollManager.cpp \
 				$(HTTP_DIR)AResponse.cpp \
 				$(HTTP_DIR)Code.cpp \
-				$(HTTP_DIR)Error.cpp \
 				$(HTTP_DIR)ResponseGet.cpp \
 				$(HTTP_DIR)ResponseDelete.cpp \
 				$(HTTP_DIR)ResponsePost.cpp \

@@ -14,12 +14,15 @@ class Connection : public ASocket
 private:
 	Listener const& server_;
 	ParsingRequest	parsing_request_;
+	int code;
 
 public:
 	int handleConnectionRequest();
 
 	virtual int		handleEvent(EpollManager& manager, uint32_t events);
 	Listener const& getServer() const;
+
+	void setMaxClientRequestBody();
 
 	Connection(int fd, Listener& server);
 	Connection(Connection const& to_copy);

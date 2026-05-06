@@ -1,7 +1,10 @@
 #ifndef BODY_HPP
 #define BODY_HPP
 
+#include <cstddef>
 #include <iostream>
+
+#define HEXA_BASE 16
 
 enum
 {
@@ -13,24 +16,24 @@ class Body
 {
 private:
 	int			status_;
-	int			writed_;
-	int			length_;
+	size_t		writed_;
+	size_t		length_;
 	std::string content_;
 
 public:
 	int chunkedBody(std::string& container);
-	int lengthBody(std::string& container);
+	int lengthBody(std::string& line);
 
 	std::string const& getContent() const;
-	int				   getLength() const;
-	int				   getWrited() const;
+	size_t			   getLength() const;
+	size_t			   getWrited() const;
 
-	void setLength(int lenght);
+	void setLength(int nb);
 	void setContent(std::string const& content);
-	void setWrited(int writed);
+	void setWrited(int nb);
 
 	Body();
-	Body(std::string content);
+	explicit Body(std::string const& content);
 	Body(Body const& to_copy);
 	Body& operator=(Body const& to_copy);
 	~Body();

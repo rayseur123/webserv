@@ -1,9 +1,10 @@
 #include "http/parsing/Version.hpp"
 #include <cstdlib>
-#include "http/Error.hpp"
+#include "http/Code.hpp"
+#include "utils/utils.hpp"
 
 void
-Version::setProtocol(std::string protocol)
+Version::setProtocol(std::string const& protocol)
 {
 	protocol_ = protocol;
 }
@@ -38,37 +39,28 @@ Version::getSecNb() const
 	return sec_nb_;
 }
 
-Version::Version(Version const& to_copy)
-{
-	*this = to_copy;
-}
-
-Version::Version() : protocol_("HTTP"), first_nb_(1), sec_nb_(0)
+Version::Version(Version const& to_copy) :
+	first_nb_(to_copy.first_nb_), sec_nb_(to_copy.sec_nb_)
 {}
 
-Version::Version(std::string version)
+Version::Version() : first_nb_(0), sec_nb_(0)
+{}
+
+Version::Version(std::string const& version)
 {
 	std::stringstream ss(version);
 	std::string		  tmp;
 
-	if (version.length() != 8)
-	{
-		throw Error::ErrorException(400);
-	}
-
 	std::getline(ss, tmp, '/');
 	if (tmp != "HTTP")
-		throw Error::ErrorException(400);
+		throw Code(400);
 	protocol_ = tmp;
 
 	std::getline(ss, tmp, '.');
-	if (tmp.length() != 1)
-		throw Error::ErrorException(400);
 	first_nb_ = convertInNb(tmp);
 
 	ss >> tmp;
-	if (tmp.length() != 1)
-		throw Error::ErrorException(400);
+
 	sec_nb_ = convertInNb(tmp);
 
 	isValid();
@@ -77,31 +69,37 @@ Version::Version(std::string version)
 void
 Version::isValid() const
 {
-	if (first_nb_ != 1 || sec_nb_ != 1)
-		throw Error::ErrorException(505);
+	if ((first_nb_ != 1 && sec_nb_ != 0) || (first_nb_ != 1 && sec_nb_ != 1))
+		throw Code(505);
 }
 
 int
-Version::convertInNb(std::string buffer)
+Version::convertInNb(std::string const& buffer)
 {
-	int nb;
+	std::string::const_iterator it;
+	std::stringstream			ss;
+	int							nb = 0;
 
-	if (!isdigit(buffer.c_str()[0]))
-		throw Error::ErrorException(400);
+	for (it = buffer.begin(); it != buffer.end(); it++)
+	{
+		if (!isdigit(*it))
+			throw Code(400);
+	}
 
-	nb = atoi(buffer.c_str());
+	ss << buffer;
+	ss >> nb;
+
 	return (nb);
 }
 
 Version&
 Version::operator=(Version const& to_copy)
 {
-	if (this != &to_copy)
-	{
-		protocol_ = to_copy.protocol_;
-		first_nb_ = to_copy.first_nb_;
-		sec_nb_ = to_copy.sec_nb_;
-	}
+	if (this == &to_copy)
+		return *this;
+	protocol_ = to_copy.protocol_;
+	first_nb_ = to_copy.first_nb_;
+	sec_nb_ = to_copy.sec_nb_;
 	return *this;
 }
 

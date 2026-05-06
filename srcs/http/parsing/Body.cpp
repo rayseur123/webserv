@@ -1,42 +1,56 @@
 #include "http/parsing/Body.hpp"
 #include <cstdlib>
 #include <string>
-
-std::string body_buff;
+#include "http/Code.hpp"
 
 int
 Body::chunkedBody(std::string& container)
 {
 	char* end = NULL;
 
-	while (true)
+	size_t pos = 0;
+
+	if (status_ == GETTING_LENGTH)
 	{
-		size_t pos;
+		pos = container.find("\r\n");
+		if (pos == std::string::npos)
+			return 0;
 
-		if (status_ == GETTING_LENGTH)
-		{
-			pos = container.find("\r\n");
-			if (pos == std::string::npos)
-				return 0;
-			length_ = std::strtoul(container.substr(0, pos).c_str(), &end, 16);
+		length_ =
+			std::strtoul(container.substr(0, pos).c_str(), &end, HEXA_BASE);
 
-			if (length_ == 0)
-				return 1;
+		container.erase(0, pos + 2);
+		if (length_ == 0)
+			return 1;
 
-			container.erase(0, pos + 2);
-			status_++;
-		}
-		if (status_ == READING)
-		{
-			if (container.size() < (size_t) length_ + 2)
-				return 0;
-
-			content_ += container.substr(0, length_);
-			container.erase(0, length_ + 2);
-			;
-			status_--;
-		}
+		status_++;
 	}
+	if (status_ == READING)
+	{
+		std::string tmp;
+		size_t		last = 0;
+
+		if (container.size() < length_ + 2)
+		{
+			return 0;
+		}
+
+		tmp = container.substr(0, length_);
+
+		container.erase(0, length_);
+
+		last = container.find("\r\n");
+		if (last != 0)
+		{
+			throw Code(400);
+		}
+
+		content_ += tmp;
+
+		container.erase(0, 2);
+		status_--;
+	}
+	return 0;
 }
 
 int
@@ -44,16 +58,21 @@ Body::lengthBody(std::string& line)
 {
 	std::string tmp;
 
+	std::cout << "Line: " << line << '\n';
 	if (writed_ < length_)
 	{
 		tmp = line.substr(0, length_ - writed_);
 		content_.append(tmp);
 		writed_ += tmp.length();
-		line.erase(0, tmp.length());
+		line.erase(0, tmp.length() + 2);
 	}
 
 	if (writed_ >= length_)
+	{
+		std::cout << "writed:" << writed_ << std::endl;
+		std::cout << "length:" << length_ << std::endl;
 		return 1;
+	}
 
 	return 0;
 }
@@ -71,12 +90,12 @@ Body::setContent(std::string const& content)
 }
 
 void
-Body::setWrited(int writed)
+Body::setWrited(int nb)
 {
-	writed_ = writed;
+	writed_ = nb;
 }
 
-int
+size_t
 Body::getLength() const
 {
 	return length_;
@@ -88,7 +107,7 @@ Body::getContent() const
 	return content_;
 }
 
-int
+size_t
 Body::getWrited() const
 {
 	return writed_;
@@ -97,26 +116,27 @@ Body::getWrited() const
 Body::Body() : status_(0), writed_(0), length_(0)
 {}
 
-Body::Body(std::string content)
-{
-	content_ = content;
-	writed_ = 0;
-	length_ = 0;
-	status_ = 0;
-}
+Body::Body(std::string const& content) :
+	status_(0), writed_(0), length_(0), content_(content)
+{}
 
 Body&
 Body::operator=(Body const& to_copy)
 {
-	if (this != &to_copy)
-		content_ = to_copy.content_;
+	if (this == &to_copy)
+		return *this;
+
+	status_ = to_copy.status_;
+	writed_ = to_copy.writed_;
+	length_ = to_copy.length_;
+	content_ = to_copy.content_;
 	return *this;
 }
 
-Body::Body(Body const& to_copy)
-{
-	*this = to_copy;
-}
+Body::Body(Body const& to_copy) :
+	status_(to_copy.status_), writed_(to_copy.writed_),
+	length_(to_copy.status_), content_(to_copy.content_)
+{}
 
 Body::~Body()
 {}

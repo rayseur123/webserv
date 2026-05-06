@@ -1,30 +1,16 @@
-#include "http/parsing/ParsingRequest.hpp"
 #include <climits>
 #include <cstddef>
 #include <cstring>
-#include <sstream>
 #include <string>
+#include <utility>
 #include <vector>
-#include "http/Error.hpp"
+
+#include "http/Code.hpp"
+#include "http/parsing/ParsingRequest.hpp"
 #include "http/parsing/Request.hpp"
 #include "utils/utils.hpp"
 
-// Request LINE
-void
-ParsingRequest::defineBodyType()
-{
-	Header tmp = request_.getHeader();
-	if (tmp.has("content-type") && tmp.has("content-length"))
-		body_type = LINE_BODY;
-	else if (tmp.has("transfer-encoding"))
-		body_type = CHUNK_BODY;
-	else
-	{
-		body_type = NO_BODY;
-		step_++;
-	}
-}
-
+// Parsing the line of REQUEST
 void
 ParsingRequest::requestLine(std::string& line, size_t pos)
 {
@@ -33,66 +19,105 @@ ParsingRequest::requestLine(std::string& line, size_t pos)
 	line.erase(pos, 2);
 	request_line = splitLineByDel(line, ' ');
 
-	if (request_line.size() != 3)
-		throw Error::ErrorException(400);
-
-	Method const  m(request_line[0]);
-	Uri const	  u(request_line[1]);
-	Version const v(request_line[2]);
-
-	request_.setMethod(m);
-	request_.setUri(u);
-	request_.setVersion(v);
+	try
+	{
+		if (request_line.size() != 3)
+			throw Code(400);
+		request_.setMethod(request_line[0]);
+		request_.setUri(request_line[1]);
+		request_.setVersion(request_line[2]);
+	}
+	catch (Code& c)
+	{
+		std::cout << "REQUEST LINE ERROR \n";
+		code_ = c.getCode();
+	}
 
 	buffer_.erase(0, pos + 2);
 	step_++;
 }
 
-std::vector<std::string>
-splitHeader(std::string& line)
+// Parsing lines of HEADERS
+void
+ParsingRequest::defineBodyType()
 {
-	std::stringstream		 ss;
-	std::string				 tmp;
-	std::vector<std::string> buffer;
+	Headers tmp = request_.getHeader();
 
-	ss << line;
+	if (tmp.has("transfer-encoding"))
+		body_type = CHUNK_BODY;
+	else if (tmp.has("content-type") && tmp.has("content-length"))
+		body_type = LINE_BODY;
+	else
+	{
+		body_type = NO_BODY;
+		step_++;
+	}
+}
 
-	std::getline(ss, tmp, ':');
-	buffer.push_back(tmp);
-	std::getline(ss, tmp, ':');
-	buffer.push_back(tmp);
+std::pair<std::string, std::string>
+ParsingRequest::splitHeader(std::string& line)
+{
+	std::pair<std::string, std::string> head;
+	size_t								pos = 0;
 
-	return buffer;
+	pos = line.find(':');
+	if (pos == std::string::npos)
+		throw Code(400);
+
+	head.first = line.substr(0, pos);
+	head.second = line.substr(pos + 1);
+
+	return head;
 }
 
 void
 ParsingRequest::headerLine(std::string& line, size_t pos)
 {
-	std::vector<std::string> param;
+	std::pair<std::string, std::string> head;
+
 	line.erase(pos, 2);
 
-	param = splitHeader(line);
-	toLowerString(param[0]);
-	// if (keyIsValid(param[0]))
-	// {
-	//     throw Error::ErrorException(400);
-	// }
-	trimSpaceString(param[1]);
+	try
+	{
+		head = splitHeader(line);
+		toLowerString(head.first);
 
-	request_.addingInsideHeader(param);
+		if (!keyIsValid(head.first))
+			throw Code(400);
+
+		trimSpaceString(head.second);
+		request_.addingInsideHeader(head);
+	}
+	catch (Code& c)
+	{
+		code_ = c.getCode();
+	}
 	buffer_.erase(0, pos + 2);
 }
 
 // Parsing Management
 
+bool
+ParsingRequest::handleEndHeaders(std::string const& line)
+{
+	if (line == "\r\n")
+	{
+		step_++;
+		buffer_.erase(0, 2);
+		defineBodyType();
+		return true;
+	}
+	return false;
+}
+
 void
 ParsingRequest::fillBuffer(std::string& tmp)
 {
-	size_t		pos;
+	size_t		pos = 0;
 	std::string line;
 
 	buffer_.append(tmp);
-	while (step_ != FINISH && body_type != CHUNK_BODY && body_type != NO_BODY)
+	while (step_ != FINISH && body_type != LINE_BODY)
 	{
 		pos = buffer_.find("\r\n");
 		if (pos == std::string::npos)
@@ -101,27 +126,48 @@ ParsingRequest::fillBuffer(std::string& tmp)
 		line = buffer_.substr(0, pos + 2);
 
 		if (step_ == REQUEST)
-		{
 			requestLine(line, pos);
-		}
 		else if (step_ == HEADER)
 		{
-			if (line == "\r\n")
-			{
-				step_++;
-				defineBodyType();
-				buffer_.erase(0, 2);
-				if (body_type == NO_BODY || body_type == CHUNK_BODY)
-					break;
-			}
-			else
+			if (!handleEndHeaders(line))
 				headerLine(line, pos);
+			if (body_type == LINE_BODY)
+				break;
 		}
-		if (step_ == BODY)
-			step_ += request_.addingBodyLength(buffer_);
+		if (step_ == BODY && body_type == CHUNK_BODY)
+		{
+			try
+			{
+				step_ += request_.addingBodyChunked(buffer_);
+			}
+			catch (Code& c)
+			{
+				code_ = c.getCode();
+				step_ = FINISH;
+				return;
+			}
+		}
 	}
-	if (step_ == CHUNK_BODY)
-		step_ += request_.addingBodyChunked(buffer_);
+	if (step_ == BODY && body_type == LINE_BODY)
+	{
+		try
+		{
+			step_ += request_.addingBodyLength(buffer_);
+		}
+		catch (Code& c)
+		{
+			code_ = c.getCode();
+		}
+	}
+}
+
+void
+ParsingRequest::resetParsingAndRequest()
+{
+	step_ = 0;
+	body_type = 0;
+	code_ = 0;
+	request_.resetRequest();
 }
 
 int
@@ -136,6 +182,18 @@ ParsingRequest::getRequest()
 	return request_;
 }
 
+int
+ParsingRequest::getCode() const
+{
+	return code_;
+}
+
+void
+ParsingRequest::setCode(int nb)
+{
+	code_ = nb;
+}
+
 ParsingRequest&
 ParsingRequest::operator=(ParsingRequest const& to_copy)
 {
@@ -144,17 +202,18 @@ ParsingRequest::operator=(ParsingRequest const& to_copy)
 
 	buffer_ = to_copy.buffer_;
 	request_ = to_copy.request_;
+	body_type = to_copy.body_type;
 	step_ = to_copy.step_;
+	code_ = to_copy.code_;
 
 	return *this;
 }
 
-ParsingRequest::ParsingRequest(ParsingRequest const& to_copy)
-{
-	*this = to_copy;
-}
+ParsingRequest::ParsingRequest(ParsingRequest const& to_copy) :
+	step_(to_copy.step_), body_type(to_copy.body_type), code_(0)
+{}
 
-ParsingRequest::ParsingRequest() : step_(0), body_type(0)
+ParsingRequest::ParsingRequest() : step_(0), body_type(0), code_(0)
 {}
 
 ParsingRequest::~ParsingRequest()

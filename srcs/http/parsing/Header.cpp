@@ -1,85 +1,83 @@
 #include "http/parsing/Header.hpp"
 #include <sstream>
-#include "http/Error.hpp"
+#include "http/Code.hpp"
 #include "utils/utils.hpp"
 
 void
-Header::typeAccepted(std::string& value)
+Headers::typeAccepted(std::string& value)
 {
 	if (value != "text/html")
 		value = "application/octet-stream";
 }
 
 void
-Header::set(std::string const& key, std::string& value)
+Headers::set(std::string const& key, std::string& value)
 {
 	if (has(key))
-		throw(Error::ErrorException(400));
+		throw(Code(400));
 	if (key == "content-length")
 		if (!stringIsDigit(value))
-			throw(Error::ErrorException(400));
+			throw(Code(400));
 	if (key == "content-type")
 		typeAccepted(value);
 	if (key == "transfer-encoding")
 		if (value != "chunked")
-			throw(Error::ErrorException(400));
+			throw(Code(400));
 	headers_[key] = value;
 }
 
 std::string&
-Header::get(std::string const& key)
+Headers::get(std::string const& key)
 {
 	return headers_[key];
 }
 
 bool
-Header::has(std::string const& key) const
+Headers::has(std::string const& key) const
 {
 	std::map<std::string, std::string>::const_iterator it;
 
 	it = headers_.find(key);
-	if (it != headers_.end())
-		return 1;
-	return 0;
+	return (it != headers_.end());
 }
 
 int
-Header::getContentLength()
+Headers::getContentLength()
 {
 	std::stringstream ss;
-	int				  number;
+	int				  number = 0;
 
 	ss << get("content-length");
 	ss >> number;
 	return number;
 }
 
-Header&
-Header::operator=(Header const& to_copy)
+Headers&
+Headers::operator=(Headers const& to_copy)
 {
+	if (&to_copy == this)
+		return *this;
 	headers_ = to_copy.headers_;
 	return *this;
 }
 
-Header::Header()
+Headers::Headers()
 {}
 
-Header::Header(Header const& to_copy)
-{
-	*this = to_copy;
-}
+Headers::Headers(Headers const& to_copy) : headers_(to_copy.headers_)
+{}
 
-Header::~Header()
+Headers::~Headers()
 {}
 
 std::map<std::string, std::string> const&
-Header::getHeaders() const
+Headers::getHeaders() const
 {
 	return headers_;
 }
 
 std::ostream&
-operator<<(std::ostream& os, Header const& m)
+operator<<(std::ostream& os, Headers const& m)
 {
 	std::map<std::string, std::string>::const_iterator it;
 
@@ -87,7 +85,7 @@ operator<<(std::ostream& os, Header const& m)
 	{
 		os << it->first;
 		os << ":";
-		os << it->second << std::endl;
+		os << it->second << '\n';
 	}
 	return os;
 }
