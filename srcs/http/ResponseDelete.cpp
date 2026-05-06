@@ -37,25 +37,20 @@ ResponseDelete::buildResponse(std::vector<Location> const& locations_vec)
 	Location const& location = getGoodLocation(locations_vec);
 	std::string		file_path;
 
-	std::cout << "INSIDE THE DELETE RESPONSE" << std::endl;
-	if (location.checkAllowMethods(DELETE_CHECKER) != 0)
-	{
+	if (!location.checkAllowMethods(DELETE_CHECKER))
 		return (build_error_response(400));
-	}
 
 	file_path = location.buildPath(request_);
 
 	std::string body;
-	// TU FAIS CE QUE TU VEUX ICI
-	int fd = open(file_path.c_str(), O_DIRECTORY | O_CLOEXEC);
-	if (fd != -1) // its a folder
+	int			fd = open(file_path.c_str(), O_DIRECTORY | O_CLOEXEC);
+	if (fd != -1)
 		return (build_error_response(422));
 
 	std::ifstream file(file_path.c_str());
 
 	body = readFileContent(file);
 
-	// Delete part
 	if (std::remove(file_path.c_str()))
 		return (build_error_response(404));
 
