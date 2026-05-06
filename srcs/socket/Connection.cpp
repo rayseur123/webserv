@@ -2,7 +2,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "http/Code.hpp"
 #include "http/parsing/Method.hpp"
 #include "http/parsing/ParsingRequest.hpp"
 #include "http/parsing/Request.hpp"

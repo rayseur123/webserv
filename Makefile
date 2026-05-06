@@ -21,6 +21,8 @@ SRCS_CONTENT :=	$(SRCS_DIR)main.cpp \
 				$(HTTP_DIR)AResponse.cpp \
 				$(HTTP_DIR)Code.cpp \
 				$(HTTP_DIR)ResponseGet.cpp \
+				$(HTTP_DIR)ResponseDelete.cpp \
+				$(HTTP_DIR)ResponsePost.cpp \
 				$(HTTP_PARS_DIR)Body.cpp \
 				$(HTTP_PARS_DIR)Header.cpp \
 				$(HTTP_PARS_DIR)Method.cpp \
