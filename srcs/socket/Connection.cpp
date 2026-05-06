@@ -20,7 +20,7 @@ int
 Connection::handleConnectionRequest()
 {
 	size_t bytes = 0;
-	char   buffer[1] = {};
+	char   buffer[10000] = {};
 
 	bytes = recv(fd_, buffer, sizeof(buffer), 0);
 	if (bytes == 0)
