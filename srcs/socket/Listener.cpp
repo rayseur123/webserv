@@ -55,8 +55,6 @@ Listener::handleEvent(EpollManager& manager, uint32_t events)
 	if (events & EPOLLIN)
 		acceptNewConnection(manager);
 	return (0);
-
-	return (0);
 }
 
 void
@@ -66,7 +64,7 @@ Listener::setNoBlockingFd()
 	if (flags == -1)
 		throw std::runtime_error(messageError("createSocket>flags_fcntl"));
 
-	if (fcntl(fd_, F_SETFL, flags | O_NONBLOCK) == -1)
+	if (fcntl(fd_, F_SETFL, flags | O_NONBLOCK | FD_CLOEXEC) == -1)
 		throw std::runtime_error(messageError("createSocket>set_fcntl"));
 }
 
