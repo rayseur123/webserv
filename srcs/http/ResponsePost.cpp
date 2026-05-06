@@ -4,9 +4,12 @@
 #include "parsing/Location.hpp"
 
 #include <cstdio>
+#include <cstdlib>
+#include <ctime>
 #include <dirent.h>
 #include <fcntl.h>
 #include <fstream>
+#include <linux/close_range.h>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -16,34 +19,58 @@
 #define POST_CHECKER (1u << 1u)
 #define CHMOD		 0644
 
+namespace
+{
+	std::string
+	generate_filename()
+	{
+		static bool		  initialized = false;
+		std::stringstream ss;
+		unsigned long	  timestamp = 0;
+		unsigned int	  random_part = 0;
+
+		if (!initialized)
+		{
+			std::srand(static_cast<unsigned int>(std::clock()));
+			initialized = true;
+		}
+
+		timestamp = static_cast<unsigned long>(std::time(NULL));
+		random_part = static_cast<unsigned int>(std::rand() % 0xFFFF);
+
+		ss << "upload_" << timestamp << "_" << std::hex << random_part
+		   << ".tmp";
+		return (ss.str());
+	}
+
+} // namespace
+
 std::string
 ResponsePost::buildResponse(std::vector<Location> const& locations_vec)
 {
 	// Le deplacer car present dans les 3 methods
 	Location const& location = getGoodLocation(locations_vec);
 	std::string		file_path;
-	std::string		body;
 
 	if (location.checkAllowMethods(POST_CHECKER) == 1)
 		throw std::logic_error("400");
 
-	file_path = location.buildPath(request_);
-	if (!location.getIndex().empty())
-		file_path += location.getIndex();
+	file_path = location.buildPathPost(request_);
 	// jusque ici
 	int fd = open(file_path.c_str(), O_DIRECTORY | O_CLOEXEC);
-	if (fd != -1 && location.getAutoIndex()) // its a folder
+
+	if (fd != -1 && location.getAutoIndex())
 	{
-		int fd = open(file_path.c_str(),
-					  O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, CHMOD);
-		(void) fd;
-		std::ofstream new_file(file_path.c_str());
+		file_path += "/" + generate_filename();
+		close(open(file_path.c_str(), O_CREAT | O_CLOEXEC, CHMOD));
 		error_code_ = 201;
 	}
-	else
-	{}
-	close(fd);
-	setBody(body, file_path);
+
+	std::ofstream file(file_path.c_str());
+	if (!file.is_open())
+		throw std::logic_error("404 file not find");
+	file << request_.getBody().getContent();
+
 	return (buildResponseStr());
 }
 

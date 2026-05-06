@@ -21,6 +21,20 @@ Location::buildPath(Request const& request) const
 	return root + suffix;
 }
 
+std::string
+Location::buildPathPost(Request const& request) const
+{
+	std::string uri(request.getUri().getTarget());
+	std::string suffix = uri.substr(path_.length());
+	std::string upload_store = upload_store_;
+
+	if (!suffix.empty() && suffix[0] != '/' &&
+		(upload_store.empty() ||
+		 upload_store[upload_store.length() - 1] != '/'))
+		return upload_store + "/" + suffix;
+	return upload_store + suffix;
+}
+
 int
 Location::checkAllowMethods(unsigned int actual_methods) const
 {

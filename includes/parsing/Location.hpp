@@ -22,6 +22,7 @@ private:
 public:
 	int			checkAllowMethods(unsigned int actual_methods) const;
 	std::string buildPath(Request const& request) const;
+	std::string buildPathPost(Request const& request) const;
 
 	int getValue(std::string const& uri) const;
 
