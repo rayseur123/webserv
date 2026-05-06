@@ -36,13 +36,9 @@ Connection::handleConnectionRequest()
 
 	request.setCode(parsing_request_.getCode());
 
-	if (request.getCode() > 0 || !bodyLengthValid())
-	{
-		std::cout << "\n\n\n\n\nRequest contain an error \n\n"
-				  << request.getCode() << '\n';
-	}
-	else
-		std::cout << request << '\n';
+	// Check Max Body
+	if (!bodyLengthValid())
+		request.setCode(413);
 
 	std::string response_str;
 	if (request.getMethod().getType() == GET)
