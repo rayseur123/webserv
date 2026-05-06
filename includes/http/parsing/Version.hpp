@@ -27,7 +27,7 @@ public:
 	bool operator<=(Version const& m) const;
 
 	Version();
-	explicit Version(std::string const& version);
+	explicit Version(std::string version);
 	Version(Version const& to_copy);
 	Version& operator=(Version const& to_copy);
 	~Version();

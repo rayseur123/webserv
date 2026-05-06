@@ -1,6 +1,7 @@
 #ifndef LISTENER_HPP
 #define LISTENER_HPP
 
+#include <cstddef>
 #include <string>
 #include <utility>
 #include <vector>
@@ -15,7 +16,7 @@
 class Listener : public ASocket
 {
 private:
-	int										 max_client_request_body_;
+	size_t									 max_client_request_body_;
 	std::string								 address_;
 	std::string								 port_;
 	std::vector<Location>					 locations_vec_;
@@ -27,7 +28,7 @@ public:
 	int	 createListenerSocket();
 	int	 handleEvent(EpollManager& manager, uint32_t events);
 
-	int							 getMaxClientRequestBody() const;
+	size_t						 getMaxClientRequestBody() const;
 	std::string const&			 getPort() const;
 	std::string const&			 getAddress() const;
 	std::vector<Location> const& getLocations() const;

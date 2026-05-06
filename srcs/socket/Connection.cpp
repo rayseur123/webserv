@@ -10,11 +10,18 @@
 #include "socket/Connection.hpp"
 #include "socket/Listener.hpp"
 
+bool
+Connection::bodyLengthValid()
+{
+	return (parsing_request_.getRequest().getBody().getLength() <=
+			server_.getMaxClientRequestBody());
+}
+
 int
 Connection::handleConnectionRequest()
 {
 	size_t bytes = 0;
-	char   buffer[10000] = {};
+	char   buffer[1] = {};
 
 	bytes = recv(fd_, buffer, sizeof(buffer), 0);
 	if (bytes == 0)
@@ -26,27 +33,26 @@ Connection::handleConnectionRequest()
 	if (parsing_request_.getStep() != FINISH)
 		return 0;
 
-	if (parsing_request_.getCode() > 0)
+	Request request = parsing_request_.getRequest();
+
+	request.setCode(parsing_request_.getCode());
+
+	if (request.getCode() > 0 || !bodyLengthValid())
 	{
 		std::cout << "\n\n\n\n\nRequest contain an error \n\n"
-				  << parsing_request_.getCode() << '\n';
+				  << request.getCode() << '\n';
 	}
 	else
-		std::cout << parsing_request_.getRequest() << '\n';
+		std::cout << request << '\n';
 
+	std::string response_str;
+	if (request.getMethod().getType() == GET)
+	{
+		ResponseGet response(request);
+		response_str = response.buildResponse(server_.getLocations());
+	}
+	send(fd_, response_str.c_str(), response_str.size(), 0);
 	parsing_request_.resetParsingAndRequest();
-
-	// ResponseGet	response(request);
-	// ResponseGet response(parsing_request_.getRequest());
-	// Request		request = parsing_request_.getRequest();
-
-	// std::string response_str;
-	// if (request.getMethod().getType() == GET)
-	// {
-	// 	ResponseGet response(request);
-	// 	response_str = response.buildResponse(server_.getLocations());
-	// }
-	// send(fd_, response_str.c_str(), response_str.size(), 0);
 	return (0);
 }
 

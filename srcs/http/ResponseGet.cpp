@@ -42,6 +42,8 @@ ResponseGet::buildResponse(std::vector<Location> const& locations_vec)
 		file_path += location.getIndex();
 	// jusque ici
 
+	std::cout << "file:" << file_path << 'd' << std::endl;
+
 	int fd = open(file_path.c_str(), O_DIRECTORY | O_CLOEXEC);
 	if (fd != -1 && location.getAutoIndex()) // its a folder
 	{
