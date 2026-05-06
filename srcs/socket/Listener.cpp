@@ -130,7 +130,7 @@ Listener::setMaxClientRequestBody(std::string const& max_client_request_body)
 	max_client_request_body_ =
 		atoi(max_client_request_body.substr(0, index).c_str());
 	if (index != std::string::npos)
-		max_client_request_body_ = 6;
+		max_client_request_body_ *= 1000;
 }
 
 void
