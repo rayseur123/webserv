@@ -36,6 +36,7 @@ ResponsePost::buildResponse(std::vector<Location> const& locations_vec)
 	{
 		int fd = open(file_path.c_str(),
 					  O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, CHMOD);
+		(void) fd;
 		std::ofstream new_file(file_path.c_str());
 		error_code_ = 201;
 	}
