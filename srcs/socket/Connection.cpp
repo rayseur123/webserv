@@ -27,7 +27,7 @@ Connection::handleConnectionRequest()
 	Request request = parsing_request_.getRequest();
 
 	std::string response_str;
-	if (request.getMethod().getMethod() == GET)
+	if (request.getMethod().getType() == GET)
 	{
 		ResponseGet response(request);
 		response_str = response.buildResponse(server_.getLocations());
