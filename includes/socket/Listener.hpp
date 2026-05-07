@@ -22,6 +22,9 @@ private:
 	std::vector<Location>					 locations_vec_;
 	std::pair<std::vector<int>, std::string> error_page_;
 
+	Listener& operator=(Listener const& to_copy);
+	Listener(Listener const& to_copy);
+
 public:
 	void acceptNewConnection(EpollManager& manager);
 	void setNoBlockingFd();
@@ -40,11 +43,9 @@ public:
 	void setErrorPage(std::vector<std::string> const& error_page);
 
 	Listener();
-	Listener(Listener const& to_copy);
 	Listener(int fd, int max_client_request_body, std::string const& address,
 			 std::string const&			  port,
 			 std::vector<Location> const& locations_vec);
-	Listener& operator=(Listener const& to_copy);
 	~Listener();
 };
 

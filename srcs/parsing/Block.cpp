@@ -76,12 +76,13 @@ namespace
 Location
 Block::makeLocation() const
 {
-	Location				 loc;
-	std::vector<std::string> directives_split;
+	Location								 loc;
+	std::vector<std::string>				 directives_split;
+	std::vector<std::string>::const_iterator it;
 
-	for (size_t i = 0; i < directives_vec_.size(); ++i)
+	for (it = directives_vec_.begin(); it != directives_vec_.end(); ++it)
 	{
-		directives_split = splitDirective(directives_vec_[i]);
+		directives_split = splitDirective(*it);
 		if (directives_split.size() < 2)
 			throw std::invalid_argument("[ERROR] : Invalide directive. : " +
 										directives_split[0]);
@@ -121,23 +122,23 @@ Block::makeLocationVec() const
 	return (loc_vec);
 }
 
-Listener
+Listener*
 Block::makeServer() const
 {
-	Listener				 serv;
+	Listener*				 serv = new Listener;
 	std::vector<std::string> directives_split;
-	serv.setLocations(makeLocationVec());
+	serv->setLocations(makeLocationVec());
 	for (size_t i = 0; i < directives_vec_.size(); ++i)
 	{
 		directives_split = splitDirective(directives_vec_[i]);
 		if (directives_split.size() < 2)
 			throw std::invalid_argument("[ERROR] : Invalide directive.");
 		if (directives_split[0] == "client_max_body_size")
-			serv.setMaxClientRequestBody(directives_split[1]);
+			serv->setMaxClientRequestBody(directives_split[1]);
 		else if (directives_split[0] == "listen")
-			serv.setAddrAndPort(directives_split[1]);
+			serv->setAddrAndPort(directives_split[1]);
 		else if (directives_split[0] == "error_page")
-			serv.setErrorPage(directives_split);
+			serv->setErrorPage(directives_split);
 		else
 			throw std::invalid_argument("[ERROR] : Invalide directive.");
 	}
@@ -145,10 +146,10 @@ Block::makeServer() const
 	return (serv);
 }
 
-std::vector<Listener>
+std::vector<Listener*>
 Block::makeServerVec() const
 {
-	std::vector<Listener> server_vec;
+	std::vector<Listener*> server_vec;
 	server_vec.reserve(blocks_vec_.size());
 	for (size_t i = 0; i < blocks_vec_.size(); ++i)
 		server_vec.push_back(blocks_vec_[i].makeServer());

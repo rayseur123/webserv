@@ -51,6 +51,7 @@ EpollManager::eventLoop()
 			{
 				std::map<int, ASocket*>::iterator it = socket_map_.find(fd);
 				std::cout << "The fd " << fd << " has been shut down." << '\n';
+				delete it->second;
 				socket_map_.erase(it);
 				epoll_ctl(epoll_fd_, EPOLL_CTL_DEL, fd, NULL);
 			}
@@ -67,17 +68,13 @@ EpollManager::getEpollFd() const
 EpollManager::EpollManager() : epoll_fd_(-1), events_()
 {}
 
-EpollManager::EpollManager(std::vector<Listener> const& listener_vec) :
+EpollManager::EpollManager(std::vector<Listener*> const& listener_vec) :
 	epoll_fd_(-1), events_()
 {
-	std::vector<Listener>::const_iterator it;
+	std::vector<Listener*>::const_iterator it;
 
 	for (it = listener_vec.begin(); it != listener_vec.end(); ++it)
-	{
-		Listener* listener = new Listener(*it);
-		socket_map_.insert(
-			std::make_pair(listener->createListenerSocket(), listener));
-	}
+		socket_map_.insert(std::make_pair((*it)->createListenerSocket(), *it));
 
 	instanceEpoll();
 	registerListenersToEpoll();

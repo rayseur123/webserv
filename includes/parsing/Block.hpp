@@ -18,10 +18,10 @@ private:
 	std::string				 name_;
 
 public:
-	Location			  makeLocation() const;
-	std::vector<Listener> makeServerVec() const;
-	std::vector<Location> makeLocationVec() const;
-	Listener			  makeServer() const;
+	Location			   makeLocation() const;
+	std::vector<Listener*> makeServerVec() const;
+	std::vector<Location>  makeLocationVec() const;
+	Listener*			   makeServer() const;
 
 	int								getType() const;
 	std::vector<Block> const&		getBlocks() const;

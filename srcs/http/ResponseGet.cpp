@@ -43,7 +43,7 @@ ResponseGet::buildResponse(std::vector<Location> const& locations_vec)
 		file_path += location.getIndex();
 
 	int fd = open(file_path.c_str(), O_DIRECTORY | O_CLOEXEC);
-	if (fd != -1 && location.getAutoIndex()) // its a folder
+	if (fd != -1 && location.getAutoIndex())
 	{
 		close(fd);
 		DIR* dir = opendir(file_path.c_str());

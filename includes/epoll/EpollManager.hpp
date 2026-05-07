@@ -31,7 +31,7 @@ public:
 	void addConnection(std::pair<int, Connection*> const& newConnection);
 
 	EpollManager();
-	EpollManager(std::vector<Listener> const& listener_vec);
+	explicit EpollManager(std::vector<Listener*> const& listener_vec);
 	EpollManager(EpollManager const& to_copy);
 
 	EpollManager& operator=(EpollManager const& to_copy);

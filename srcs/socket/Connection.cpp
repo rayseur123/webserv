@@ -88,16 +88,6 @@ Connection::getServer() const
 Connection::Connection(int fd, Listener& server) : ASocket(fd), server_(server)
 {}
 
-Connection::Connection(Connection const& to_copy) : server_(to_copy.server_)
-{}
-
-Connection&
-Connection::operator=(Connection const& to_copy)
-{
-	(void) to_copy;
-	return (*this);
-}
-
 Connection::~Connection()
 {}
 

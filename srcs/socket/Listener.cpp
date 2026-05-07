@@ -193,28 +193,7 @@ Listener::getErrorPage() const
 	return (error_page_);
 }
 
-Listener&
-Listener::operator=(Listener const& to_copy)
-{
-	if (&to_copy == this)
-		return (*this);
-	fd_ = to_copy.fd_;
-	max_client_request_body_ = to_copy.max_client_request_body_;
-	address_ = to_copy.address_;
-	port_ = to_copy.port_;
-	locations_vec_ = to_copy.locations_vec_;
-	error_page_ = to_copy.error_page_;
-	return (*this);
-}
-
 Listener::Listener() : ASocket(-1), max_client_request_body_(0)
-{}
-
-Listener::Listener(Listener const& to_copy) :
-	ASocket(to_copy.fd_),
-	max_client_request_body_(to_copy.max_client_request_body_),
-	address_(to_copy.address_), port_(to_copy.port_),
-	locations_vec_(to_copy.locations_vec_), error_page_(to_copy.error_page_)
 {}
 
 Listener::Listener(int fd, int max_client_request_body,
