@@ -97,5 +97,9 @@ EpollManager::operator=(EpollManager const& to_copy)
 
 EpollManager::~EpollManager()
 {
+	std::map<int, ASocket*>::iterator it;
+
+	for (it = socket_map_.begin(); it != socket_map_.begin(); ++it)
+		delete it->second;
 	close(epoll_fd_);
 }
