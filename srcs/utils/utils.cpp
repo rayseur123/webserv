@@ -87,7 +87,9 @@ getStatusMessage(int code)
 {
 	switch (code)
 	{
-		case HTTP_OK return "200 OK"; case HTTP_BAD_REQUEST:
+		case HTTP_OK:
+			return "200 OK";
+		case HTTP_BAD_REQUEST:
 			return "400 Bad Request";
 
 		case HTTP_UNAUTHORIZED:
@@ -166,5 +168,5 @@ getStatusMessage(int code)
 std::string
 buildErrorResponse(int code)
 {
-	return "HTTP/1.0 " + std::string(getStatusMessage(code)) + "\r\n\r\n";
+	return "HTTP/1.0 " + std::string(getStatusMessage(code));
 }
