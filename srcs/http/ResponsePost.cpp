@@ -52,7 +52,7 @@ ResponsePost::buildResponse(std::vector<Location> const& locations_vec)
 	Location const& location = getGoodLocation(locations_vec);
 	std::string		file_path;
 
-	if (location.checkAllowMethods(POST_CHECKER) == 1)
+	if (!location.checkAllowMethods(POST_CHECKER))
 		return (build_error_response(400));
 
 	file_path = location.buildPathPost(request_);

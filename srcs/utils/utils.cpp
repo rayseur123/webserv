@@ -132,6 +132,9 @@ build_error_response(int error_code)
 		case 417:
 			ret = "HTTP/1.0 417 Expectation Failed\r\n\r\n";
 			break;
+		case 422:
+			ret = "HTTP/1.0 422 Unprocessable Content\r\n\r\n";
+			break;
 		case 500:
 			ret = "HTTP/1.0 500 Internal Server Error\r\n\r\n";
 			break;

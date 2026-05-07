@@ -87,7 +87,7 @@ AResponse::generateAutoIndex(std::string const& path, std::string const& uri)
 }
 
 void
-AResponse::setBody(std::string const& body, std::string const& file_path)
+AResponse::setBody(std::string const& body)
 {
 	body_ = body;
 
@@ -95,7 +95,6 @@ AResponse::setBody(std::string const& body, std::string const& file_path)
 	ss << body.length();
 
 	bool							   foundLen = false;
-	bool							   foundType = false;
 	std::vector<std::string>::iterator it;
 
 	for (it = header_vec_.begin(); it != header_vec_.end(); it++)
@@ -105,16 +104,9 @@ AResponse::setBody(std::string const& body, std::string const& file_path)
 			*it = "Content-Length: " + ss.str();
 			foundLen = true;
 		}
-		if (it->find("Content-Type:") != std::string::npos)
-		{
-			*it = "Content-Type: " + findType(file_path);
-			foundType = true;
-		}
 	}
 	if (!foundLen)
 		header_vec_.push_back("Content-Length: " + ss.str());
-	if (!foundType)
-		header_vec_.push_back("Content-Type: " + findType(file_path));
 }
 
 void

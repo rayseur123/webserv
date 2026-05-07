@@ -20,7 +20,7 @@ private:
 	std::string	 path_;
 
 public:
-	int			checkAllowMethods(unsigned int actual_methods) const;
+	bool		checkAllowMethods(unsigned int actual_methods) const;
 	std::string buildPath(Request const& request) const;
 	std::string buildPathPost(Request const& request) const;
 

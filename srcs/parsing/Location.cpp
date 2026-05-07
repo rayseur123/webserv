@@ -35,13 +35,10 @@ Location::buildPathPost(Request const& request) const
 	return upload_store + suffix;
 }
 
-int
+bool
 Location::checkAllowMethods(unsigned int actual_methods) const
 {
-	std::cout << "allow :" << allow_methods_ << std::endl;
-	if ((allow_methods_ & actual_methods) != 0)
-		return (0);
-	return (1);
+	return ((allow_methods_ & actual_methods));
 }
 
 int

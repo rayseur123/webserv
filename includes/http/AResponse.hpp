@@ -30,7 +30,7 @@ public:
 	virtual std::string
 	buildResponse(std::vector<Location> const& locations_vec) = 0;
 
-	void setBody(std::string const& body, std::string const& file_path);
+	void setBody(std::string const& body);
 	void addHeader(std::pair<std::string, std::string> const& new_header);
 	void setResponseCode(int code);
 
