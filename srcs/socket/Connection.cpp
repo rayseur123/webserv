@@ -5,6 +5,7 @@
 #include "http/parsing/Method.hpp"
 #include "http/parsing/ParsingRequest.hpp"
 #include "http/parsing/Request.hpp"
+#include "http/ResponseDelete.hpp"
 #include "http/ResponseGet.hpp"
 #include "http/ResponsePost.hpp"
 #include "socket/Connection.hpp"
@@ -52,6 +53,11 @@ Connection::handleConnectionRequest()
 		else if (type == POST)
 		{
 			ResponsePost response(request);
+			response_str = response.buildResponse(server_.getLocations());
+		}
+		else if (type == DELETE)
+		{
+			ResponseDelete response(request);
 			response_str = response.buildResponse(server_.getLocations());
 		}
 	}
