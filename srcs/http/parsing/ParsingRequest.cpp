@@ -10,7 +10,7 @@
 #include "http/parsing/Request.hpp"
 #include "utils/utils.hpp"
 
-// Parsing the line of REQUEST
+// Request line
 void
 ParsingRequest::requestLine(std::string& line, size_t pos)
 {
@@ -36,7 +36,7 @@ ParsingRequest::requestLine(std::string& line, size_t pos)
 	step_++;
 }
 
-// Parsing lines of HEADERS
+// Headers line
 void
 ParsingRequest::defineBodyType()
 {
@@ -139,15 +139,14 @@ ParsingRequest::fillBuffer(std::string& tmp)
 				break;
 		}
 		if (step_ == BODY && body_type == CHUNK_BODY)
-		{
 			if (handleBodyChunk())
 				return;
-		}
 	}
 	if (step_ == BODY && body_type == LINE_BODY)
 		handleBodyLine();
 }
 
+// Body line
 bool
 ParsingRequest::handleBodyChunk()
 {
@@ -167,7 +166,6 @@ ParsingRequest::handleBodyChunk()
 		step_ = FINISH;
 		return true;
 	}
-	return false;
 }
 
 void
@@ -176,6 +174,7 @@ ParsingRequest::handleBodyLine()
 	step_ += request_.addingBodyLength(buffer_);
 }
 
+// Others
 void
 ParsingRequest::resetParsingAndRequest()
 {
