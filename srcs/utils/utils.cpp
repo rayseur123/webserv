@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include "algorithm"
+#include "http/parsing/HttpStatus.hpp"
 
 bool
 stringIsDigit(std::string const& s)
@@ -72,90 +73,89 @@ messageError(std::string const& function_name)
 	return (msg);
 }
 
-std::string
-build_error_response(int error_code)
+inline char const*
+getStatusMessage(int code)
 {
-	std::string ret;
-	switch (error_code)
+	switch (code)
 	{
-		case 400:
-			ret = "HTTP/1.0 400 Bad Request\r\n\r\n";
-			break;
-		case 401:
-			ret = "HTTP/1.0 401 Unauthorized\r\n\r\n";
-			break;
-		case 402:
-			ret = "HTTP/1.0 402 Payment Required\r\n\r\n";
-			break;
-		case 403:
-			ret = "HTTP/1.0 403 Forbidden\r\n\r\n";
-			break;
-		case 404:
-			ret = "HTTP/1.0 404 Not Found\r\n\r\n";
-			break;
-		case 405:
-			ret = "HTTP/1.0 405 Method Not Allowed\r\n\r\n";
-			break;
-		case 406:
-			ret = "HTTP/1.0 406 Not Acceptable\r\n\r\n";
-			break;
-		case 407:
-			ret = "HTTP/1.0 407 Proxy Authentication Required\r\n\r\n";
-			break;
-		case 408:
-			ret = "HTTP/1.0 408 Request Timeout\r\n\r\n";
-			break;
-		case 409:
-			ret = "HTTP/1.0 409 Conflict\r\n\r\n";
-			break;
-		case 410:
-			ret = "HTTP/1.0 410 Gone\r\n\r\n";
-			break;
-		case 411:
-			ret = "HTTP/1.0 411 Length Required\r\n\r\n";
-			break;
-		case 412:
-			ret = "HTTP/1.0 412 Precondition Failed\r\n\r\n";
-			break;
-		case 413:
-			ret = "HTTP/1.0 413 Payload Too Large\r\n\r\n";
-			break;
-		case 414:
-			ret = "HTTP/1.0 414 URI Too Long\r\n\r\n";
-			break;
-		case 415:
-			ret = "HTTP/1.0 415 Unsupported Media Type\r\n\r\n";
-			break;
-		case 416:
-			ret = "HTTP/1.0 416 Range Not Satisfiable\r\n\r\n";
-			break;
-		case 417:
-			ret = "HTTP/1.0 417 Expectation Failed\r\n\r\n";
-			break;
-		case 422:
-			ret = "HTTP/1.0 422 Unprocessable Content\r\n\r\n";
-			break;
-		case 500:
-			ret = "HTTP/1.0 500 Internal Server Error\r\n\r\n";
-			break;
-		case 501:
-			ret = "HTTP/1.0 501 Not Implemented\r\n\r\n";
-			break;
-		case 502:
-			ret = "HTTP/1.0 502 Bad Gateway\r\n\r\n";
-			break;
-		case 503:
-			ret = "HTTP/1.0 503 Service Unavailable\r\n\r\n";
-			break;
-		case 504:
-			ret = "HTTP/1.0 504 Gateway Timeout\r\n\r\n";
-			break;
-		case 505:
-			ret = "HTTP/1.0 505 HTTP Version Not Supported\r\n\r\n";
-			break;
+		case HTTP_BAD_REQUEST:
+			return "400 Bad Request";
+
+		case HTTP_UNAUTHORIZED:
+			return "401 Unauthorized";
+
+		case HTTP_PAYMENT_REQUIRED:
+			return "402 Payment Required";
+
+		case HTTP_FORBIDDEN:
+			return "403 Forbidden";
+
+		case HTTP_NOT_FOUND:
+			return "404 Not Found";
+
+		case HTTP_METHOD_NOT_ALLOWED:
+			return "405 Method Not Allowed";
+
+		case HTTP_NOT_ACCEPTABLE:
+			return "406 Not Acceptable";
+
+		case HTTP_PROXY_AUTH_REQUIRED:
+			return "407 Proxy Authentication Required";
+
+		case HTTP_REQUEST_TIMEOUT:
+			return "408 Request Timeout";
+
+		case HTTP_CONFLICT:
+			return "409 Conflict";
+
+		case HTTP_GONE:
+			return "410 Gone";
+
+		case HTTP_LENGTH_REQUIRED:
+			return "411 Length Required";
+
+		case HTTP_PRECONDITION_FAILED:
+			return "412 Precondition Failed";
+
+		case HTTP_PAYLOAD_TOO_LARGE:
+			return "413 Payload Too Large";
+
+		case HTTP_URI_TOO_LONG:
+			return "414 URI Too Long";
+
+		case HTTP_UNSUPPORTED_MEDIA_TYPE:
+			return "415 Unsupported Media Type";
+
+		case HTTP_RANGE_NOT_SATISFIABLE:
+			return "416 Range Not Satisfiable";
+
+		case HTTP_EXPECTATION_FAILED:
+			return "417 Expectation Failed";
+
+		case HTTP_INTERNAL_SERVER_ERROR:
+			return "500 Internal Server Error";
+
+		case HTTP_NOT_IMPLEMENTED:
+			return "501 Not Implemented";
+
+		case HTTP_BAD_GATEWAY:
+			return "502 Bad Gateway";
+
+		case HTTP_SERVICE_UNAVAILABLE:
+			return "503 Service Unavailable";
+
+		case HTTP_GATEWAY_TIMEOUT:
+			return "504 Gateway Timeout";
+
+		case HTTP_HTTP_VERSION_NOT_SUPPORTED:
+			return "505 HTTP Version Not Supported";
+
 		default:
-			ret = "HTTP/1.0 500 Internal Server Error\r\n\r\n";
-			break;
+			return "500 Internal Server Error";
 	}
-	return (ret);
+}
+std::string
+buildErrorResponse(int code)
+{
+	return "HTTP/1.0 " + std::string(getStatusMessage(code)) + "\r\n\r\n";
 }
