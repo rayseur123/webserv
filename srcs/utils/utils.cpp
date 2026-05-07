@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 #include "algorithm"
-#include "http/parsing/HttpStatus.hpp"
+#include "http/httpStatus.hpp"
 
 bool
 stringIsDigit(std::string const& s)
