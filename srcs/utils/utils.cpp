@@ -52,6 +52,15 @@ splitLineByDel(std::string const& line, char del)
 	while (std::getline(ss, buffer, del))
 		tmp.push_back(buffer);
 	return (tmp);
+
+	// size_t i = 0;
+
+	// while (i < 3)
+	// {
+	// 	size_t pos = 0;
+
+	// 	pos = line.find(del)
+	// }
 }
 
 void
