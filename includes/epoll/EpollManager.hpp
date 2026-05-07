@@ -22,6 +22,9 @@ private:
 
 	std::map<int, ASocket*> socket_map_;
 
+	EpollManager(EpollManager const& to_copy);
+	EpollManager& operator=(EpollManager const& to_copy);
+
 public:
 	void instanceEpoll();
 	void registerListenersToEpoll();
@@ -32,9 +35,6 @@ public:
 
 	EpollManager();
 	explicit EpollManager(std::vector<Listener*> const& listener_vec);
-	EpollManager(EpollManager const& to_copy);
-
-	EpollManager& operator=(EpollManager const& to_copy);
 
 	~EpollManager();
 };

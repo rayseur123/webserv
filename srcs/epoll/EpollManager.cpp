@@ -81,20 +81,6 @@ EpollManager::EpollManager(std::vector<Listener*> const& listener_vec) :
 	eventLoop();
 }
 
-EpollManager::EpollManager(EpollManager const& to_copy) :
-	epoll_fd_(to_copy.epoll_fd_), events_(), socket_map_(to_copy.socket_map_)
-{}
-
-EpollManager&
-EpollManager::operator=(EpollManager const& to_copy)
-{
-	if (this == &to_copy)
-		return *this;
-	epoll_fd_ = to_copy.epoll_fd_;
-	socket_map_ = to_copy.socket_map_;
-	return (*this);
-}
-
 EpollManager::~EpollManager()
 {
 	std::map<int, ASocket*>::iterator it;
