@@ -38,7 +38,7 @@ Location::buildPathPost(Request const& request) const
 bool
 Location::checkAllowMethods(unsigned int actual_methods) const
 {
-	return ((allow_methods_ & actual_methods));
+	return ((allow_methods_ & actual_methods) != 0);
 }
 
 int
@@ -76,7 +76,7 @@ Location::setRoot(std::string const& root)
 	if (temp.length() > 1 && temp[temp.length() - 1] == '/')
 		temp.erase(temp.length() - 1);
 
-	if (temp.find("./") == 0)
+	if (temp.find("./") == std::string::npos)
 		root_ = temp;
 	else if (temp[0] != '/')
 		root_ = "/" + temp;
@@ -223,12 +223,12 @@ operator<<(std::ostream& os, Location const& to_print)
 	   << '\n';
 
 	os << "\t\t\tmethods: ";
-	int m = to_print.getAllowMethods();
-	if (m & GET)
+	unsigned int m = to_print.getAllowMethods();
+	if ((m & GET) != 0)
 		os << "GET ";
-	if (m & POST)
+	if ((m & POST) != 0)
 		os << "POST ";
-	if (m & DELETE)
+	if ((m & DELETE) != 0)
 		os << "DELETE ";
 	os << '\n';
 
