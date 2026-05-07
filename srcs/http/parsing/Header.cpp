@@ -1,19 +1,20 @@
 #include "http/parsing/Header.hpp"
 #include <sstream>
 #include "http/Code.hpp"
+#include "http/httpStatus.hpp"
 #include "utils/utils.hpp"
 
 void
 Headers::set(std::string const& key, std::string& value)
 {
 	if (has(key))
-		throw(Code(400));
+		throw(Code(HTTP_BAD_REQUEST));
 	if (key == "content-length")
 		if (!stringIsDigit(value))
-			throw(Code(400));
+			throw(Code(HTTP_BAD_REQUEST));
 	if (key == "transfer-encoding")
 		if (value != "chunked")
-			throw(Code(400));
+			throw(Code(HTTP_BAD_REQUEST));
 	headers_[key] = value;
 }
 

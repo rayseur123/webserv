@@ -5,7 +5,9 @@
 #include <utility>
 #include <vector>
 
+#include "epoll/signal.hpp"
 #include "http/Code.hpp"
+#include "http/httpStatus.hpp"
 #include "http/parsing/ParsingRequest.hpp"
 #include "http/parsing/Request.hpp"
 #include "utils/utils.hpp"
@@ -22,7 +24,7 @@ ParsingRequest::requestLine(std::string& line, size_t pos)
 	try
 	{
 		if (request_line.size() != 3)
-			throw Code(400);
+			throw Code(HTTP_BAD_REQUEST);
 		request_.setMethod(request_line[0]);
 		request_.setUri(request_line[1]);
 		request_.setVersion(request_line[2]);
@@ -61,7 +63,7 @@ ParsingRequest::splitHeader(std::string& line)
 
 	pos = line.find(':');
 	if (pos == std::string::npos)
-		throw Code(400);
+		throw Code(HTTP_BAD_REQUEST);
 
 	head.first = line.substr(0, pos);
 	head.second = line.substr(pos + 1);
@@ -82,7 +84,7 @@ ParsingRequest::headerLine(std::string& line, size_t pos)
 		toLowerString(head.first);
 
 		if (!keyIsValid(head.first))
-			throw Code(400);
+			throw Code(HTTP_BAD_REQUEST);
 
 		trimSpaceString(head.second);
 		request_.addingInsideHeader(head);
@@ -123,6 +125,10 @@ ParsingRequest::fillBuffer(std::string& tmp)
 	buffer_.append(tmp);
 	while (step_ != FINISH && body_type != LINE_BODY)
 	{
+
+		if (Signal::signal == 1)
+			throw(SIGINT);
+
 		pos = buffer_.find("\r\n");
 		if (pos == std::string::npos)
 			return;

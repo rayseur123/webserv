@@ -19,8 +19,6 @@ private:
 	int		code_;
 
 public:
-	bool bodyIsLength() const;
-	bool bodyIsChunked() const;
 	void addingInsideHeader(std::pair<std::string, std::string>& head);
 	int	 addingBodyLength(std::string& line);
 	int	 addingBodyChunked(std::string& container);
@@ -38,7 +36,7 @@ public:
 
 	void resetRequest();
 
-	int			   getCode();
+	int			   getCode() const;
 	Method const&  getMethod() const;
 	Uri const&	   getUri() const;
 	Version const& getVersion() const;

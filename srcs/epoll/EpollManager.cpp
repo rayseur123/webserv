@@ -1,6 +1,8 @@
+#include <csignal>
 #include <utility>
 
 #include "epoll/EpollManager.hpp"
+#include "epoll/signal.hpp"
 #include "socket/ASocket.hpp"
 #include "socket/Connection.hpp"
 #include "socket/Listener.hpp"
@@ -44,6 +46,9 @@ EpollManager::eventLoop()
 	while (true)
 	{
 		int nb_events = epoll_wait(epoll_fd_, events_, MAX_EVENTS, -1);
+		if (Signal::signal == 1)
+			throw(SIGINT);
+
 		for (int i = 0; i < nb_events; ++i)
 		{
 			int fd = events_[i].data.fd;
