@@ -10,7 +10,6 @@
 #include <fcntl.h>
 #include <fstream>
 #include <sstream>
-#include <stdexcept>
 #include <string>
 #include <sys/types.h>
 #include <unistd.h>

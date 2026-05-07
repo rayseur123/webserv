@@ -12,7 +12,6 @@
 #include <fstream>
 #include <linux/close_range.h>
 #include <sstream>
-#include <stdexcept>
 #include <string>
 #include <sys/types.h>
 #include <unistd.h>

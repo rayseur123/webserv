@@ -1,6 +1,5 @@
 #include "http/ResponseDelete.hpp"
 #include "http/AResponse.hpp"
-#include "http/parsing/Body.hpp"
 #include "http/parsing/Request.hpp"
 #include "parsing/Location.hpp"
 #include "utils/utils.hpp"
@@ -11,11 +10,9 @@
 #include <fstream>
 #include <ostream>
 #include <sstream>
-#include <stdexcept>
 #include <string>
 #include <sys/types.h>
 #include <unistd.h>
-#include "utils/utils.hpp"
 
 #define DELETE_CHECKER (1u << 2u)
 #define CHMOD		   0644
