@@ -6,17 +6,7 @@
 
 #include "http/AResponse.hpp"
 #include "http/parsing/Request.hpp"
-
-namespace
-{
-	std::string
-	to_string(int value)
-	{
-		std::ostringstream oss;
-		oss << value;
-		return (oss.str());
-	}
-} // namespace
+#include "utils/utils.hpp"
 
 Location const&
 AResponse::getGoodLocation(std::vector<Location> const& locations_vec) const
@@ -124,13 +114,6 @@ AResponse::setResponseCode(int code)
 	error_code_ = code;
 }
 
-std::string
-AResponse::findType(std::string const& file_name) const
-{
-	(void) file_name;
-	return ("text/html"); // fonction a changer
-}
-
 Request const&
 AResponse::getRequest() const
 {
@@ -158,10 +141,7 @@ AResponse::getBody() const
 std::string
 AResponse::buildRequestLine() const
 {
-	std::string ret("HTTP/1.0 ");
-	ret += to_string(error_code_);
-	ret += " OK"; // LIGNE A CHANGER QUAND ON AURA UNE GESTION DS CODES
-	return (ret);
+	return (buildErrorResponse(error_code_));
 }
 
 std::string

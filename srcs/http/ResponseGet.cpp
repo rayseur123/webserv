@@ -1,5 +1,6 @@
 #include "http/ResponseGet.hpp"
 #include "http/AResponse.hpp"
+#include "http/httpStatus.hpp"
 #include "http/parsing/Request.hpp"
 #include "parsing/Location.hpp"
 #include "utils/utils.hpp"
@@ -35,7 +36,7 @@ ResponseGet::buildResponse(std::vector<Location> const& locations_vec)
 	std::string		body;
 
 	if (!location.checkAllowMethods(GET_CHECKER))
-		return (build_error_response(400));
+		return (buildErrorResponse(HTTP_BAD_REQUEST));
 
 	file_path = location.buildPath(request_);
 	if (!location.getIndex().empty())
@@ -47,20 +48,20 @@ ResponseGet::buildResponse(std::vector<Location> const& locations_vec)
 		close(fd);
 		DIR* dir = opendir(file_path.c_str());
 		if (dir == NULL)
-			return (build_error_response(400));
+			return (buildErrorResponse(HTTP_BAD_REQUEST));
 		body = generateAutoIndex(file_path, request_.getUri().getTarget());
-		error_code_ = 200;
 	}
 	else
 	{
 		close(fd);
 		std::ifstream file(file_path.c_str());
 		if (!file.is_open())
-			return (build_error_response(404));
+			return (buildErrorResponse(HTTP_NOT_FOUND));
 		body = readFileContent(file);
-		error_code_ = 200;
 	}
+	error_code_ = HTTP_OK;
 	setBody(body);
+	std::cout << buildResponseStr() << std::endl;
 	return (buildResponseStr());
 }
 

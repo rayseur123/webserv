@@ -1,5 +1,6 @@
 #include "http/ResponsePost.hpp"
 #include "http/AResponse.hpp"
+#include "http/httpStatus.hpp"
 #include "http/parsing/Request.hpp"
 #include "parsing/Location.hpp"
 #include "utils/utils.hpp"
@@ -52,7 +53,7 @@ ResponsePost::buildResponse(std::vector<Location> const& locations_vec)
 	std::string		file_path;
 
 	if (!location.checkAllowMethods(POST_CHECKER))
-		return (build_error_response(400));
+		return (buildErrorResponse(HTTP_BAD_REQUEST));
 
 	file_path = location.buildPathPost(request_);
 	int fd = open(file_path.c_str(), O_DIRECTORY | O_CLOEXEC);
@@ -60,12 +61,12 @@ ResponsePost::buildResponse(std::vector<Location> const& locations_vec)
 	{
 		file_path += "/" + generate_filename();
 		close(open(file_path.c_str(), O_CREAT | O_CLOEXEC, CHMOD));
-		error_code_ = 201;
+		error_code_ = HTTP_CREATED;
 	}
 	close(fd);
 	std::ofstream file(file_path.c_str());
 	if (!file.is_open())
-		return (build_error_response(404));
+		return (buildErrorResponse(HTTP_NOT_FOUND));
 	file << request_.getBody().getContent();
 
 	return (buildResponseStr());

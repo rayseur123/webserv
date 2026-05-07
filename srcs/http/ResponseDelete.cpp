@@ -1,5 +1,6 @@
 #include "http/ResponseDelete.hpp"
 #include "http/AResponse.hpp"
+#include "http/httpStatus.hpp"
 #include "http/parsing/Request.hpp"
 #include "parsing/Location.hpp"
 #include "utils/utils.hpp"
@@ -35,22 +36,23 @@ ResponseDelete::buildResponse(std::vector<Location> const& locations_vec)
 	std::string		file_path;
 
 	if (!location.checkAllowMethods(DELETE_CHECKER))
-		return (build_error_response(400));
+		return (buildErrorResponse(HTTP_BAD_REQUEST));
 
 	file_path = location.buildPath(request_);
 
 	std::string body;
 	int			fd = open(file_path.c_str(), O_DIRECTORY | O_CLOEXEC);
 	if (fd != -1)
-		return (build_error_response(422));
+		return (buildErrorResponse(HTTP_FORBIDDEN));
 
 	std::ifstream file(file_path.c_str());
 
 	body = readFileContent(file);
 
-	if (std::remove(file_path.c_str()))
-		return (build_error_response(404));
+	if (std::remove(file_path.c_str()) != 0)
+		return (buildErrorResponse(HTTP_NOT_FOUND));
 
+	error_code_ = HTTP_OK;
 	close(fd);
 	setBody(body);
 	return (buildResponseStr());

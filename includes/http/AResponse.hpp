@@ -34,8 +34,6 @@ public:
 	void addHeader(std::pair<std::string, std::string> const& new_header);
 	void setResponseCode(int code);
 
-	std::string findType(std::string const& file_name) const;
-
 	Request const&					getRequest() const;
 	std::string const&				getRequestLine() const;
 	std::vector<std::string> const& getHeaderVec() const;

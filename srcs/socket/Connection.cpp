@@ -40,8 +40,9 @@ Connection::handleConnectionRequest()
 	request.setCode(parsing_request_.getCode());
 
 	std::string response_str;
+
 	if (request.getCode() != 0)
-		response_str = build_error_response(request.getCode());
+		response_str = buildErrorResponse(request.getCode());
 	else
 	{
 		int type = request.getMethod().getType();

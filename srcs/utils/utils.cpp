@@ -1,11 +1,11 @@
 #include <cstring>
 #include <errno.h>
-#include <iostream>
 #include <sstream>
 #include <string>
 #include <vector>
+
 #include "algorithm"
-#include "http/parsing/HttpStatus.hpp"
+#include "http/httpStatus.hpp"
 
 bool
 stringIsDigit(std::string const& s)
@@ -78,7 +78,7 @@ getStatusMessage(int code)
 {
 	switch (code)
 	{
-		case HTTP_BAD_REQUEST:
+		case HTTP_OK return "200 OK"; case HTTP_BAD_REQUEST:
 			return "400 Bad Request";
 
 		case HTTP_UNAUTHORIZED:
