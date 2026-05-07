@@ -2,11 +2,26 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "http/AResponse.hpp"
+#include "http/httpStatus.hpp"
 #include "http/parsing/Request.hpp"
 #include "utils/utils.hpp"
+
+std::string
+AResponse::buildRedirect(Location const& location)
+{
+	error_code_ = HTTP_MOVED_PERMANENTLY;
+
+	std::pair<std::string, std::string> header;
+
+	header = std::make_pair("Location", location.getRedirect());
+	addHeader(header);
+	std::cout << getResponseStr() << std::endl;
+	return (getResponseStr());
+}
 
 Location const&
 AResponse::getGoodLocation(std::vector<Location> const& locations_vec) const

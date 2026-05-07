@@ -89,6 +89,8 @@ getStatusMessage(int code)
 	{
 		case HTTP_OK:
 			return "200 OK";
+		case HTTP_MOVED_PERMANENTLY:
+			return "301 Moved Permanently";
 		case HTTP_BAD_REQUEST:
 			return "400 Bad Request";
 

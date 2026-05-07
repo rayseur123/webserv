@@ -18,6 +18,7 @@ Location::buildPath(Request const& request) const
 	if (!suffix.empty() && suffix[0] != '/' &&
 		(root.empty() || root[root.length() - 1] != '/'))
 		return root + "/" + suffix;
+
 	return root + suffix;
 }
 
@@ -76,7 +77,7 @@ Location::setRoot(std::string const& root)
 	if (temp.length() > 1 && temp[temp.length() - 1] == '/')
 		temp.erase(temp.length() - 1);
 
-	if (temp.find("./") == std::string::npos)
+	if (temp.find_first_of("./") == 0)
 		root_ = temp;
 	else if (temp[0] != '/')
 		root_ = "/" + temp;

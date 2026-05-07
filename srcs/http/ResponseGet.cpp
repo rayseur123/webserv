@@ -35,10 +35,14 @@ ResponseGet::buildResponse(std::vector<Location> const& locations_vec)
 	std::string		file_path;
 	std::string		body;
 
+	if (!location.getRedirect().empty())
+		return (buildRedirect(location));
+
 	if (!location.checkAllowMethods(GET_CHECKER))
 		return (buildErrorResponse(HTTP_BAD_REQUEST));
 
 	file_path = location.buildPath(request_);
+
 	if (!location.getIndex().empty())
 		file_path += location.getIndex();
 
@@ -59,6 +63,7 @@ ResponseGet::buildResponse(std::vector<Location> const& locations_vec)
 			return (buildErrorResponse(HTTP_NOT_FOUND));
 		body = readFileContent(file);
 	}
+
 	error_code_ = HTTP_OK;
 	setBody(body);
 	return (buildResponseStr());

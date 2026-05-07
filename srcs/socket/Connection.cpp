@@ -8,6 +8,7 @@
 #include "http/ResponseDelete.hpp"
 #include "http/ResponseGet.hpp"
 #include "http/ResponsePost.hpp"
+#include "parsing/Location.hpp"
 #include "socket/Connection.hpp"
 #include "socket/Listener.hpp"
 #include "utils/utils.hpp"

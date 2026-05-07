@@ -35,6 +35,9 @@ ResponseDelete::buildResponse(std::vector<Location> const& locations_vec)
 	Location const& location = getGoodLocation(locations_vec);
 	std::string		file_path;
 
+	if (!location.getRedirect().empty())
+		return (buildRedirect(location));
+
 	if (!location.checkAllowMethods(DELETE_CHECKER))
 		return (buildErrorResponse(HTTP_BAD_REQUEST));
 
