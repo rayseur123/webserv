@@ -12,13 +12,7 @@
 void
 EpollManager::addConnection(std::pair<int, Connection*> const& newConnection)
 {
-	std::map<int, ASocket*>::iterator it =
-		socket_map_.find(newConnection.first);
-	if (it != socket_map_.end())
-	{
-		delete it->second;
-		socket_map_[newConnection.first] = newConnection.second;
-	}
+	socket_map_.insert(newConnection);
 }
 
 void
