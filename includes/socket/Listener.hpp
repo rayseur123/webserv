@@ -40,7 +40,7 @@ public:
 	void setLocations(std::vector<Location> const& location_vec);
 	void setMaxClientRequestBody(std::string const& max_client_request_body);
 	void setAddrAndPort(std::string const& addr_and_port);
-	void setErrorPage(std::vector<std::string> const& error_page);
+	bool setErrorPage(std::vector<std::string> const& error_page);
 
 	Listener();
 	Listener(int fd, int max_client_request_body, std::string const& address,

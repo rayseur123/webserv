@@ -143,11 +143,11 @@ Listener::setAddrAndPort(std::string const& addr_and_port)
 	port_ = addr_and_port.substr(index + 1);
 }
 
-void
+bool
 Listener::setErrorPage(std::vector<std::string> const& error_page)
 {
 	if (error_page.size() < 3)
-		throw std::invalid_argument(" [ERROR] :Invalide error page format");
+		return (false);
 
 	std::vector<std::string>::const_iterator it;
 	std::vector<int>						 temp;
@@ -161,6 +161,7 @@ Listener::setErrorPage(std::vector<std::string> const& error_page)
 			temp.push_back(static_cast<int>(val));
 	}
 	error_page_ = std::make_pair(temp, error_page.back());
+	return (true);
 }
 
 std::string const&
