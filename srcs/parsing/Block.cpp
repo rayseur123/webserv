@@ -126,8 +126,8 @@ Block::makeLocationVec() const
 Listener*
 Block::makeServer() const
 {
-	Listener*								 serv = new Listener;
-	std::vector<std::string>				 directives_split;
+	Listener*				 serv = new Listener; // ICI c'est le malloc
+	std::vector<std::string> directives_split;
 	std::vector<std::string>::const_iterator it;
 
 	serv->setLocations(makeLocationVec());

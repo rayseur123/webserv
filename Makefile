@@ -20,6 +20,7 @@ UTILS_DIR       := $(SRCS_DIR)utils/
 
 SRCS_CONTENT :=	$(SRCS_DIR)main.cpp \
 				$(EPOLL_DIR)EpollManager.cpp \
+				$(EPOLL_DIR)Signal.cpp \
 				$(HTTP_DIR)AResponse.cpp \
 				$(HTTP_DIR)Code.cpp \
 				$(HTTP_DIR)ResponseGet.cpp \

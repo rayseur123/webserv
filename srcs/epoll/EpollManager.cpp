@@ -1,6 +1,8 @@
+#include <csignal>
 #include <utility>
 
 #include "epoll/EpollManager.hpp"
+#include "epoll/signal.hpp"
 #include "socket/ASocket.hpp"
 #include "socket/Connection.hpp"
 #include "socket/Listener.hpp"
@@ -44,6 +46,9 @@ EpollManager::eventLoop()
 	while (true)
 	{
 		int nb_events = epoll_wait(epoll_fd_, events_, MAX_EVENTS, -1);
+		if (Signal::signal == 1)
+			throw(SIGINT);
+
 		for (int i = 0; i < nb_events; ++i)
 		{
 			int fd = events_[i].data.fd;
@@ -66,7 +71,9 @@ EpollManager::getEpollFd() const
 }
 
 EpollManager::EpollManager() : epoll_fd_(-1), events_()
-{}
+{
+	instanceEpoll();
+}
 
 EpollManager::EpollManager(std::vector<Listener*> const& listener_vec) :
 	epoll_fd_(-1), events_()
@@ -78,14 +85,13 @@ EpollManager::EpollManager(std::vector<Listener*> const& listener_vec) :
 
 	instanceEpoll();
 	registerListenersToEpoll();
-	eventLoop();
 }
 
 EpollManager::~EpollManager()
 {
 	std::map<int, ASocket*>::iterator it;
 
-	for (it = socket_map_.begin(); it != socket_map_.begin(); ++it)
+	for (it = socket_map_.begin(); it != socket_map_.end(); ++it)
 		delete it->second;
 	close(epoll_fd_);
 }

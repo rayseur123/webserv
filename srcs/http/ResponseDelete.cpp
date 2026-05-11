@@ -46,7 +46,10 @@ ResponseDelete::buildResponse(std::vector<Location> const& locations_vec)
 	std::string body;
 	int			fd = open(file_path.c_str(), O_DIRECTORY | O_CLOEXEC);
 	if (fd != -1)
+	{
+		close(fd);
 		return (buildErrorResponse(HTTP_FORBIDDEN));
+	}
 
 	std::ifstream file(file_path.c_str());
 

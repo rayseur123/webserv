@@ -51,19 +51,18 @@ ResponseGet::buildResponse(std::vector<Location> const& locations_vec)
 	{
 		close(fd);
 		DIR* dir = opendir(file_path.c_str());
+		closedir(dir);
 		if (dir == NULL)
 			return (buildErrorResponse(HTTP_BAD_REQUEST));
 		body = generateAutoIndex(file_path, request_.getUri().getTarget());
 	}
 	else
 	{
-		close(fd);
 		std::ifstream file(file_path.c_str());
 		if (!file.is_open())
 			return (buildErrorResponse(HTTP_NOT_FOUND));
 		body = readFileContent(file);
 	}
-
 	error_code_ = HTTP_OK;
 	setBody(body);
 	return (buildResponseStr());

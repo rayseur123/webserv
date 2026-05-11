@@ -51,7 +51,6 @@ ResponsePost::buildResponse(std::vector<Location> const& locations_vec)
 {
 	Location const& location = getGoodLocation(locations_vec);
 	std::string		file_path;
-
 	if (!location.getRedirect().empty())
 		return (buildRedirect(location));
 
@@ -62,16 +61,15 @@ ResponsePost::buildResponse(std::vector<Location> const& locations_vec)
 	int fd = open(file_path.c_str(), O_DIRECTORY | O_CLOEXEC);
 	if (fd != -1 && location.getAutoIndex())
 	{
+		close(fd);
 		file_path += "/" + generate_filename();
 		close(open(file_path.c_str(), O_CREAT | O_CLOEXEC, CHMOD));
 		error_code_ = HTTP_CREATED;
 	}
-	close(fd);
 	std::ofstream file(file_path.c_str());
 	if (!file.is_open())
 		return (buildErrorResponse(HTTP_NOT_FOUND));
 	file << request_.getBody().getContent();
-
 	return (buildResponseStr());
 }
 

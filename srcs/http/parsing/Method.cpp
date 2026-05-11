@@ -1,5 +1,6 @@
 #include "http/parsing/Method.hpp"
 #include "http/Code.hpp"
+#include "http/httpStatus.hpp"
 
 void
 Method::setType(int const type)
@@ -46,15 +47,15 @@ Method::Method(std::string const& method)
 	else if (method == "DELETE")
 		type_ = DELETE;
 	else if (method == "HEAD")
-		throw Code(405);
+		throw Code(HTTP_METHOD_NOT_ALLOWED);
 	else if (method == "LINK")
-		throw Code(405);
+		throw Code(HTTP_METHOD_NOT_ALLOWED);
 	else if (method == "UNLINK")
-		throw Code(405);
+		throw Code(HTTP_METHOD_NOT_ALLOWED);
 	else if (method == "PUT")
-		throw Code(405);
+		throw Code(HTTP_METHOD_NOT_ALLOWED);
 	else
-		throw Code(501);
+		throw Code(HTTP_NOT_IMPLEMENTED);
 }
 
 Method::Method(Method const& to_copy) : type_(to_copy.type_)

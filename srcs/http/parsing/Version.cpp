@@ -1,7 +1,7 @@
 #include "http/parsing/Version.hpp"
 #include <cstdlib>
 #include "http/Code.hpp"
-#include "utils/utils.hpp"
+#include "http/httpStatus.hpp"
 
 void
 Version::setProtocol(std::string const& protocol)
@@ -49,8 +49,8 @@ Version::Version() : first_nb_(-1), sec_nb_(-1)
 Version::Version(std::string version)
 {
 
-	if (version.length() < 8)
-		throw Code(400);
+	if (version.length() < VERSION_LENGTH)
+		throw Code(HTTP_BAD_REQUEST);
 
 	// Protocol
 	std::string tmp;
@@ -58,11 +58,11 @@ Version::Version(std::string version)
 
 	pos = version.find('/');
 	if (pos == std::string::npos)
-		throw Code(400);
+		throw Code(HTTP_BAD_REQUEST);
 
 	tmp = version.substr(0, pos);
 	if (tmp != "HTTP")
-		throw Code(400);
+		throw Code(HTTP_BAD_REQUEST);
 
 	protocol_ = tmp;
 
@@ -83,7 +83,7 @@ Version::isValid() const
 	if (first_nb_ == 1)
 		if (sec_nb_ == 0 || sec_nb_ == 1)
 			return;
-	throw Code(505);
+	throw Code(HTTP_HTTP_VERSION_NOT_SUPPORTED);
 }
 
 int
@@ -95,8 +95,8 @@ Version::convertInNb(std::string const& buffer)
 
 	for (it = buffer.begin(); it != buffer.end(); it++)
 	{
-		if (!isdigit(*it))
-			throw Code(400);
+		if (isdigit(*it) == 0)
+			throw Code(HTTP_BAD_REQUEST);
 	}
 
 	ss << buffer;
