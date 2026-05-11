@@ -70,6 +70,7 @@ ResponsePost::buildResponse(std::vector<Location> const& locations_vec)
 	if (!file.is_open())
 		return (buildErrorResponse(HTTP_NOT_FOUND));
 	file << request_.getBody().getContent();
+	std::cout << buildResponseStr() << std::endl;
 	return (buildResponseStr());
 }
 

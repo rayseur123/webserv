@@ -126,8 +126,8 @@ Block::makeLocationVec() const
 Listener*
 Block::makeServer() const
 {
-	Listener*				 serv = new Listener; // ICI c'est le malloc
-	std::vector<std::string> directives_split;
+	Listener*								 serv = new Listener;
+	std::vector<std::string>				 directives_split;
 	std::vector<std::string>::const_iterator it;
 
 	serv->setLocations(makeLocationVec());
@@ -135,15 +135,44 @@ Block::makeServer() const
 	{
 		directives_split = splitDirective(*it);
 		if (directives_split.size() < 2)
-			throw std::invalid_argument("[ERROR] : Invalide directive.");
-		if (directives_split[0] == "client_max_body_size")
-			serv->setMaxClientRequestBody(directives_split[1]);
-		else if (directives_split[0] == "listen")
-			serv->setAddrAndPort(directives_split[1]);
-		else if (directives_split[0] == "error_page")
-			serv->setErrorPage(directives_split);
+		{
+			delete serv;
+			throw std::invalid_argument(
+				"[ERROR] : A directive need parameter(s).");
+		}
+
+		std::string const& key = directives_split[0];
+
+		if (key == "client_max_body_size")
+		{
+			if (!serv->setMaxClientRequestBody(directives_split[1]))
+			{
+				delete serv;
+				throw std::invalid_argument(
+					"[ERROR] : Invalide client_max_body_size");
+			}
+		}
+		else if (key == "listen")
+		{
+			if (!serv->setAddrAndPort(directives_split[1]))
+			{
+				delete serv;
+				throw std::invalid_argument("[ERROR] : Invalide port");
+			}
+		}
+		else if (key == "error_page")
+		{
+			if (!serv->setErrorPage(directives_split))
+			{
+				delete serv;
+				throw std::invalid_argument("[ERROR] : Invalide directive.");
+			}
+		}
 		else
-			throw std::invalid_argument("[ERROR] : Invalide directive.");
+		{
+			delete serv;
+			throw std::invalid_argument("[ERROR] : Unknown directive: " + key);
+		}
 	}
 
 	return (serv);
@@ -195,7 +224,7 @@ Block::parseToken(std::ifstream& file, std::string& buff,
 			directives_vec_.push_back(content);
 	}
 	else if (sep_char == '{')
-		blocks_vec_.push_back(Block(file, type_ + 1, buff, content)); // ici
+		blocks_vec_.push_back(Block(file, type_ + 1, buff, content));
 	else if (sep_char == '}')
 		return (true);
 	return (false);

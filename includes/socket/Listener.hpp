@@ -38,9 +38,9 @@ public:
 	std::pair<std::vector<int>, std::string> const& getErrorPage() const;
 
 	void setLocations(std::vector<Location> const& location_vec);
-	void setMaxClientRequestBody(std::string const& max_client_request_body);
-	void setAddrAndPort(std::string const& addr_and_port);
-	void setErrorPage(std::vector<std::string> const& error_page);
+	bool setMaxClientRequestBody(std::string const& max_client_request_body);
+	bool setAddrAndPort(std::string const& addr_and_port);
+	bool setErrorPage(std::vector<std::string> const& error_page);
 
 	Listener();
 	Listener(int fd, int max_client_request_body, std::string const& address,

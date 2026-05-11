@@ -1,16 +1,4 @@
-#include "socket/Listener.hpp"
-#include <cstdlib>
-#include <fcntl.h>
-#include <netdb.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include "socket/Connection.hpp"
-#include "utils/utils.hpp"
-
-#include "socket/Connection.hpp"
-#include "utils/utils.hpp"
-
+#include <cctype>
 #include <cstdlib>
 #include <fcntl.h>
 #include <netdb.h>
@@ -19,6 +7,12 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <vector>
+
+#include "socket/Connection.hpp"
+#include "socket/Listener.hpp"
+#include "utils/utils.hpp"
+
+#define UNIT 1000
 
 void
 Listener::acceptNewConnection(EpollManager& manager)
@@ -123,31 +117,41 @@ Listener::setLocations(std::vector<Location> const& location_vec)
 	locations_vec_ = location_vec;
 }
 
-void
+bool
 Listener::setMaxClientRequestBody(std::string const& max_client_request_body)
 {
-	size_t index = max_client_request_body.find("m");
-	max_client_request_body_ =
-		atoi(max_client_request_body.substr(0, index).c_str());
+	size_t		index = max_client_request_body.find('m');
+	std::string temp = max_client_request_body.substr(0, index);
+
+	std::string::const_iterator it = max_client_request_body.begin();
+	while (it != max_client_request_body.end() && (std::isdigit(*it)) == 1)
+		++it;
+
+	if (it == max_client_request_body.end())
+		return (false);
+
+	max_client_request_body_ = atoi(temp.c_str());
 	if (index != std::string::npos)
-		max_client_request_body_ *= 1000;
+		max_client_request_body_ *= UNIT;
+	return (true);
 }
 
-void
+bool
 Listener::setAddrAndPort(std::string const& addr_and_port)
 {
 	size_t index = addr_and_port.find(':');
 	if (index == std::string::npos)
-		throw std::invalid_argument("[ERROR] : Invalide port");
+		return (false);
 	address_ = addr_and_port.substr(0, index);
 	port_ = addr_and_port.substr(index + 1);
+	return (true);
 }
 
-void
+bool
 Listener::setErrorPage(std::vector<std::string> const& error_page)
 {
 	if (error_page.size() < 3)
-		throw std::invalid_argument(" [ERROR] :Invalide error page format");
+		return (false);
 
 	std::vector<std::string>::const_iterator it;
 	std::vector<int>						 temp;
@@ -161,6 +165,7 @@ Listener::setErrorPage(std::vector<std::string> const& error_page)
 			temp.push_back(static_cast<int>(val));
 	}
 	error_page_ = std::make_pair(temp, error_page.back());
+	return (true);
 }
 
 std::string const&
