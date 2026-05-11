@@ -140,11 +140,27 @@ Block::makeServer() const
 			throw std::invalid_argument(
 				"[ERROR] : A directive need parameter(s).");
 		}
-		if (directives_split[0] == "client_max_body_size")
-			serv->setMaxClientRequestBody(directives_split[1]);
-		else if (directives_split[0] == "listen")
-			serv->setAddrAndPort(directives_split[1]);
-		else if (directives_split[0] == "error_page")
+
+		std::string const& key = directives_split[0];
+
+		if (key == "client_max_body_size")
+		{
+			if (!serv->setMaxClientRequestBody(directives_split[1]))
+			{
+				delete serv;
+				throw std::invalid_argument(
+					"[ERROR] : Invalide client_max_body_size");
+			}
+		}
+		else if (key == "listen")
+		{
+			if (!serv->setAddrAndPort(directives_split[1]))
+			{
+				delete serv;
+				throw std::invalid_argument("[ERROR] : Invalide port");
+			}
+		}
+		else if (key == "error_page")
 		{
 			if (!serv->setErrorPage(directives_split))
 			{
@@ -155,7 +171,7 @@ Block::makeServer() const
 		else
 		{
 			delete serv;
-			throw std::invalid_argument("[ERROR] : Invalide directive.");
+			throw std::invalid_argument("[ERROR] : Unknown directive: " + key);
 		}
 	}
 
