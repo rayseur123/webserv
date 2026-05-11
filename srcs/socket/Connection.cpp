@@ -81,7 +81,7 @@ Connection::handleConnectionRequest()
 		throw(SIGINT);
 
 	parsing_request_.resetParsingAndRequest();
-	return (0);
+	return (1);
 }
 
 int
