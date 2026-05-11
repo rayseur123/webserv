@@ -175,3 +175,9 @@ buildErrorResponse(int code)
 	return "HTTP/1.0 " + getStatusMessage(code) +
 		   "\r\nContent-lenght:0\r\n\r\n";
 }
+
+std::string
+makeCodeResponse(int code)
+{
+	return "HTTP/1.0 " + getStatusMessage(code);
+}
