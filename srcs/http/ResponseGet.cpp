@@ -51,9 +51,9 @@ ResponseGet::buildResponse(std::vector<Location> const& locations_vec)
 	{
 		close(fd);
 		DIR* dir = opendir(file_path.c_str());
-		closedir(dir);
 		if (dir == NULL)
 			return (buildErrorResponse(HTTP_BAD_REQUEST));
+		closedir(dir);
 		body = generateAutoIndex(file_path, request_.getUri().getTarget());
 	}
 	else

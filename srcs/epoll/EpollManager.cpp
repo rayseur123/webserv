@@ -12,7 +12,13 @@
 void
 EpollManager::addConnection(std::pair<int, Connection*> const& newConnection)
 {
-	socket_map_.insert(newConnection);
+	std::map<int, ASocket*>::iterator it =
+		socket_map_.find(newConnection.first);
+	if (it != socket_map_.end())
+	{
+		delete it->second;
+		socket_map_[newConnection.first] = newConnection.second;
+	}
 }
 
 void
@@ -91,6 +97,7 @@ EpollManager::~EpollManager()
 {
 	std::map<int, ASocket*>::iterator it;
 
+	std::cout << "Fermeture de " << socket_map_.size() << " sockets\n";
 	for (it = socket_map_.begin(); it != socket_map_.end(); ++it)
 		delete it->second;
 	close(epoll_fd_);
