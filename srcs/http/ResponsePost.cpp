@@ -57,11 +57,19 @@ ResponsePost::buildResponse(std::vector<Location> const& locations_vec)
 	if (!location.checkAllowMethods(POST_CHECKER))
 		return (buildErrorResponse(HTTP_BAD_REQUEST));
 
+	if (location.getUploadStore().empty())
+		return (buildErrorResponse(HTTP_NOT_FOUND));
 	file_path = location.buildPathPost(request_);
 	int fd = open(file_path.c_str(), O_DIRECTORY | O_CLOEXEC);
 	if (fd != -1 && location.getAutoIndex())
 	{
 		close(fd);
+
+		DIR* dir = opendir(file_path.c_str());
+		if (dir == NULL)
+			return (buildErrorResponse(HTTP_NOT_FOUND));
+		closedir(dir);
+
 		file_path += "/" + generate_filename();
 		close(open(file_path.c_str(), O_CREAT | O_CLOEXEC, CHMOD));
 		error_code_ = HTTP_CREATED;
@@ -70,7 +78,6 @@ ResponsePost::buildResponse(std::vector<Location> const& locations_vec)
 	if (!file.is_open())
 		return (buildErrorResponse(HTTP_NOT_FOUND));
 	file << request_.getBody().getContent();
-	std::cout << buildResponseStr() << std::endl;
 	return (buildResponseStr());
 }
 
