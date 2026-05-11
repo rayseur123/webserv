@@ -1,3 +1,5 @@
+#include <unistd.h>
+
 #include "socket/ASocket.hpp"
 
 int
@@ -13,4 +15,6 @@ ASocket::ASocket(int fd) : fd_(fd)
 {}
 
 ASocket::~ASocket()
-{}
+{
+	close(fd_);
+}

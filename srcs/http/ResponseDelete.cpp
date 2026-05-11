@@ -35,6 +35,9 @@ ResponseDelete::buildResponse(std::vector<Location> const& locations_vec)
 	Location const& location = getGoodLocation(locations_vec);
 	std::string		file_path;
 
+	if (!location.getRedirect().empty())
+		return (buildRedirect(location));
+
 	if (!location.checkAllowMethods(DELETE_CHECKER))
 		return (buildErrorResponse(HTTP_BAD_REQUEST));
 
@@ -43,7 +46,10 @@ ResponseDelete::buildResponse(std::vector<Location> const& locations_vec)
 	std::string body;
 	int			fd = open(file_path.c_str(), O_DIRECTORY | O_CLOEXEC);
 	if (fd != -1)
+	{
+		close(fd);
 		return (buildErrorResponse(HTTP_FORBIDDEN));
+	}
 
 	std::ifstream file(file_path.c_str());
 

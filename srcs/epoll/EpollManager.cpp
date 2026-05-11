@@ -12,7 +12,13 @@
 void
 EpollManager::addConnection(std::pair<int, Connection*> const& newConnection)
 {
-	socket_map_.insert(newConnection);
+	std::map<int, ASocket*>::iterator it =
+		socket_map_.find(newConnection.first);
+	if (it != socket_map_.end())
+	{
+		delete it->second;
+		socket_map_[newConnection.first] = newConnection.second;
+	}
 }
 
 void
@@ -56,6 +62,7 @@ EpollManager::eventLoop()
 			{
 				std::map<int, ASocket*>::iterator it = socket_map_.find(fd);
 				std::cout << "The fd " << fd << " has been shut down." << '\n';
+				delete it->second;
 				socket_map_.erase(it);
 				epoll_ctl(epoll_fd_, EPOLL_CTL_DEL, fd, NULL);
 			}
@@ -70,40 +77,28 @@ EpollManager::getEpollFd() const
 }
 
 EpollManager::EpollManager() : epoll_fd_(-1), events_()
-{}
+{
+	instanceEpoll();
+}
 
-EpollManager::EpollManager(std::vector<Listener> const& listener_vec) :
+EpollManager::EpollManager(std::vector<Listener*> const& listener_vec) :
 	epoll_fd_(-1), events_()
 {
-	std::vector<Listener>::const_iterator it;
+	std::vector<Listener*>::const_iterator it;
 
 	for (it = listener_vec.begin(); it != listener_vec.end(); ++it)
-	{
-		Listener* listener = new Listener(*it);
-		socket_map_.insert(
-			std::make_pair(listener->createListenerSocket(), listener));
-	}
+		socket_map_.insert(std::make_pair((*it)->createListenerSocket(), *it));
 
 	instanceEpoll();
 	registerListenersToEpoll();
-	eventLoop();
-}
-
-EpollManager::EpollManager(EpollManager const& to_copy) :
-	epoll_fd_(to_copy.epoll_fd_), events_(), socket_map_(to_copy.socket_map_)
-{}
-
-EpollManager&
-EpollManager::operator=(EpollManager const& to_copy)
-{
-	if (this == &to_copy)
-		return *this;
-	epoll_fd_ = to_copy.epoll_fd_;
-	socket_map_ = to_copy.socket_map_;
-	return (*this);
 }
 
 EpollManager::~EpollManager()
 {
+	std::map<int, ASocket*>::iterator it;
+
+	std::cout << "Fermeture de " << socket_map_.size() << " sockets\n";
+	for (it = socket_map_.begin(); it != socket_map_.end(); ++it)
+		delete it->second;
 	close(epoll_fd_);
 }

@@ -1,8 +1,8 @@
-#include "socket/Connection.hpp"
 #include <csignal>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
+
 #include "epoll/signal.hpp"
 #include "http/httpStatus.hpp"
 #include "http/parsing/Method.hpp"
@@ -11,6 +11,7 @@
 #include "http/ResponseDelete.hpp"
 #include "http/ResponseGet.hpp"
 #include "http/ResponsePost.hpp"
+#include "socket/Connection.hpp"
 #include "socket/Listener.hpp"
 #include "utils/utils.hpp"
 
@@ -42,7 +43,6 @@ Connection::handleConnectionRequest()
 
 	Request request = parsing_request_.getRequest();
 
-	std::cout << request << std::endl;
 	// Body too long verif
 	if (!bodyLengthValid())
 		request.setCode(HTTP_PAYLOAD_TOO_LARGE);
@@ -103,16 +103,6 @@ Connection::getServer() const
 
 Connection::Connection(int fd, Listener& server) : ASocket(fd), server_(server)
 {}
-
-Connection::Connection(Connection const& to_copy) : server_(to_copy.server_)
-{}
-
-Connection&
-Connection::operator=(Connection const& to_copy)
-{
-	(void) to_copy;
-	return (*this);
-}
 
 Connection::~Connection()
 {}

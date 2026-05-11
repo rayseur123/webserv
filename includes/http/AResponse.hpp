@@ -23,6 +23,7 @@ public:
 
 	std::string generateAutoIndex(std::string const& path,
 								  std::string const& uri);
+	std::string buildRedirect(Location const& location);
 
 	std::string buildRequestLine() const;
 	std::string buildResponseStr() const;

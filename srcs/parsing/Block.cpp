@@ -76,12 +76,13 @@ namespace
 Location
 Block::makeLocation() const
 {
-	Location				 loc;
-	std::vector<std::string> directives_split;
+	Location								 loc;
+	std::vector<std::string>				 directives_split;
+	std::vector<std::string>::const_iterator it;
 
-	for (size_t i = 0; i < directives_vec_.size(); ++i)
+	for (it = directives_vec_.begin(); it != directives_vec_.end(); ++it)
 	{
-		directives_split = splitDirective(directives_vec_[i]);
+		directives_split = splitDirective(*it);
 		if (directives_split.size() < 2)
 			throw std::invalid_argument("[ERROR] : Invalide directive. : " +
 										directives_split[0]);
@@ -113,31 +114,34 @@ Block::makeLocation() const
 std::vector<Location>
 Block::makeLocationVec() const
 {
-	std::vector<Location> loc_vec;
+	std::vector<Location>			   loc_vec;
+	std::vector<Block>::const_iterator it;
 
 	loc_vec.reserve(blocks_vec_.size());
-	for (size_t i = 0; i < blocks_vec_.size(); ++i)
-		loc_vec.push_back(blocks_vec_[i].makeLocation());
+	for (it = blocks_vec_.begin(); it != blocks_vec_.end(); ++it)
+		loc_vec.push_back(it->makeLocation());
 	return (loc_vec);
 }
 
-Listener
+Listener*
 Block::makeServer() const
 {
-	Listener				 serv;
+	Listener*				 serv = new Listener; // ICI c'est le malloc
 	std::vector<std::string> directives_split;
-	serv.setLocations(makeLocationVec());
-	for (size_t i = 0; i < directives_vec_.size(); ++i)
+	std::vector<std::string>::const_iterator it;
+
+	serv->setLocations(makeLocationVec());
+	for (it = directives_vec_.begin(); it != directives_vec_.end(); ++it)
 	{
-		directives_split = splitDirective(directives_vec_[i]);
+		directives_split = splitDirective(*it);
 		if (directives_split.size() < 2)
 			throw std::invalid_argument("[ERROR] : Invalide directive.");
 		if (directives_split[0] == "client_max_body_size")
-			serv.setMaxClientRequestBody(directives_split[1]);
+			serv->setMaxClientRequestBody(directives_split[1]);
 		else if (directives_split[0] == "listen")
-			serv.setAddrAndPort(directives_split[1]);
+			serv->setAddrAndPort(directives_split[1]);
 		else if (directives_split[0] == "error_page")
-			serv.setErrorPage(directives_split);
+			serv->setErrorPage(directives_split);
 		else
 			throw std::invalid_argument("[ERROR] : Invalide directive.");
 	}
@@ -145,13 +149,15 @@ Block::makeServer() const
 	return (serv);
 }
 
-std::vector<Listener>
+std::vector<Listener*>
 Block::makeServerVec() const
 {
-	std::vector<Listener> server_vec;
+	std::vector<Listener*>			   server_vec;
+	std::vector<Block>::const_iterator it;
+
 	server_vec.reserve(blocks_vec_.size());
-	for (size_t i = 0; i < blocks_vec_.size(); ++i)
-		server_vec.push_back(blocks_vec_[i].makeServer());
+	for (it = blocks_vec_.begin(); it != blocks_vec_.end(); ++it)
+		server_vec.push_back(it->makeServer());
 	return (server_vec);
 }
 
@@ -231,19 +237,18 @@ operator<<(std::ostream& os, Block const& to_print)
 	std::string name = getBlockNameByType(to_print.getType());
 	std::vector<std::string> const& directives = to_print.getDirectives();
 	std::vector<Block> const&		blocks = to_print.getBlocks();
+	std::vector<std::string>::const_iterator it_directive;
+	std::vector<Block>::const_iterator		 it_block;
 
 	os << indent << "\033[1;34m" << name << "\033[0m {" << '\n';
 
-	for (size_t i = 0; i < directives.size(); ++i)
-	{
-		os << indent << "\t" << directives[i] << '\n';
-	}
+	for (it_directive = directives.begin(); it_directive != directives.end();
+		 ++it_directive)
+		os << indent << "\t" << *it_directive << '\n';
 
 	depth++;
-	for (size_t i = 0; i < blocks.size(); ++i)
-	{
-		os << blocks[i];
-	}
+	for (it_block = blocks.begin(); it_block != blocks.end(); ++it_block)
+		os << *it_block;
 	depth--;
 	os << indent << "}" << '\n';
 	return os;

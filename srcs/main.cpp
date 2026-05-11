@@ -27,8 +27,9 @@ main(int ac, char** av)
 		std::ifstream file(av[1]);
 		Block		  block(file, Block::FILE, buff, "FILE");
 
-		std::vector<Listener> server_vec = block.makeServerVec();
-		EpollManager		  net(server_vec);
+		std::vector<Listener*> server_vec = block.makeServerVec();
+		EpollManager		   net(server_vec);
+		net.eventLoop();
 	}
 	catch (int s)
 	{

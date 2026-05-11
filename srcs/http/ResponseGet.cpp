@@ -35,25 +35,29 @@ ResponseGet::buildResponse(std::vector<Location> const& locations_vec)
 	std::string		file_path;
 	std::string		body;
 
+	if (!location.getRedirect().empty())
+		return (buildRedirect(location));
+
 	if (!location.checkAllowMethods(GET_CHECKER))
 		return (buildErrorResponse(HTTP_BAD_REQUEST));
 
 	file_path = location.buildPath(request_);
+
 	if (!location.getIndex().empty())
 		file_path += location.getIndex();
 
 	int fd = open(file_path.c_str(), O_DIRECTORY | O_CLOEXEC);
-	if (fd != -1 && location.getAutoIndex()) // its a folder
+	if (fd != -1 && location.getAutoIndex())
 	{
 		close(fd);
 		DIR* dir = opendir(file_path.c_str());
 		if (dir == NULL)
 			return (buildErrorResponse(HTTP_BAD_REQUEST));
+		closedir(dir);
 		body = generateAutoIndex(file_path, request_.getUri().getTarget());
 	}
 	else
 	{
-		close(fd);
 		std::ifstream file(file_path.c_str());
 		if (!file.is_open())
 			return (buildErrorResponse(HTTP_NOT_FOUND));
