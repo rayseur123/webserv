@@ -12,6 +12,7 @@ void					 toLowerString(std::string& tmp);
 std::vector<std::string> splitLineByDel(std::string const& line, char del);
 void					 trimSpaceString(std::string& s);
 std::string				 buildErrorResponse(int code);
+std::string				 makeCodeResponse(int code);
 
 template<typename T>
 std::ostream&
