@@ -82,7 +82,7 @@ messageError(std::string const& function_name)
 	return (msg);
 }
 
-inline char const*
+std::string
 getStatusMessage(int code)
 {
 	switch (code)
@@ -172,5 +172,6 @@ getStatusMessage(int code)
 std::string
 buildErrorResponse(int code)
 {
-	return "HTTP/1.0 " + std::string(getStatusMessage(code));
+	return "HTTP/1.0 " + getStatusMessage(code) +
+		   "\r\nContent-lenght:0\r\n\r\n";
 }
