@@ -173,7 +173,7 @@ std::string
 buildErrorResponse(int code)
 {
 	return "HTTP/1.0 " + getStatusMessage(code) +
-		   "\r\nContent-lenght:0\r\n\r\n";
+		   "\r\nContent-length:0\r\n\r\n";
 }
 
 std::string
