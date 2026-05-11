@@ -19,7 +19,6 @@ AResponse::buildRedirect(Location const& location)
 
 	header = std::make_pair("Location", location.getRedirect());
 	addHeader(header);
-	std::cout << getResponseStr() << std::endl;
 	return (getResponseStr());
 }
 

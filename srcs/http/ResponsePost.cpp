@@ -74,10 +74,13 @@ ResponsePost::buildResponse(std::vector<Location> const& locations_vec)
 		close(open(file_path.c_str(), O_CREAT | O_CLOEXEC, CHMOD));
 		error_code_ = HTTP_CREATED;
 	}
+
 	std::ofstream file(file_path.c_str());
 	if (!file.is_open())
 		return (buildErrorResponse(HTTP_NOT_FOUND));
 	file << request_.getBody().getContent();
+	if (error_code_ == 0)
+		error_code_ = HTTP_OK;
 	return (buildResponseStr());
 }
 
