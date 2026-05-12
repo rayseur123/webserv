@@ -43,6 +43,8 @@ Connection::handleConnectionRequest()
 
 	Request request = parsing_request_.getRequest();
 
+	std::cout << request << std::endl;
+
 	// Body too long verif
 	if (!bodyLengthValid())
 		request.setCode(HTTP_PAYLOAD_TOO_LARGE);
@@ -74,6 +76,8 @@ Connection::handleConnectionRequest()
 		if (Signal::signal == 1)
 			throw(SIGINT);
 	}
+
+	std::cout << response_str << std::endl;
 
 	send(fd_, response_str.c_str(), response_str.size(), 0);
 

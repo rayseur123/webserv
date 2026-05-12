@@ -65,6 +65,7 @@ ResponseGet::buildResponse(std::vector<Location> const& locations_vec)
 	}
 	error_code_ = HTTP_OK;
 	setBody(body);
+
 	return (buildResponseStr());
 }
 
