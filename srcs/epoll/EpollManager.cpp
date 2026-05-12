@@ -1,5 +1,6 @@
 #include <csignal>
 #include <utility>
+#include <vector>
 
 #include "epoll/EpollManager.hpp"
 #include "epoll/signal.hpp"
@@ -80,8 +81,19 @@ EpollManager::EpollManager(std::vector<Listener*> const& listener_vec) :
 {
 	std::vector<Listener*>::const_iterator it;
 
-	for (it = listener_vec.begin(); it != listener_vec.end(); ++it)
-		socket_map_.insert(std::make_pair((*it)->createListenerSocket(), *it));
+	try
+	{
+		for (it = listener_vec.begin(); it != listener_vec.end(); ++it)
+			socket_map_.insert(
+				std::make_pair((*it)->createListenerSocket(), *it));
+	}
+	catch (std::exception const& e)
+	{
+		std::vector<Listener*>::const_iterator it;
+		for (it = listener_vec.begin(); it != listener_vec.end(); ++it)
+			delete *it;
+		throw;
+	}
 
 	instanceEpoll();
 	registerListenersToEpoll();

@@ -43,7 +43,6 @@ Connection::handleConnectionRequest()
 
 	Request request = parsing_request_.getRequest();
 
-	// Body too long verif
 	if (!bodyLengthValid())
 		request.setCode(HTTP_PAYLOAD_TOO_LARGE);
 	else

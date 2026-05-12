@@ -8,11 +8,13 @@
 #include <unistd.h>
 #include <vector>
 
+#include "socket/ASocket.hpp"
 #include "socket/Connection.hpp"
 #include "socket/Listener.hpp"
 #include "utils/utils.hpp"
 
-#define UNIT 1000
+#define UNIT	1000
+#define DECIMAL 10
 
 void
 Listener::acceptNewConnection(EpollManager& manager)
@@ -120,17 +122,18 @@ Listener::setLocations(std::vector<Location> const& location_vec)
 bool
 Listener::setMaxClientRequestBody(std::string const& max_client_request_body)
 {
-	size_t		index = max_client_request_body.find('m');
-	std::string temp = max_client_request_body.substr(0, index);
+	size_t index = max_client_request_body.find('m');
 
-	std::string::const_iterator it = max_client_request_body.begin();
-	while (it != max_client_request_body.end() && (std::isdigit(*it)) == 1)
-		++it;
-
-	if (it == max_client_request_body.end())
+	if (index != max_client_request_body.length() - 1 &&
+		index != std::string::npos)
 		return (false);
 
-	max_client_request_body_ = atoi(temp.c_str());
+	std::string temp = max_client_request_body.substr(0, index);
+
+	if (temp.find_first_not_of("0123456789m") != std::string::npos)
+		return (false);
+
+	max_client_request_body_ = std::strtol(temp.c_str(), NULL, DECIMAL);
 	if (index != std::string::npos)
 		max_client_request_body_ *= UNIT;
 	return (true);
