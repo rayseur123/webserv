@@ -1,5 +1,6 @@
 #include "http/parsing/Uri.hpp"
 #include "http/Code.hpp"
+#include "http/httpStatus.hpp"
 
 void
 Uri::setTarget(std::string const& target)
@@ -51,7 +52,7 @@ Uri::Uri(std::string const& uri)
 {
 	size_t pos = 0;
 	if (!isValid(uri))
-		throw Code(400);
+		throw Code(HTTP_BAD_REQUEST);
 
 	pos = uri.find('?');
 	if (pos != std::string::npos)
@@ -73,7 +74,7 @@ std::ostream&
 operator<<(std::ostream& os, Uri const& m)
 {
 	os << m.getTarget();
-	os << " |?| ";
-	os << m.getQuery();
+	if (m.getQuery().length() > 0)
+		os << " |?| " << m.getQuery();
 	return os;
 }

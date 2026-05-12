@@ -2,21 +2,25 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "http/AResponse.hpp"
+#include "http/httpStatus.hpp"
 #include "http/parsing/Request.hpp"
+#include "utils/utils.hpp"
 
-namespace
+std::string
+AResponse::buildRedirect(Location const& location)
 {
-	std::string
-	to_string(int value)
-	{
-		std::ostringstream oss;
-		oss << value;
-		return (oss.str());
-	}
-} // namespace
+	error_code_ = HTTP_MOVED_PERMANENTLY;
+
+	std::pair<std::string, std::string> header;
+
+	header = std::make_pair("Location", location.getRedirect());
+	addHeader(header);
+	return (getResponseStr());
+}
 
 Location const&
 AResponse::getGoodLocation(std::vector<Location> const& locations_vec) const
@@ -124,13 +128,6 @@ AResponse::setResponseCode(int code)
 	error_code_ = code;
 }
 
-std::string
-AResponse::findType(std::string const& file_name) const
-{
-	(void) file_name;
-	return ("text/html"); // fonction a changer
-}
-
 Request const&
 AResponse::getRequest() const
 {
@@ -158,10 +155,7 @@ AResponse::getBody() const
 std::string
 AResponse::buildRequestLine() const
 {
-	std::string ret("HTTP/1.0 ");
-	ret += to_string(error_code_);
-	ret += " OK"; // LIGNE A CHANGER QUAND ON AURA UNE GESTION DS CODES
-	return (ret);
+	return (makeCodeResponse(error_code_));
 }
 
 std::string

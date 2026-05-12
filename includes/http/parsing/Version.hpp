@@ -3,6 +3,8 @@
 
 #include <iostream>
 
+#define VERSION_LENGTH 8
+
 class Version
 {
 private:

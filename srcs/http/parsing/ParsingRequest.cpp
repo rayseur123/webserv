@@ -5,12 +5,14 @@
 #include <utility>
 #include <vector>
 
+#include "epoll/signal.hpp"
 #include "http/Code.hpp"
+#include "http/httpStatus.hpp"
 #include "http/parsing/ParsingRequest.hpp"
 #include "http/parsing/Request.hpp"
 #include "utils/utils.hpp"
 
-// Parsing the line of REQUEST
+// Request line
 void
 ParsingRequest::requestLine(std::string& line, size_t pos)
 {
@@ -22,7 +24,7 @@ ParsingRequest::requestLine(std::string& line, size_t pos)
 	try
 	{
 		if (request_line.size() != 3)
-			throw Code(400);
+			throw Code(HTTP_BAD_REQUEST);
 		request_.setMethod(request_line[0]);
 		request_.setUri(request_line[1]);
 		request_.setVersion(request_line[2]);
@@ -36,7 +38,7 @@ ParsingRequest::requestLine(std::string& line, size_t pos)
 	step_++;
 }
 
-// Parsing lines of HEADERS
+// Headers line
 void
 ParsingRequest::defineBodyType()
 {
@@ -61,7 +63,7 @@ ParsingRequest::splitHeader(std::string& line)
 
 	pos = line.find(':');
 	if (pos == std::string::npos)
-		throw Code(400);
+		throw Code(HTTP_BAD_REQUEST);
 
 	head.first = line.substr(0, pos);
 	head.second = line.substr(pos + 1);
@@ -82,7 +84,7 @@ ParsingRequest::headerLine(std::string& line, size_t pos)
 		toLowerString(head.first);
 
 		if (!keyIsValid(head.first))
-			throw Code(400);
+			throw Code(HTTP_BAD_REQUEST);
 
 		trimSpaceString(head.second);
 		request_.addingInsideHeader(head);
@@ -101,13 +103,14 @@ ParsingRequest::handleEndHeaders(std::string const& line)
 {
 	if (line == "\r\n")
 	{
+		buffer_.erase(0, 2);
 		if (body_type == TRAILER)
 		{
 			step_ = FINISH;
+
 			return true;
 		}
 		step_++;
-		buffer_.erase(0, 2);
 		defineBodyType();
 		return true;
 	}
@@ -123,6 +126,10 @@ ParsingRequest::fillBuffer(std::string& tmp)
 	buffer_.append(tmp);
 	while (step_ != FINISH && body_type != LINE_BODY)
 	{
+
+		if (Signal::signal == 1)
+			throw(SIGINT);
+
 		pos = buffer_.find("\r\n");
 		if (pos == std::string::npos)
 			return;
@@ -139,15 +146,16 @@ ParsingRequest::fillBuffer(std::string& tmp)
 				break;
 		}
 		if (step_ == BODY && body_type == CHUNK_BODY)
-		{
 			if (handleBodyChunk())
+			{
 				return;
-		}
+			}
 	}
 	if (step_ == BODY && body_type == LINE_BODY)
 		handleBodyLine();
 }
 
+// Body line
 bool
 ParsingRequest::handleBodyChunk()
 {
@@ -167,7 +175,6 @@ ParsingRequest::handleBodyChunk()
 		step_ = FINISH;
 		return true;
 	}
-	return false;
 }
 
 void
@@ -176,6 +183,7 @@ ParsingRequest::handleBodyLine()
 	step_ += request_.addingBodyLength(buffer_);
 }
 
+// Others
 void
 ParsingRequest::resetParsingAndRequest()
 {

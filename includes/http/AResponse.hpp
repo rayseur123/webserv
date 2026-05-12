@@ -23,6 +23,7 @@ public:
 
 	std::string generateAutoIndex(std::string const& path,
 								  std::string const& uri);
+	std::string buildRedirect(Location const& location);
 
 	std::string buildRequestLine() const;
 	std::string buildResponseStr() const;
@@ -33,8 +34,6 @@ public:
 	void setBody(std::string const& body);
 	void addHeader(std::pair<std::string, std::string> const& new_header);
 	void setResponseCode(int code);
-
-	std::string findType(std::string const& file_name) const;
 
 	Request const&					getRequest() const;
 	std::string const&				getRequestLine() const;

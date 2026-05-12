@@ -1,7 +1,10 @@
+#include <csignal>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "epoll/signal.hpp"
+#include "http/httpStatus.hpp"
 #include "http/parsing/Method.hpp"
 #include "http/parsing/ParsingRequest.hpp"
 #include "http/parsing/Request.hpp"
@@ -32,16 +35,26 @@ Connection::handleConnectionRequest()
 	std::string tmp(buffer, bytes);
 	parsing_request_.fillBuffer(tmp);
 
+	if (Signal::signal == 1)
+		throw(SIGINT);
+
 	if (parsing_request_.getStep() != FINISH)
 		return 0;
 
 	Request request = parsing_request_.getRequest();
 
-	request.setCode(parsing_request_.getCode());
+	std::cout << request << std::endl;
+
+	// Body too long verif
+	if (!bodyLengthValid())
+		request.setCode(HTTP_PAYLOAD_TOO_LARGE);
+	else
+		request.setCode(parsing_request_.getCode());
 
 	std::string response_str;
+
 	if (request.getCode() != 0)
-		response_str = build_error_response(request.getCode());
+		response_str = buildErrorResponse(request.getCode());
 	else
 	{
 		int type = request.getMethod().getType();
@@ -60,10 +73,19 @@ Connection::handleConnectionRequest()
 			ResponseDelete response(request);
 			response_str = response.buildResponse(server_.getLocations());
 		}
+		if (Signal::signal == 1)
+			throw(SIGINT);
 	}
+
+	std::cout << response_str << std::endl;
+
 	send(fd_, response_str.c_str(), response_str.size(), 0);
+
+	if (Signal::signal == 1)
+		throw(SIGINT);
+
 	parsing_request_.resetParsingAndRequest();
-	return (0);
+	return (1);
 }
 
 int
@@ -74,7 +96,6 @@ Connection::handleEvent(EpollManager& manager, uint32_t events)
 		return (1);
 	if ((events & (EPOLLIN | EPOLLPRI)) != 0)
 		return (handleConnectionRequest());
-	// rajouter un if respond quand pour le http plus tard.
 	return (0);
 }
 
@@ -86,16 +107,6 @@ Connection::getServer() const
 
 Connection::Connection(int fd, Listener& server) : ASocket(fd), server_(server)
 {}
-
-Connection::Connection(Connection const& to_copy) : server_(to_copy.server_)
-{}
-
-Connection&
-Connection::operator=(Connection const& to_copy)
-{
-	(void) to_copy;
-	return (*this);
-}
 
 Connection::~Connection()
 {}

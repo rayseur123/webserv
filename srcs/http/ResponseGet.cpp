@@ -1,5 +1,6 @@
 #include "http/ResponseGet.hpp"
 #include "http/AResponse.hpp"
+#include "http/httpStatus.hpp"
 #include "http/parsing/Request.hpp"
 #include "parsing/Location.hpp"
 #include "utils/utils.hpp"
@@ -10,7 +11,6 @@
 #include <fcntl.h>
 #include <fstream>
 #include <sstream>
-#include <stdexcept>
 #include <string>
 #include <sys/types.h>
 #include <unistd.h>
@@ -35,33 +35,37 @@ ResponseGet::buildResponse(std::vector<Location> const& locations_vec)
 	std::string		file_path;
 	std::string		body;
 
+	if (!location.getRedirect().empty())
+		return (buildRedirect(location));
+
 	if (!location.checkAllowMethods(GET_CHECKER))
-		return (build_error_response(400));
+		return (buildErrorResponse(HTTP_BAD_REQUEST));
 
 	file_path = location.buildPath(request_);
+
 	if (!location.getIndex().empty())
 		file_path += location.getIndex();
 
 	int fd = open(file_path.c_str(), O_DIRECTORY | O_CLOEXEC);
-	if (fd != -1 && location.getAutoIndex()) // its a folder
+	if (fd != -1 && location.getAutoIndex())
 	{
 		close(fd);
 		DIR* dir = opendir(file_path.c_str());
 		if (dir == NULL)
-			return (build_error_response(400));
+			return (buildErrorResponse(HTTP_BAD_REQUEST));
+		closedir(dir);
 		body = generateAutoIndex(file_path, request_.getUri().getTarget());
-		error_code_ = 200;
 	}
 	else
 	{
-		close(fd);
 		std::ifstream file(file_path.c_str());
 		if (!file.is_open())
-			return (build_error_response(404));
+			return (buildErrorResponse(HTTP_NOT_FOUND));
 		body = readFileContent(file);
-		error_code_ = 200;
 	}
+	error_code_ = HTTP_OK;
 	setBody(body);
+
 	return (buildResponseStr());
 }
 

@@ -14,6 +14,8 @@ class Connection : public ASocket
 private:
 	Listener const& server_;
 	ParsingRequest	parsing_request_;
+	Connection(Connection const& to_copy);
+	Connection& operator=(Connection const& to_copy);
 
 public:
 	int handleConnectionRequest();
@@ -24,8 +26,6 @@ public:
 	Listener const& getServer() const;
 
 	Connection(int fd, Listener& server);
-	Connection(Connection const& to_copy);
-	Connection& operator=(Connection const& to_copy);
 	~Connection();
 };
 

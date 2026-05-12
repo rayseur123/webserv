@@ -1,10 +1,9 @@
 #include "http/parsing/Request.hpp"
-#include <algorithm>
 #include <string>
 #include <utility>
-#include <vector>
 #include "http/parsing/Body.hpp"
 #include "http/parsing/Header.hpp"
+#include "http/parsing/Uri.hpp"
 
 void
 Request::setCode(int code)
@@ -61,7 +60,7 @@ Request::setBody(Body const& body)
 }
 
 int
-Request::getCode()
+Request::getCode() const
 {
 	return code_;
 }
@@ -96,25 +95,13 @@ Request::getBody() const
 	return body_;
 }
 
-Request::Request()
+Request::Request() : code_(0)
 {}
 
 void
 Request::addingInsideHeader(std::pair<std::string, std::string>& head)
 {
 	headers_.set(head.first, head.second);
-}
-
-bool
-Request::bodyIsLength() const
-{
-	return (headers_.has("content-length") && headers_.has("content-type"));
-}
-
-bool
-Request::bodyIsChunked() const
-{
-	return (headers_.has("transfer-encoding"));
 }
 
 int
@@ -131,10 +118,10 @@ Request::addingBodyChunked(std::string& container)
 	return (body_.chunkedBody(container));
 }
 
-Request::Request(Request const& to_copy)
-{
-	*this = to_copy;
-}
+Request::Request(Request const& to_copy) :
+	method_(to_copy.method_), uri_(to_copy.uri_), version_(to_copy.version_),
+	headers_(to_copy.headers_), body_(to_copy.body_), code_(to_copy.code_)
+{}
 
 void
 Request::resetRequest()

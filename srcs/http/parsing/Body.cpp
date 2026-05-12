@@ -2,12 +2,12 @@
 #include <cstdlib>
 #include <string>
 #include "http/Code.hpp"
+#include "http/httpStatus.hpp"
 
 int
 Body::chunkedBody(std::string& container)
 {
 	char* end = NULL;
-
 	size_t pos = 0;
 
 	if (status_ == GETTING_LENGTH)
@@ -31,22 +31,16 @@ Body::chunkedBody(std::string& container)
 		size_t		last = 0;
 
 		if (container.size() < length_ + 2)
-		{
 			return 0;
-		}
 
 		tmp = container.substr(0, length_);
-
 		container.erase(0, length_);
 
 		last = container.find("\r\n");
 		if (last != 0)
-		{
-			throw Code(400);
-		}
+			throw Code(HTTP_BAD_REQUEST);
 
 		content_ += tmp;
-
 		container.erase(0, 2);
 		status_--;
 	}
@@ -65,11 +59,8 @@ Body::lengthBody(std::string& line)
 		writed_ += tmp.length();
 		line.erase(0, tmp.length() + 2);
 	}
-
 	if (writed_ >= length_)
-	{
 		return 1;
-	}
 
 	return 0;
 }
