@@ -18,10 +18,17 @@ Headers::set(std::string const& key, std::string& value)
 	headers_[key] = value;
 }
 
-std::string&
-Headers::get(std::string const& key)
+std::string const
+Headers::get(std::string const& key) const
 {
-	return headers_[key];
+	std::map<std::string, std::string>::const_iterator it;
+	std::string const empty;
+
+	it = headers_.find(key);
+
+	if (it == headers_.end())
+		return empty;
+	return it->second;
 }
 
 bool

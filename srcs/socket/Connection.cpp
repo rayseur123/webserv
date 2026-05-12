@@ -14,12 +14,26 @@
 #include "socket/Connection.hpp"
 #include "socket/Listener.hpp"
 #include "utils/utils.hpp"
+#include "http/Cgi.hpp"
 
 bool
 Connection::bodyLengthValid()
 {
 	return (parsing_request_.getRequest().getBody().getLength() <=
 			server_.getMaxClientRequestBody());
+}
+
+// Change in the future directly check by the folder and the extension
+// need to see with nicolas and what is cgi_pass
+bool isCGI(std::string const& uri)
+{
+	size_t pos = 0;
+
+	pos = uri.find(".py");
+	
+	if (pos == std::string::npos)
+		return false;
+	return true;
 }
 
 int
@@ -45,12 +59,19 @@ Connection::handleConnectionRequest()
 
 	std::cout << request << std::endl;
 
-	// Body too long verif
+	// Check the body length directly inside the parsing request not here
 	if (!bodyLengthValid())
 		request.setCode(HTTP_PAYLOAD_TOO_LARGE);
 	else
 		request.setCode(parsing_request_.getCode());
 
+	if(isCGI(request.getUri().getTarget()))
+	{
+		Cgi response;
+	
+		response.buildEnv(request);
+	}
+	
 	std::string response_str;
 
 	if (request.getCode() != 0)

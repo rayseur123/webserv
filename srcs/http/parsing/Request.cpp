@@ -84,7 +84,7 @@ Request::getVersion() const
 }
 
 Headers
-Request::getHeader()
+Request::getHeader() const
 {
 	return headers_;
 }

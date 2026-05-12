@@ -2,6 +2,7 @@
 #define CGI_HPP
 
 #include <string>
+#include "http/parsing/Request.hpp"
 
 class Cgi
 {
@@ -9,8 +10,8 @@ private:
 	std::string env_;
 
 public:
-	void buildEnv();
-	void startProgram();
+	void buildEnv(Request const& r);
+	void startProgram() const;
 
 	Cgi& operator=(Cgi const& c);
 
