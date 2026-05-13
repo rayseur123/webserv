@@ -49,7 +49,8 @@ EpollManager::eventLoop()
 		int nb_events = epoll_wait(epoll_fd_, events_, MAX_EVENTS, -1);
 		if (Signal::signal == 1)
 			throw(SIGINT);
-
+		if (nb_events == -1)
+			std::cerr << "ERROR : ";
 		for (int i = 0; i < nb_events; ++i)
 		{
 			int fd = events_[i].data.fd;

@@ -9,8 +9,6 @@
 #include <dirent.h>
 #include <fcntl.h>
 #include <fstream>
-#include <ostream>
-#include <sstream>
 #include <string>
 #include <sys/types.h>
 #include <unistd.h>
@@ -18,19 +16,9 @@
 #define DELETE_CHECKER (1u << 2u)
 #define CHMOD		   0644
 
-namespace
-{
-	std::string
-	readFileContent(std::ifstream const& file)
-	{
-		std::stringstream sstr;
-		sstr << file.rdbuf();
-		return (sstr.str());
-	}
-} // namespace
-
 std::string
-ResponseDelete::buildResponse(std::vector<Location> const& locations_vec)
+ResponseDelete::buildResponse(std::vector<Location> const& locations_vec,
+							  Listener const&			   server)
 {
 	Location const& location = getGoodLocation(locations_vec);
 	std::string		file_path;
@@ -39,7 +27,7 @@ ResponseDelete::buildResponse(std::vector<Location> const& locations_vec)
 		return (buildRedirect(location));
 
 	if (!location.checkAllowMethods(DELETE_CHECKER))
-		return (buildErrorResponse(HTTP_BAD_REQUEST));
+		return (buildErrorResponse(HTTP_METHOD_NOT_ALLOWED, server));
 
 	file_path = location.buildPath(request_);
 
@@ -48,7 +36,7 @@ ResponseDelete::buildResponse(std::vector<Location> const& locations_vec)
 	if (fd != -1)
 	{
 		close(fd);
-		return (buildErrorResponse(HTTP_FORBIDDEN));
+		return (buildErrorResponse(HTTP_FORBIDDEN, server));
 	}
 
 	std::ifstream file(file_path.c_str());
@@ -56,7 +44,7 @@ ResponseDelete::buildResponse(std::vector<Location> const& locations_vec)
 	body = readFileContent(file);
 
 	if (std::remove(file_path.c_str()) != 0)
-		return (buildErrorResponse(HTTP_NOT_FOUND));
+		return (buildErrorResponse(HTTP_NOT_FOUND, server));
 
 	error_code_ = HTTP_OK;
 	close(fd);

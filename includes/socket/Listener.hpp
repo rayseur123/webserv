@@ -2,6 +2,7 @@
 #define LISTENER_HPP
 
 #include <cstddef>
+#include <map>
 #include <string>
 #include <utility>
 #include <vector>
@@ -20,6 +21,7 @@ private:
 	std::string								 address_;
 	std::string								 port_;
 	std::vector<Location>					 locations_vec_;
+	std::map<std::vector<int>, std::string>	 error_page2_;
 	std::pair<std::vector<int>, std::string> error_page_;
 
 	Listener& operator=(Listener const& to_copy);
@@ -35,7 +37,7 @@ public:
 	std::string const&			 getPort() const;
 	std::string const&			 getAddress() const;
 	std::vector<Location> const& getLocations() const;
-	std::pair<std::vector<int>, std::string> const& getErrorPage() const;
+	std::map<std::vector<int>, std::string> const& getErrorPage() const;
 
 	void setLocations(std::vector<Location> const& location_vec);
 	bool setMaxClientRequestBody(std::string const& max_client_request_body);

@@ -72,6 +72,7 @@ namespace
 			return ("LOCATION");
 		return ("ERROR_NAME");
 	}
+
 } // namespace
 
 Location
@@ -154,12 +155,13 @@ Block::makeServer() const
 			}
 			else if (key == "listen")
 			{
-				if (!serv->setAddrAndPort(directive[1]))
+				if (directive.size() != 2 ||
+					!serv->setAddrAndPort(directive[1]))
 					throw std::invalid_argument("[ERROR] : Invalide port");
 			}
 			else if (key == "error_page")
 			{
-				if (!serv->setErrorPage(directive))
+				if (directive.size() < 2 || !serv->setErrorPage(directive))
 					throw std::invalid_argument(
 						"[ERROR] : Invalide directive.");
 			}
