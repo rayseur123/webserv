@@ -1,6 +1,7 @@
 #include <cctype>
 #include <cstdlib>
 #include <fcntl.h>
+#include <map>
 #include <netdb.h>
 #include <string>
 #include <sys/socket.h>
@@ -167,7 +168,7 @@ Listener::setErrorPage(std::vector<std::string> const& error_page)
 		if (endPtr != it->c_str())
 			temp.push_back(static_cast<int>(val));
 	}
-	error_page_ = std::make_pair(temp, error_page.back());
+	error_page2_.insert(std::make_pair(temp, error_page.back()));
 	return (true);
 }
 
@@ -195,10 +196,10 @@ Listener::getLocations() const
 	return (locations_vec_);
 }
 
-std::pair<std::vector<int>, std::string> const&
+std::map<std::vector<int>, std::string> const&
 Listener::getErrorPage() const
 {
-	return (error_page_);
+	return (error_page2_);
 }
 
 Listener::Listener() : ASocket(-1), max_client_request_body_(0)
@@ -222,19 +223,24 @@ operator<<(std::ostream& os, Listener const& to_print)
 	os << "\tclient_max_body_size: " << to_print.getMaxClientRequestBody()
 	   << '\n';
 
-	std::pair<std::vector<int>, std::string> err = to_print.getErrorPage();
-	if (!err.first.empty())
+	std::map<std::vector<int>, std::string> err = to_print.getErrorPage();
+	std::map<std::vector<int>, std::string>::const_iterator ite;
+
+	for (ite = err.begin(); ite != err.end(); ++ite)
 	{
-		os << "\terror_page: ";
-		for (std::vector<int>::const_iterator it = err.first.begin();
-			 it != err.first.end(); ++it)
+		if (!ite->first.empty())
 		{
-			os << *it;
-			std::vector<int>::const_iterator next = it;
-			if (++next != err.first.end())
-				os << ", ";
+			os << "\terror_page: ";
+			for (std::vector<int>::const_iterator it = ite->first.begin();
+				 it != ite->first.end(); ++it)
+			{
+				os << *it;
+				std::vector<int>::const_iterator next = it;
+				if (++next != ite->first.end())
+					os << ", ";
+			}
+			os << " -> " << ite->second << '\n';
 		}
-		os << " -> " << err.second << '\n';
 	}
 
 	std::vector<Location> const& locs = to_print.getLocations();
