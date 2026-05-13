@@ -16,5 +16,6 @@ ASocket::ASocket(int fd) : fd_(fd)
 
 ASocket::~ASocket()
 {
-	close(fd_);
+	if (fd_ > 0)
+		close(fd_);
 }

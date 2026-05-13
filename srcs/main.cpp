@@ -23,10 +23,9 @@ main(int ac, char** av)
 	try
 	{
 
-		std::string	  buff;
-		std::ifstream file(av[1]);
-		Block		  block(file, Block::FILE, buff, "FILE");
-
+		std::string			   buff;
+		std::ifstream		   file(av[1]);
+		Block				   block(file, Block::FILE, buff, "FILE");
 		std::vector<Listener*> server_vec = block.makeServerVec();
 		EpollManager		   net(server_vec);
 		net.eventLoop();

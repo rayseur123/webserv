@@ -74,7 +74,7 @@ Location::setRoot(std::string const& root)
 	}
 
 	std::string temp = root;
-	if (temp.length() > 1 && temp[temp.length() - 1] == '/')
+	while (temp.length() > 1 && temp[temp.length() - 1] == '/')
 		temp.erase(temp.length() - 1);
 
 	if (temp.find_first_of("./") == 0)
@@ -130,7 +130,22 @@ Location::setIndex(std::string const& index)
 void
 Location::setUploadStore(std::string const& upload_store)
 {
-	upload_store_ = upload_store;
+	if (upload_store.empty())
+	{
+		upload_store_ = ".";
+		return;
+	}
+
+	std::string temp = upload_store;
+	while (temp.length() > 1 && temp[temp.length() - 1] == '/')
+		temp.erase(temp.length() - 1);
+
+	if (temp.find_first_of("./") == 0)
+		upload_store_ = temp;
+	else if (temp[0] != '/')
+		upload_store_ = "/" + temp;
+	else
+		upload_store_ = "./" + temp;
 }
 
 void

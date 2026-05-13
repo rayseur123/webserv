@@ -1,7 +1,8 @@
-#include "http/parsing/Version.hpp"
 #include <cstdlib>
+
 #include "http/Code.hpp"
 #include "http/httpStatus.hpp"
+#include "http/parsing/Version.hpp"
 
 void
 Version::setProtocol(std::string const& protocol)

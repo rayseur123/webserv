@@ -31,24 +31,28 @@ Connection::handleHTTP(Request const& request, std::string& response_str)
 {
 
 	if (request.getCode() != 0)
-		response_str = buildErrorResponse(request.getCode());
+		response_str = buildErrorResponse(request.getCode(), server_,
+										  request.getVersion().toString());
 	else
 	{
 		int type = request.getMethod().getType();
 		if (type == GET)
 		{
 			ResponseGet response(request);
-			response_str = response.buildResponse(server_.getLocations());
+			response_str =
+				response.buildResponse(server_.getLocations(), server_);
 		}
 		else if (type == POST)
 		{
 			ResponsePost response(request);
-			response_str = response.buildResponse(server_.getLocations());
+			response_str =
+				response.buildResponse(server_.getLocations(), server_);
 		}
 		else if (type == DELETE)
 		{
 			ResponseDelete response(request);
-			response_str = response.buildResponse(server_.getLocations());
+			response_str =
+				response.buildResponse(server_.getLocations(), server_);
 		}
 		if (Signal::signal == 1)
 			throw(SIGINT);

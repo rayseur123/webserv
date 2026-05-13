@@ -2,6 +2,7 @@
 #include "socket/Listener.hpp"
 
 #include <cstdlib>
+#include <exception>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -71,43 +72,46 @@ namespace
 			return ("LOCATION");
 		return ("ERROR_NAME");
 	}
+
 } // namespace
 
 Location
 Block::makeLocation() const
 {
 	Location								 loc;
-	std::vector<std::string>				 directives_split;
+	std::vector<std::string>				 directive;
 	std::vector<std::string>::const_iterator it;
 
 	for (it = directives_vec_.begin(); it != directives_vec_.end(); ++it)
 	{
-		directives_split = splitDirective(*it);
-		if (directives_split.size() < 2)
+		directive = splitDirective(*it);
+		if (directive.size() < 2)
 			throw std::invalid_argument("[ERROR] : Invalide directive. : " +
-										directives_split[0]);
-		if (directives_split[0] == "root")
-			loc.setRoot(directives_split[1]);
-		else if (directives_split[0] == "allow_methods:")
-			loc.setAllowMethods(directives_split);
-		else if (directives_split[0] == "autoindex")
-			loc.setAutoIndex(directives_split[1]);
-		else if (directives_split[0] == "index")
-			loc.setIndex(directives_split[1]);
-		else if (directives_split[0] == "upload_store")
-			loc.setUploadStore(directives_split[1]);
-		else if (directives_split[0] == "cgi_pass")
-			loc.setCgiPass(directives_split[1]);
-		else if (directives_split[0] == "redirect")
-			loc.setRedirect(directives_split[1]);
+										directive[0]);
+
+		std::string const& key = directive[0];
+		size_t const	   size = directive.size();
+
+		if (key == "root" && size == 2)
+			loc.setRoot(directive[1]);
+		else if (key == "allow_methods:" && size <= 4)
+			loc.setAllowMethods(directive);
+		else if (key == "autoindex" && size == 2)
+			loc.setAutoIndex(directive[1]);
+		else if (key == "index" && size == 2)
+			loc.setIndex(directive[1]);
+		else if (key == "upload_store" && size == 2)
+			loc.setUploadStore(directive[1]);
+		else if (key == "cgi_pass" && size == 2)
+			loc.setCgiPass(directive[1]);
+		else if (key == "redirect" && size == 2)
+			loc.setRedirect(directive[1]);
 		else
-			throw std::invalid_argument("[ERROR] : Invalide directive." +
-										directives_split[0]);
+			throw std::invalid_argument("[ERROR] : Invalide directive. " + key);
 	}
-	if (name_.find("location ") != std::string::npos)
-		loc.setPath(name_.substr(LOC_SIZE));
-	else
-		loc.setPath(name_);
+	loc.setPath(name_.find("location ") != std::string::npos
+					? name_.substr(LOC_SIZE)
+					: name_);
 	return (loc);
 }
 
@@ -127,54 +131,50 @@ Listener*
 Block::makeServer() const
 {
 	Listener*								 serv = new Listener;
-	std::vector<std::string>				 directives_split;
+	std::vector<std::string>				 directive;
 	std::vector<std::string>::const_iterator it;
 
-	serv->setLocations(makeLocationVec());
-	for (it = directives_vec_.begin(); it != directives_vec_.end(); ++it)
+	try
 	{
-		directives_split = splitDirective(*it);
-		if (directives_split.size() < 2)
+		serv->setLocations(makeLocationVec());
+		for (it = directives_vec_.begin(); it != directives_vec_.end(); ++it)
 		{
-			delete serv;
-			throw std::invalid_argument(
-				"[ERROR] : A directive need parameter(s).");
-		}
-
-		std::string const& key = directives_split[0];
-
-		if (key == "client_max_body_size")
-		{
-			if (!serv->setMaxClientRequestBody(directives_split[1]))
-			{
-				delete serv;
+			directive = splitDirective(*it);
+			if (directive.size() < 2)
 				throw std::invalid_argument(
-					"[ERROR] : Invalide client_max_body_size");
-			}
-		}
-		else if (key == "listen")
-		{
-			if (!serv->setAddrAndPort(directives_split[1]))
+					"[ERROR] : A directive need parameter(s).");
+
+			std::string const& key = directive[0];
+
+			if (key == "client_max_body_size")
 			{
-				delete serv;
-				throw std::invalid_argument("[ERROR] : Invalide port");
+				if (directive.size() != 2 ||
+					!serv->setMaxClientRequestBody(directive[1]))
+					throw std::invalid_argument(
+						"[ERROR] : Invalide client_max_body_size");
 			}
-		}
-		else if (key == "error_page")
-		{
-			if (!serv->setErrorPage(directives_split))
+			else if (key == "listen")
 			{
-				delete serv;
-				throw std::invalid_argument("[ERROR] : Invalide directive.");
+				if (directive.size() != 2 ||
+					!serv->setAddrAndPort(directive[1]))
+					throw std::invalid_argument("[ERROR] : Invalide port");
 			}
-		}
-		else
-		{
-			delete serv;
-			throw std::invalid_argument("[ERROR] : Unknown directive: " + key);
+			else if (key == "error_page")
+			{
+				if (directive.size() < 2 || !serv->setErrorPage(directive))
+					throw std::invalid_argument(
+						"[ERROR] : Invalide directive.");
+			}
+			else
+				throw std::invalid_argument("[ERROR] : Unknown directive: " +
+											key);
 		}
 	}
-
+	catch (...)
+	{
+		delete serv;
+		throw;
+	}
 	return (serv);
 }
 
@@ -185,8 +185,17 @@ Block::makeServerVec() const
 	std::vector<Block>::const_iterator it;
 
 	server_vec.reserve(blocks_vec_.size());
-	for (it = blocks_vec_.begin(); it != blocks_vec_.end(); ++it)
-		server_vec.push_back(it->makeServer());
+	try
+	{
+		for (it = blocks_vec_.begin(); it != blocks_vec_.end(); ++it)
+			server_vec.push_back(it->makeServer());
+	}
+	catch (std::exception const& e)
+	{
+		for (size_t i = 0; i < server_vec.size(); ++i)
+			delete server_vec[i];
+		throw;
+	}
 	return (server_vec);
 }
 

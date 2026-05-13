@@ -1,11 +1,25 @@
+#include <algorithm>
+#include <cstdlib>
 #include <cstring>
 #include <errno.h>
+#include <fstream>
+#include <map>
 #include <sstream>
 #include <string>
 #include <vector>
 
-#include "algorithm"
 #include "http/httpStatus.hpp"
+#include "socket/Listener.hpp"
+
+#define DECIMAL 10
+
+std::string
+readFileContent(std::ifstream const& file)
+{
+	std::stringstream sstr;
+	sstr << file.rdbuf();
+	return (sstr.str());
+}
 
 bool
 stringIsDigit(std::string const& s)
@@ -160,15 +174,45 @@ getStatusMessage(int code)
 			return "500 Internal Server Error";
 	}
 }
+
 std::string
-buildErrorResponse(int code)
+buildErrorResponse(int code, Listener const& server, std::string const& version)
 {
-	return "HTTP/1.0 " + getStatusMessage(code) +
-		   "\r\nContent-length:0\r\n\r\n";
+	std::map<std::vector<int>, std::string> const& map = server.getErrorPage();
+	std::map<std::vector<int>, std::string>::const_iterator it;
+	std::string ret("HTTP/1.0 " + getStatusMessage(code));
+
+	for (it = map.begin(); it != map.end(); ++it)
+	{
+		std::vector<int>::const_iterator it_vec =
+			std::find(it->first.begin(), it->first.end(), code);
+
+		if (it->first.empty() || it_vec == it->first.end())
+			continue;
+
+		std::ifstream file(it->second.c_str());
+		if (!file.is_open())
+			return (version + " " +
+					getStatusMessage(HTTP_INTERNAL_SERVER_ERROR) +
+					"\r\nContent-length:0\r\n\r\n");
+
+		std::string		  file_content(readFileContent(file));
+		std::stringstream ss;
+
+		ret += "\r\n";
+		ret += "Content-Length: ";
+		ss << file_content.length();
+		ret += ss.str();
+		ret += "\r\n\r\n";
+		ret += file_content;
+		return (ret);
+	}
+
+	return (version + " " + getStatusMessage(code));
 }
 
 std::string
-makeCodeResponse(int code)
+makeCodeResponse(int code, std::string const& version)
 {
-	return "HTTP/1.0 " + getStatusMessage(code);
+	return (version + " " + getStatusMessage(code));
 }

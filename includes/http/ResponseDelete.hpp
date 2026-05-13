@@ -8,7 +8,8 @@
 class ResponseDelete : public AResponse
 {
 public:
-	std::string buildResponse(std::vector<Location> const& locations_vec);
+	std::string buildResponse(std::vector<Location> const& locations_vec,
+							  Listener const&			   server);
 
 	ResponseDelete();
 	explicit ResponseDelete(Request const& request);

@@ -10,26 +10,15 @@
 #include <dirent.h>
 #include <fcntl.h>
 #include <fstream>
-#include <sstream>
 #include <string>
 #include <sys/types.h>
 #include <unistd.h>
 
 #define GET_CHECKER (1u << 0u)
 
-namespace
-{
-	std::string
-	readFileContent(std::ifstream const& file)
-	{
-		std::stringstream sstr;
-		sstr << file.rdbuf();
-		return (sstr.str());
-	}
-} // namespace
-
 std::string
-ResponseGet::buildResponse(std::vector<Location> const& locations_vec)
+ResponseGet::buildResponse(std::vector<Location> const& locations_vec,
+						   Listener const&				server)
 {
 	Location const& location = getGoodLocation(locations_vec);
 	std::string		file_path;
@@ -39,7 +28,8 @@ ResponseGet::buildResponse(std::vector<Location> const& locations_vec)
 		return (buildRedirect(location));
 
 	if (!location.checkAllowMethods(GET_CHECKER))
-		return (buildErrorResponse(HTTP_BAD_REQUEST));
+		return (buildErrorResponse(HTTP_METHOD_NOT_ALLOWED, server,
+								   request_.getVersion().toString()));
 
 	file_path = location.buildPath(request_);
 
@@ -52,7 +42,8 @@ ResponseGet::buildResponse(std::vector<Location> const& locations_vec)
 		close(fd);
 		DIR* dir = opendir(file_path.c_str());
 		if (dir == NULL)
-			return (buildErrorResponse(HTTP_BAD_REQUEST));
+			return (buildErrorResponse(HTTP_BAD_REQUEST, server,
+									   request_.getVersion().toString()));
 		closedir(dir);
 		body = generateAutoIndex(file_path, request_.getUri().getTarget());
 	}
@@ -60,7 +51,8 @@ ResponseGet::buildResponse(std::vector<Location> const& locations_vec)
 	{
 		std::ifstream file(file_path.c_str());
 		if (!file.is_open())
-			return (buildErrorResponse(HTTP_NOT_FOUND));
+			return (buildErrorResponse(HTTP_NOT_FOUND, server,
+									   request_.getVersion().toString()));
 		body = readFileContent(file);
 	}
 	error_code_ = HTTP_OK;
