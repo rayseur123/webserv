@@ -40,11 +40,12 @@ Listener::acceptNewConnection(EpollManager& manager)
 					  &ev) == -1)
 			throw std::logic_error(messageError("acceptNewClient>epoll_ctl"));
 
-		unsigned int test = connection_addr.sin_addr.s_addr;
-		char*		 b = reinterpret_cast<char*>(&test);
-		std::string	 ahh = inet_ntop(b);
+		// Convert the unsigned int adress to string adress
+		unsigned int addr_int = connection_addr.sin_addr.s_addr;
+		char*		 b = reinterpret_cast<char*>(&addr_int);
+		std::string	 addr_string = inet_ntop(b);
 
-		Connection* connection = new Connection(connection_fd, *this, ahh);
+		Connection* connection = new Connection(connection_fd, *this, addr_string);
 		manager.addConnection(std::make_pair(connection_fd, connection));
 	}
 }

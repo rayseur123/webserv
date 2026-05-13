@@ -58,7 +58,6 @@ inet_ntop(char* adress)
 	tmp += '.';
 	tmp += digitToString(static_cast<int>(adress[3]));
 
-	std::cout << "je fas des test" << tmp << std::endl;
 	return tmp;
 }
 
