@@ -16,77 +16,19 @@
 #include "socket/Listener.hpp"
 #include "utils/utils.hpp"
 
-int
-Connection::handleCGI()
+void
+Connection::handleCGI(Request const& request, std::string& response_str)
 {
 	Cgi response;
 
 	response.buildEnv(request);
+
+	response_str = "final response from cgi \n";
 }
 
-int
-Connection::handleHTTP()
-{}
-
-bool
-Connection::bodyLengthValid()
+void
+Connection::handleHTTP(Request const& request, std::string& response_str)
 {
-	return (parsing_request_.getRequest().getBody().getLength() <=
-			server_.getMaxClientRequestBody());
-}
-
-// Change in the future directly check by the folder and the extension
-// need to see with nicolas and what is cgi_pass
-bool
-isCGI(std::string const& uri)
-{
-	size_t pos = 0;
-
-	pos = uri.find(".py");
-
-	if (pos == std::string::npos)
-		return false;
-	return true;
-}
-
-int
-Connection::handleConnectionRequest()
-{
-	size_t bytes = 0;
-	char   buffer[10000] = {};
-
-	bytes = recv(fd_, buffer, sizeof(buffer), 0);
-	if (bytes == 0)
-		return (1);
-
-	std::string tmp(buffer, bytes);
-	parsing_request_.fillBuffer(tmp);
-
-	if (Signal::signal == 1)
-		throw(SIGINT);
-
-	if (parsing_request_.getStep() != FINISH)
-		return 0;
-
-	Request request = parsing_request_.getRequest();
-
-	std::cout << request << std::endl;
-
-	// Check the body length directly inside the parsing request not here
-	if (!bodyLengthValid())
-		request.setCode(HTTP_PAYLOAD_TOO_LARGE);
-	else
-		request.setCode(parsing_request_.getCode());
-
-	if (isCGI(request.getUri().getTarget()))
-	{
-		Cgi response;
-
-		response.buildEnv(request);
-	}
-
-	std::string response_str;
-
 	if (request.getCode() != 0)
 		response_str = buildErrorResponse(request.getCode());
 	else
@@ -110,14 +52,72 @@ Connection::handleConnectionRequest()
 		if (Signal::signal == 1)
 			throw(SIGINT);
 	}
+}
 
-	std::cout << response_str << std::endl;
+bool
+Connection::bodyLengthValid()
+{
+	return (parsing_request_.getRequest().getBody().getLength() <=
+			server_.getMaxClientRequestBody());
+}
 
+// Change in the future directly check by the folder and the extension
+// need to see with nicolas and what is cgi_pass
+bool
+isCGI(std::string const& uri)
+{
+	size_t pos = 0;
+
+	pos = uri.find(".py");
+
+	return (pos != std::string::npos);
+}
+
+int
+Connection::handleConnectionRequest()
+{
+	size_t bytes = 0;
+	char   buffer[10000] = {};
+
+	bytes = recv(fd_, buffer, sizeof(buffer), 0);
+	if (bytes == 0)
+		return (1);
+
+	// Parsing client request
+	std::string tmp(buffer, bytes);
+	parsing_request_.fillBuffer(tmp);
+
+	if (Signal::signal == 1)
+		throw(SIGINT);
+
+	if (parsing_request_.getStep() != FINISH)
+		return 0;
+
+	Request request = parsing_request_.getRequest();
+
+	std::cout << request << std::endl;
+
+	// Check the body length directly inside the parsing request not here
+	if (!bodyLengthValid())
+		request.setCode(HTTP_PAYLOAD_TOO_LARGE);
+	else
+		request.setCode(parsing_request_.getCode());
+
+	// HandleResponse
+	std::string response_str;
+
+	if (isCGI(request.getUri().getTarget()))
+		handleCGI(request, response_str);
+	else
+		handleHTTP(request, response_str);
+
+	// SEND THE RESPONSE
 	send(fd_, response_str.c_str(), response_str.size(), 0);
 
 	if (Signal::signal == 1)
 		throw(SIGINT);
 
+	// Reset all the parsing info class but not sure is necessary right now
 	parsing_request_.resetParsingAndRequest();
 	return (1);
 }
