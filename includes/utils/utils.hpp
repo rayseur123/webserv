@@ -10,6 +10,7 @@ std::string				 messageError(std::string const& function_name);
 bool					 keyIsValid(std::string const& s);
 bool					 stringIsDigit(std::string const& s);
 void					 toLowerString(std::string& tmp);
+void 					 toUpperString(std::string& tmp);
 std::vector<std::string> splitLineByDel(std::string const& line, char del);
 void					 trimSpaceString(std::string& s);
 std::string				 buildErrorResponse(int code, Listener const& server,

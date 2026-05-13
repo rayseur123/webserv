@@ -1,5 +1,6 @@
 #include "http/Cgi.hpp"
 #include <unistd.h>
+#include "utils/utils.hpp"
 
 // /usr/test/cgi.py/coucou/ca/va
 // /
@@ -53,33 +54,71 @@ Cgi::parseUri(Request const& r)
 	env_.push_back("HTTP_PATH_INFO=" + uri);
 }
 
+std::string prepareHeaderToEnv(std::string first, std::string const& second )
+{
+	
+	std::string final;
+	std::string::iterator it;
+
+	toUpperString(first);
+
+	for (it = first.begin(); it != first.end(); it++)
+	{
+		if (*it == '-')
+			*it = '_';
+	}
+
+	final =  "HTTP_" + first + '=' + second;
+	return final;
+} 
+
+bool headerIsAllowedInEnv(std::string const& name)
+{
+	if (name == "content-length" || name == "content-type" || name == "authorization")
+		return false;
+	return true;
+}
+
+void 
+Cgi::addingRequestHeaderEnv(Request const& r)
+{
+	std::map<std::string, std::string>::const_iterator it;
+	std::map<std::string, std::string> shortcut = r.getHeader().getHeaders();
+
+	for (it = shortcut.begin(); it != shortcut.end(); it++)
+	{
+		if (headerIsAllowedInEnv(it->first))
+			env_.push_back(prepareHeaderToEnv(it->first, it->second));
+	}
+} 
+
 void
 Cgi::buildEnv(Request const& r, Listener const& s,
 			  std::string const& addr_client)
 {
 	// REQUEST_METHOD
-	env_.push_back("HTTP_REQUEST_METHOD=" + r.getMethod().toString());
+	env_.push_back("REQUEST_METHOD=" + r.getMethod().toString());
 
 	// SERVER_SOFTWARE
-	env_.push_back("HTTP_SERVER_SOFTWARE=");
+	env_.push_back("SERVER_SOFTWARE=Webserv/1.");
 
 	// REMOTE_ADDR
-	env_.push_back("HTTP_REMOTE_ADDR=" + addr_client);
+	env_.push_back("REMOTE_ADDR=" + addr_client);
 
 	// GATEWAY_INTERFACE
-	env_.push_back("HTTP_GATEWAY_INTERFACE=CGI/1.1");
+	env_.push_back("ATEWAY_INTERFACE=CGI/1.1");
 
-	// SERVER_NAME = C'est quoi le name du server
-	env_.push_back("HTTP_SERVER_NAME=" + s.getAddress());
+	// SERVER_NAME
+	env_.push_back("SERVER_NAME=" + s.getAddress());
 
 	// SERVER_PORT
-	env_.push_back("HTTP_SERVER_PORT=" + s.getPort());
+	env_.push_back("SERVER_PORT=" + s.getPort());
 
 	// SERVER_PROTOCOL
-	env_.push_back("HTTP_SERVER_PROTOCOL=" + r.getVersion().toString());
+	env_.push_back("SERVER_PROTOCOL=" + r.getVersion().toString());
 
 	// QUERY_STRING
-	env_.push_back("HTTP_QUERRY_STRING=" + r.getUri().getQuery());
+	env_.push_back("QUERY_STRING=" + r.getUri().getQuery());
 
 	// CONTENT_LENGTH && CONTENT_TYPE
 	if (r.getMethod().toString() == "POST")
@@ -94,6 +133,7 @@ Cgi::buildEnv(Request const& r, Listener const& s,
 
 	// SCRIPT_NAME && PATH_INFO
 	parseUri(r);
+	addingRequestHeaderEnv(r);
 	displayEnv(env_);
 }
 

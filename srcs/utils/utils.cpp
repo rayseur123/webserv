@@ -101,6 +101,12 @@ toLowerString(std::string& tmp)
 	std::transform(tmp.begin(), tmp.end(), tmp.begin(), tolower);
 }
 
+void
+toUpperString(std::string& tmp)
+{
+	std::transform(tmp.begin(), tmp.end(), tmp.begin(), toupper);
+}
+
 std::string
 messageError(std::string const& function_name)
 {
