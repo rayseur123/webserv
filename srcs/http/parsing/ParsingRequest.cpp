@@ -103,13 +103,14 @@ ParsingRequest::handleEndHeaders(std::string const& line)
 {
 	if (line == "\r\n")
 	{
+		buffer_.erase(0, 2);
 		if (body_type == TRAILER)
 		{
 			step_ = FINISH;
+
 			return true;
 		}
 		step_++;
-		buffer_.erase(0, 2);
 		defineBodyType();
 		return true;
 	}
@@ -146,7 +147,9 @@ ParsingRequest::fillBuffer(std::string& tmp)
 		}
 		if (step_ == BODY && body_type == CHUNK_BODY)
 			if (handleBodyChunk())
+			{
 				return;
+			}
 	}
 	if (step_ == BODY && body_type == LINE_BODY)
 		handleBodyLine();

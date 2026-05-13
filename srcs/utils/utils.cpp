@@ -176,7 +176,7 @@ getStatusMessage(int code)
 }
 
 std::string
-buildErrorResponse(int code, Listener const& server)
+buildErrorResponse(int code, Listener const& server, std::string const& version)
 {
 	std::map<std::vector<int>, std::string> const& map = server.getErrorPage();
 	std::map<std::vector<int>, std::string>::const_iterator it;
@@ -192,7 +192,8 @@ buildErrorResponse(int code, Listener const& server)
 
 		std::ifstream file(it->second.c_str());
 		if (!file.is_open())
-			return ("HTTP/1.0 " + getStatusMessage(HTTP_INTERNAL_SERVER_ERROR) +
+			return (version + " " +
+					getStatusMessage(HTTP_INTERNAL_SERVER_ERROR) +
 					"\r\nContent-length:0\r\n\r\n");
 
 		std::string		  file_content(readFileContent(file));
@@ -207,11 +208,11 @@ buildErrorResponse(int code, Listener const& server)
 		return (ret);
 	}
 
-	return ("HTTP/1.0 " + getStatusMessage(code));
+	return (version + " " + getStatusMessage(code));
 }
 
 std::string
-makeCodeResponse(int code)
+makeCodeResponse(int code, std::string const& version)
 {
-	return "HTTP/1.0 " + getStatusMessage(code);
+	return (version + " " + getStatusMessage(code));
 }

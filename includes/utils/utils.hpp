@@ -12,8 +12,9 @@ bool					 stringIsDigit(std::string const& s);
 void					 toLowerString(std::string& tmp);
 std::vector<std::string> splitLineByDel(std::string const& line, char del);
 void					 trimSpaceString(std::string& s);
-std::string				 buildErrorResponse(int code, Listener const& server);
-std::string				 makeCodeResponse(int code);
+std::string				 buildErrorResponse(int code, Listener const& server,
+											std::string const& version);
+std::string				 makeCodeResponse(int code, std::string const& version);
 std::string				 readFileContent(std::ifstream const& file);
 
 template<typename T>

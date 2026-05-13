@@ -27,7 +27,8 @@ ResponseDelete::buildResponse(std::vector<Location> const& locations_vec,
 		return (buildRedirect(location));
 
 	if (!location.checkAllowMethods(DELETE_CHECKER))
-		return (buildErrorResponse(HTTP_METHOD_NOT_ALLOWED, server));
+		return (buildErrorResponse(HTTP_METHOD_NOT_ALLOWED, server,
+								   request_.getVersion().toString()));
 
 	file_path = location.buildPath(request_);
 
@@ -36,7 +37,8 @@ ResponseDelete::buildResponse(std::vector<Location> const& locations_vec,
 	if (fd != -1)
 	{
 		close(fd);
-		return (buildErrorResponse(HTTP_FORBIDDEN, server));
+		return (buildErrorResponse(HTTP_FORBIDDEN, server,
+								   request_.getVersion().toString()));
 	}
 
 	std::ifstream file(file_path.c_str());
@@ -44,7 +46,8 @@ ResponseDelete::buildResponse(std::vector<Location> const& locations_vec,
 	body = readFileContent(file);
 
 	if (std::remove(file_path.c_str()) != 0)
-		return (buildErrorResponse(HTTP_NOT_FOUND, server));
+		return (buildErrorResponse(HTTP_NOT_FOUND, server,
+								   request_.getVersion().toString()));
 
 	error_code_ = HTTP_OK;
 	close(fd);

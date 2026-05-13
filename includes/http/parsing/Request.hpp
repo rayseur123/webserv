@@ -41,7 +41,7 @@ public:
 	Uri const&	   getUri() const;
 	Version const& getVersion() const;
 	Body const&	   getBody() const;
-	Headers		   getHeader();
+	Headers		   getHeader() const ;
 
 	Request();
 	Request(Request const& to_copy);

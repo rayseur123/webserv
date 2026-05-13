@@ -28,7 +28,8 @@ ResponseGet::buildResponse(std::vector<Location> const& locations_vec,
 		return (buildRedirect(location));
 
 	if (!location.checkAllowMethods(GET_CHECKER))
-		return (buildErrorResponse(HTTP_METHOD_NOT_ALLOWED, server));
+		return (buildErrorResponse(HTTP_METHOD_NOT_ALLOWED, server,
+								   request_.getVersion().toString()));
 
 	file_path = location.buildPath(request_);
 
@@ -41,7 +42,8 @@ ResponseGet::buildResponse(std::vector<Location> const& locations_vec,
 		close(fd);
 		DIR* dir = opendir(file_path.c_str());
 		if (dir == NULL)
-			return (buildErrorResponse(HTTP_BAD_REQUEST, server));
+			return (buildErrorResponse(HTTP_BAD_REQUEST, server,
+									   request_.getVersion().toString()));
 		closedir(dir);
 		body = generateAutoIndex(file_path, request_.getUri().getTarget());
 	}
@@ -49,11 +51,13 @@ ResponseGet::buildResponse(std::vector<Location> const& locations_vec,
 	{
 		std::ifstream file(file_path.c_str());
 		if (!file.is_open())
-			return (buildErrorResponse(HTTP_NOT_FOUND, server));
+			return (buildErrorResponse(HTTP_NOT_FOUND, server,
+									   request_.getVersion().toString()));
 		body = readFileContent(file);
 	}
 	error_code_ = HTTP_OK;
 	setBody(body);
+
 	return (buildResponseStr());
 }
 

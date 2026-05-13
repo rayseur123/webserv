@@ -22,6 +22,9 @@ public:
 
 	bool bodyLengthValid();
 
+	void handleCGI(Request const& request, std::string& response_str);
+	void handleHTTP(Request const& request, std::string& response_str);
+
 	virtual int		handleEvent(EpollManager& manager, uint32_t events);
 	Listener const& getServer() const;
 
