@@ -64,6 +64,23 @@ Method::Method(Method const& to_copy) : type_(to_copy.type_)
 Method::~Method()
 {}
 
+std::string const
+Method::toString() const
+{
+	switch (type_)
+	{
+		case GET:
+			return "GET";
+
+		case POST:
+			return "POST";
+
+		case DELETE:
+			return "DELETE";
+	};
+	return "ERROR";
+}
+
 std::ostream&
 operator<<(std::ostream& os, Method const& m)
 {

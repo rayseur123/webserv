@@ -110,10 +110,20 @@ Version::operator=(Version const& to_copy)
 {
 	if (this == &to_copy)
 		return *this;
-	protocol_ = to_copy.protocol_;
+	protocol_ = to_copy.	protocol_;
 	first_nb_ = to_copy.first_nb_;
 	sec_nb_ = to_copy.sec_nb_;
 	return *this;
+}
+
+std::string
+Version::toString() const
+{
+	std::stringstream ss;
+
+	ss << protocol_ << "/" << first_nb_ << "." << sec_nb_;
+
+	return ss.str();
 }
 
 std::ostream&
