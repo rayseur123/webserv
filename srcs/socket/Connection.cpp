@@ -4,6 +4,7 @@
 #include <unistd.h>
 
 #include "epoll/signal.hpp"
+#include "http/Cgi.hpp"
 #include "http/httpStatus.hpp"
 #include "http/parsing/Method.hpp"
 #include "http/parsing/ParsingRequest.hpp"
@@ -14,7 +15,18 @@
 #include "socket/Connection.hpp"
 #include "socket/Listener.hpp"
 #include "utils/utils.hpp"
-#include "http/Cgi.hpp"
+
+int
+Connection::handleCGI()
+{
+	Cgi response;
+
+	response.buildEnv(request);
+}
+
+int
+Connection::handleHTTP()
+{}
 
 bool
 Connection::bodyLengthValid()
@@ -25,12 +37,13 @@ Connection::bodyLengthValid()
 
 // Change in the future directly check by the folder and the extension
 // need to see with nicolas and what is cgi_pass
-bool isCGI(std::string const& uri)
+bool
+isCGI(std::string const& uri)
 {
 	size_t pos = 0;
 
 	pos = uri.find(".py");
-	
+
 	if (pos == std::string::npos)
 		return false;
 	return true;
@@ -65,13 +78,13 @@ Connection::handleConnectionRequest()
 	else
 		request.setCode(parsing_request_.getCode());
 
-	if(isCGI(request.getUri().getTarget()))
+	if (isCGI(request.getUri().getTarget()))
 	{
 		Cgi response;
-	
+
 		response.buildEnv(request);
 	}
-	
+
 	std::string response_str;
 
 	if (request.getCode() != 0)
