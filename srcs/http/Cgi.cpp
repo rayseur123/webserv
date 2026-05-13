@@ -17,10 +17,20 @@ namespace
 		return (pos != std::string::npos);
 	}
 
+	void
+	displayEnv(std::vector<std::string> list)
+	{
+		std::vector<std::string>::iterator it;
+
+		for (it = list.begin(); it != list.end(); it++)
+		{
+			std::cout << *it << std::endl;
+		}
+	}
 } // namespace
 
 void
-parseUri(std::string& SCRIPT_NAME, std::string& PATH_INFO, Request const& r)
+Cgi::parseUri(Request const& r)
 {
 	size_t		pos = 0;
 	std::string uri = r.getUri().getTarget();
@@ -31,39 +41,36 @@ parseUri(std::string& SCRIPT_NAME, std::string& PATH_INFO, Request const& r)
 	pos = uri.find('/');
 	while (pos != std::string::npos)
 	{
-		if (SCRIPT_NAME.length() == 0 && isCgiProgram(uri.substr(0, pos)))
+		if (isCgiProgram(uri.substr(0, pos)))
 		{
-			SCRIPT_NAME = uri.substr(0, pos);
+			env_.push_back("HTTP_SCRIPT_NAME=" + uri.substr(0, pos));
 			break;
 		}
 		uri.erase(0, pos + 1);
 		pos = uri.find('/');
 	}
-	uri.erase(0, pos + 1);
-	PATH_INFO = uri;
+	uri.erase(0, pos);
+	env_.push_back("HTTP_PATH_INFO=" + uri);
 }
 
 void
-Cgi::buildEnv(Request const& r, Listener const& s)
+Cgi::buildEnv(Request const& r, Listener const& s,
+			  std::string const& addr_client)
 {
-	std::string SCRIPT_NAME;
-	std::string REQUEST_METHOD;
-	std::string GATEWAY_INTERFACE;
-	std::string REMOTE_ADDR;
-	std::string SERVER_NAME;
-	std::string CONTENT_LENGTH;
-	std::string CONTENT_TYPE;
-	std::string PATH_INFO;
-
 	// REQUEST_METHOD
 	env_.push_back("HTTP_REQUEST_METHOD=" + r.getMethod().toString());
+
+	// SERVER_SOFTWARE
+	env_.push_back("HTTP_SERVER_SOFTWARE=");
+
+	// REMOTE_ADDR
+	env_.push_back("HTTP_REMOTE_ADDR=" + addr_client);
 
 	// GATEWAY_INTERFACE
 	env_.push_back("HTTP_GATEWAY_INTERFACE=CGI/1.1");
 
-	// REMOTE_ADDR = ;
-
 	// SERVER_NAME = C'est quoi le name du server
+	env_.push_back("HTTP_SERVER_NAME=" + s.getAddress());
 
 	// SERVER_PORT
 	env_.push_back("HTTP_SERVER_PORT=" + s.getPort());
@@ -75,7 +82,7 @@ Cgi::buildEnv(Request const& r, Listener const& s)
 	env_.push_back("HTTP_QUERRY_STRING=" + r.getUri().getQuery());
 
 	// CONTENT_LENGTH && CONTENT_TYPE
-	if (REQUEST_METHOD == "POST")
+	if (r.getMethod().toString() == "POST")
 	{
 		env_.push_back("CONTENT_LENGTH=" + r.getHeader().get("content-length"));
 		env_.push_back("CONTENT_TYPE=" + r.getHeader().get("content-type"));
@@ -86,12 +93,9 @@ Cgi::buildEnv(Request const& r, Listener const& s)
 	}
 
 	// SCRIPT_NAME && PATH_INFO
-	// parseUri(r);
+	parseUri(r);
+	displayEnv(env_);
 }
-
-void
-displayEnv(std::vector<std::string>)
-{}
 
 void
 Cgi::startProgram() const

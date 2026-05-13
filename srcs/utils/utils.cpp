@@ -3,6 +3,7 @@
 #include <cstring>
 #include <errno.h>
 #include <fstream>
+#include <iostream>
 #include <map>
 #include <sstream>
 #include <string>
@@ -32,6 +33,33 @@ stringIsDigit(std::string const& s)
 			return false;
 	}
 	return true;
+}
+
+std::string
+digitToString(int nb)
+{
+	std::stringstream ss;
+
+	ss << nb;
+
+	return ss.str();
+}
+
+std::string
+inet_ntop(char* adress)
+{
+	std::string tmp;
+
+	tmp += digitToString(static_cast<int>(adress[0]));
+	tmp += '.';
+	tmp += digitToString(static_cast<int>(adress[1]));
+	tmp += '.';
+	tmp += digitToString(static_cast<int>(adress[2]));
+	tmp += '.';
+	tmp += digitToString(static_cast<int>(adress[3]));
+
+	std::cout << "je fas des test" << tmp << std::endl;
+	return tmp;
 }
 
 bool

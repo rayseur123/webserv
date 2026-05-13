@@ -21,7 +21,7 @@ Connection::handleCGI(Request const& request, std::string& response_str)
 {
 	Cgi response;
 
-	response.buildEnv(request, server_);
+	response.buildEnv(request, server_, getClientAddr());
 
 	response_str = "final response from cgi \n";
 }
@@ -130,6 +130,7 @@ Connection::handleConnectionRequest()
 int
 Connection::handleEvent(EpollManager& manager, uint32_t events)
 {
+	// Really necessary here ? not sure -_-
 	(void) manager;
 	if ((events & (EPOLLERR | EPOLLRDHUP)) != 0)
 		return (1);
@@ -144,7 +145,14 @@ Connection::getServer() const
 	return (server_);
 }
 
-Connection::Connection(int fd, Listener& server) : ASocket(fd), server_(server)
+std::string const&
+Connection::getClientAddr() const
+{
+	return addr_client_;
+}
+
+Connection::Connection(int fd, Listener& server, std::string addr) :
+	ASocket(fd), server_(server), addr_client_(addr)
 {}
 
 Connection::~Connection()
