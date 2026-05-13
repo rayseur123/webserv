@@ -1,5 +1,4 @@
 #include "http/Cgi.hpp"
-#include <iostream>
 #include <unistd.h>
 
 // /usr/test/cgi.py/coucou/ca/va
@@ -18,30 +17,31 @@ namespace
 		return (pos != std::string::npos);
 	}
 
-	void
-	parseUri(std::string& SCRIPT_NAME, std::string& PATH_INFO, Request const& r)
+} // namespace
+
+void
+parseUri(std::string& SCRIPT_NAME, std::string& PATH_INFO, Request const& r)
+{
+	size_t		pos = 0;
+	std::string uri = r.getUri().getTarget();
+
+	if (*uri.begin() == '/')
+		uri.erase(0, 1);
+
+	pos = uri.find('/');
+	while (pos != std::string::npos)
 	{
-		size_t		pos = 0;
-		std::string uri = r.getUri().getTarget();
-
-		if (*uri.begin() == '/')
-			uri.erase(0, 1);
-
-		pos = uri.find('/');
-		while (pos != std::string::npos)
+		if (SCRIPT_NAME.length() == 0 && isCgiProgram(uri.substr(0, pos)))
 		{
-			if (SCRIPT_NAME.length() == 0 && isCgiProgram(uri.substr(0, pos)))
-			{
-				SCRIPT_NAME = uri.substr(0, pos);
-				break;
-			}
-			uri.erase(0, pos + 1);
-			pos = uri.find('/');
+			SCRIPT_NAME = uri.substr(0, pos);
+			break;
 		}
 		uri.erase(0, pos + 1);
-		PATH_INFO = uri;
+		pos = uri.find('/');
 	}
-} // namespace
+	uri.erase(0, pos + 1);
+	PATH_INFO = uri;
+}
 
 void
 Cgi::buildEnv(Request const& r, Listener const& s)
@@ -51,41 +51,34 @@ Cgi::buildEnv(Request const& r, Listener const& s)
 	std::string GATEWAY_INTERFACE;
 	std::string REMOTE_ADDR;
 	std::string SERVER_NAME;
-	std::string QUERY_STRING;
 	std::string CONTENT_LENGTH;
 	std::string CONTENT_TYPE;
 	std::string PATH_INFO;
 
 	// REQUEST_METHOD
-	std::string line = "HTTP_REQUEST_METHOD=" + r.getMethod().toString();
-	env_.push_back(line);
+	env_.push_back("HTTP_REQUEST_METHOD=" + r.getMethod().toString());
 
 	// GATEWAY_INTERFACE
-	line = "HTTP_GATEWAY_INTERFACE=CGI/1.1";
-	env_.push_back(line);
+	env_.push_back("HTTP_GATEWAY_INTERFACE=CGI/1.1");
 
 	// REMOTE_ADDR = ;
 
 	// SERVER_NAME = C'est quoi le name du server
 
 	// SERVER_PORT
-	line = "HTTP_SERVER_PORT=" + s.getPort();
-	env_.push_back(line);
+	env_.push_back("HTTP_SERVER_PORT=" + s.getPort());
 
 	// SERVER_PROTOCOL
-	line = "HTTP_SERVER_PROTOCOL=" + r.getVersion().toString();
-	env_.push_back(line);
+	env_.push_back("HTTP_SERVER_PROTOCOL=" + r.getVersion().toString());
 
 	// QUERY_STRING
-	line = "HTTP_QUERRY_=" + r.getUri().getQuery();
-	env_.push_back(line);
+	env_.push_back("HTTP_QUERRY_STRING=" + r.getUri().getQuery());
 
 	// CONTENT_LENGTH && CONTENT_TYPE
 	if (REQUEST_METHOD == "POST")
 	{
-		CONTENT_LENGTH = r.getHeader().get("content-length");
-
-		CONTENT_TYPE = r.getHeader().get("content-type");
+		env_.push_back("CONTENT_LENGTH=" + r.getHeader().get("content-length"));
+		env_.push_back("CONTENT_TYPE=" + r.getHeader().get("content-type"));
 		// if (CONTENT_TYPE.length() == 0)
 		//{
 		// CONTENT_TYPE = content-type par default genre application/oxctstream
@@ -93,7 +86,7 @@ Cgi::buildEnv(Request const& r, Listener const& s)
 	}
 
 	// SCRIPT_NAME && PATH_INFO
-	parseUri(SCRIPT_NAME, PATH_INFO, r);
+	// parseUri(r);
 }
 
 void

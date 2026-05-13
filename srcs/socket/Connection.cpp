@@ -29,6 +29,7 @@ Connection::handleCGI(Request const& request, std::string& response_str)
 void
 Connection::handleHTTP(Request const& request, std::string& response_str)
 {
+
 	if (request.getCode() != 0)
 		response_str = buildErrorResponse(request.getCode());
 	else

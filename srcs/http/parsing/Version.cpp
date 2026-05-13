@@ -21,7 +21,7 @@ Version::setSecNb(int nb)
 	sec_nb_ = nb;
 }
 
-std::string
+std::string const&
 Version::getProtocol() const
 {
 	return protocol_;
@@ -40,7 +40,8 @@ Version::getSecNb() const
 }
 
 Version::Version(Version const& to_copy) :
-	first_nb_(to_copy.first_nb_), sec_nb_(to_copy.sec_nb_)
+	protocol_(to_copy.protocol_), first_nb_(to_copy.first_nb_),
+	sec_nb_(to_copy.sec_nb_)
 {}
 
 Version::Version() : first_nb_(-1), sec_nb_(-1)
@@ -110,7 +111,7 @@ Version::operator=(Version const& to_copy)
 {
 	if (this == &to_copy)
 		return *this;
-	protocol_ = to_copy.	protocol_;
+	protocol_ = to_copy.protocol_;
 	first_nb_ = to_copy.first_nb_;
 	sec_nb_ = to_copy.sec_nb_;
 	return *this;
