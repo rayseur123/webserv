@@ -30,6 +30,8 @@ namespace
 	}
 } // namespace
 
+
+
 void
 Cgi::parseUri(Request const& r)
 {
@@ -40,18 +42,23 @@ Cgi::parseUri(Request const& r)
 		uri.erase(0, 1);
 
 	pos = uri.find('/');
+	if (pos == std::string::npos)
+	{
+		env_.push_back("SCRIPT_NAME=" + uri);
+		return;
+	}
 	while (pos != std::string::npos)
 	{
 		if (isCgiProgram(uri.substr(0, pos)))
 		{
-			env_.push_back("HTTP_SCRIPT_NAME=" + uri.substr(0, pos));
+			env_.push_back("SCRIPT_NAME=" + uri.substr(0, pos));
 			break;
 		}
 		uri.erase(0, pos + 1);
 		pos = uri.find('/');
 	}
 	uri.erase(0, pos);
-	env_.push_back("HTTP_PATH_INFO=" + uri);
+	env_.push_back("PATH_INFO=" + uri);
 }
 
 std::string prepareHeaderToEnv(std::string first, std::string const& second )
@@ -100,13 +107,13 @@ Cgi::buildEnv(Request const& r, Listener const& s,
 	env_.push_back("REQUEST_METHOD=" + r.getMethod().toString());
 
 	// SERVER_SOFTWARE
-	env_.push_back("SERVER_SOFTWARE=Webserv/1.");
+	env_.push_back("SERVER_SOFTWARE=Webserv/1.0");
 
 	// REMOTE_ADDR
 	env_.push_back("REMOTE_ADDR=" + addr_client);
 
 	// GATEWAY_INTERFACE
-	env_.push_back("ATEWAY_INTERFACE=CGI/1.1");
+	env_.push_back("GATEWAY_INTERFACE=CGI/1.1");
 
 	// SERVER_NAME
 	env_.push_back("SERVER_NAME=" + s.getAddress());
@@ -121,19 +128,19 @@ Cgi::buildEnv(Request const& r, Listener const& s,
 	env_.push_back("QUERY_STRING=" + r.getUri().getQuery());
 
 	// CONTENT_LENGTH && CONTENT_TYPE
-	if (r.getMethod().toString() == "POST")
-	{
-		env_.push_back("CONTENT_LENGTH=" + r.getHeader().get("content-length"));
+	env_.push_back("CONTENT_LENGTH=" + r.getHeader().get("content-length"));
+	if (r.getHeader().get("content-type").length () == 0)
+		env_.push_back("CONTENT_TYPE=application/octet-stream");
+	else
 		env_.push_back("CONTENT_TYPE=" + r.getHeader().get("content-type"));
-		// if (CONTENT_TYPE.length() == 0)
-		//{
-		// CONTENT_TYPE = content-type par default genre application/oxctstream
-		//}
-	}
 
 	// SCRIPT_NAME && PATH_INFO
 	parseUri(r);
+
+	//HEADER-META-VARIABLES
 	addingRequestHeaderEnv(r);
+
+	//Display of all that
 	displayEnv(env_);
 }
 
@@ -149,7 +156,7 @@ Cgi::Cgi(Cgi const& c)
 Cgi&
 Cgi::operator=(Cgi const& c)
 {
-	if (this == &c)
+	if (this != &c)
 		env_ = c.env_;
 	return *this;
 }
