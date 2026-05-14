@@ -1,6 +1,7 @@
 #include "http/Cgi.hpp"
 #include <unistd.h>
 #include "utils/utils.hpp"
+#include "sys/socket.h"
 
 // /usr/test/cgi.py/coucou/ca/va
 // /
@@ -146,7 +147,19 @@ Cgi::buildEnv(Request const& r, Listener const& s,
 
 void
 Cgi::startProgram() const
-{}
+{
+
+
+	// Parametre de ma fonction j'aurais besoin  connection (epoll manager) et parceque on a besoind e savoir
+	// a quelle client est associer le cgi
+	//Create socket_cgi = socket_cgi;
+
+	//ajouter le socket_cgi dans epoll manager 
+
+	// ensuite revenir dans la boucle 
+
+	// return;
+}
 
 Cgi::Cgi(Cgi const& c)
 {

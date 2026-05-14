@@ -11,6 +11,8 @@ class Cgi
 {
 private:
 	std::vector<std::string> env_;
+	pid_t child;
+	int socket_cgi;
 
 public:
 	void addingRequestHeaderEnv(Request const& r);
