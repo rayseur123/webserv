@@ -7,8 +7,15 @@
 #include "socket/ASocket.hpp"
 #include "socket/Connection.hpp"
 #include "socket/Listener.hpp"
+#include "socket/SocketCgi.hpp"
 #include "unistd.h"
 #include "utils/utils.hpp"
+
+void
+EpollManager::addConnection(std::pair<int, Connection*> const& newConnection)
+{
+	socket_map_.insert(newConnection);
+}
 
 void
 EpollManager::addConnection(std::pair<int, Connection*> const& newConnection)
