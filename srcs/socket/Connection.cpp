@@ -117,7 +117,13 @@ Connection::handleConnectionRequest()
 		handleHTTP(request, response_str);
 
 	// SEND THE RESPONSE
-	send(fd_, response_str.c_str(), response_str.size(), 0);
+	return (sendMsg(response_str));
+}
+
+int
+Connection::sendMsg(std::string const& msg)
+{
+	send(fd_, msg.c_str(), msg.size(), 0);
 
 	if (Signal::signal == 1)
 		throw(SIGINT);
