@@ -32,11 +32,14 @@ namespace
 	}
 } // namespace
 
+// test/test./test.py
+
 void
 Cgi::parseUri(Request const& r)
 {
 	size_t		pos = 0;
 	std::string uri = r.getUri().getTarget();
+	std::string buff;
 
 	if (*uri.begin() == '/')
 		uri.erase(0, 1);
@@ -44,21 +47,33 @@ Cgi::parseUri(Request const& r)
 	pos = uri.find('/');
 	if (pos == std::string::npos)
 	{
-		env_.push_back("SCRIPT_NAME=" + uri);
+		env_.push_back("SCRIPT_NAME=/" + uri);
+		env_.push_back("PATH_INFO=");
 		return;
 	}
 	while (pos != std::string::npos)
 	{
 		if (isCgiProgram(uri.substr(0, pos)))
 		{
-			env_.push_back("SCRIPT_NAME=" + uri.substr(0, pos));
+			buff += uri.substr(0, pos);
+			uri.erase(0, pos);
 			break;
 		}
+		buff += uri.substr(0, pos + 1);
 		uri.erase(0, pos + 1);
 		pos = uri.find('/');
 	}
-	uri.erase(0, pos);
-	env_.push_back("PATH_INFO=" + uri);
+
+	if (pos == std::string::npos)
+	{
+		env_.push_back("SCRIPT_NAME=/" + (buff + uri));
+		env_.push_back("PATH_INFO=");
+	}
+	else
+	{
+		env_.push_back("SCRIPT_NAME=/" + buff);
+		env_.push_back("PATH_INFO=" + uri);
+	}
 }
 
 std::string
