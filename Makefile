@@ -38,9 +38,9 @@ SRCS_CONTENT :=	$(SRCS_DIR)main.cpp \
 				$(PARS_DIR)Location.cpp \
 				$(SOCKET_DIR)ASocket.cpp \
 				$(SOCKET_DIR)Connection.cpp \
+				$(SOCKET_DIR)SocketCgi.cpp \
 				$(SOCKET_DIR)Listener.cpp \
 				$(UTILS_DIR)utils.cpp \
-				$(UTILS_DIR)SocketCgi.cpp \
 
 # ---------------------------------------------------------#
 #                       BUILD SOURCE                       #

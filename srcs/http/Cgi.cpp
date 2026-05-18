@@ -1,7 +1,8 @@
 #include "http/Cgi.hpp"
 #include <unistd.h>
-#include "utils/utils.hpp"
+#include "socket/SocketCgi.hpp"
 #include "sys/socket.h"
+#include "utils/utils.hpp"
 
 // /usr/test/cgi.py/coucou/ca/va
 // /
@@ -30,8 +31,6 @@ namespace
 		}
 	}
 } // namespace
-
-
 
 void
 Cgi::parseUri(Request const& r)
@@ -62,10 +61,11 @@ Cgi::parseUri(Request const& r)
 	env_.push_back("PATH_INFO=" + uri);
 }
 
-std::string prepareHeaderToEnv(std::string first, std::string const& second )
+std::string
+prepareHeaderToEnv(std::string first, std::string const& second)
 {
-	
-	std::string final;
+
+	std::string			  final;
 	std::string::iterator it;
 
 	toUpperString(first);
@@ -76,18 +76,20 @@ std::string prepareHeaderToEnv(std::string first, std::string const& second )
 			*it = '_';
 	}
 
-	final =  "HTTP_" + first + '=' + second;
+	final = "HTTP_" + first + '=' + second;
 	return final;
-} 
+}
 
-bool headerIsAllowedInEnv(std::string const& name)
+bool
+headerIsAllowedInEnv(std::string const& name)
 {
-	if (name == "content-length" || name == "content-type" || name == "authorization")
+	if (name == "content-length" || name == "content-type" ||
+		name == "authorization")
 		return false;
 	return true;
 }
 
-void 
+void
 Cgi::addingRequestHeaderEnv(Request const& r)
 {
 	std::map<std::string, std::string>::const_iterator it;
@@ -98,7 +100,7 @@ Cgi::addingRequestHeaderEnv(Request const& r)
 		if (headerIsAllowedInEnv(it->first))
 			env_.push_back(prepareHeaderToEnv(it->first, it->second));
 	}
-} 
+}
 
 void
 Cgi::buildEnv(Request const& r, Listener const& s,
@@ -130,7 +132,7 @@ Cgi::buildEnv(Request const& r, Listener const& s,
 
 	// CONTENT_LENGTH && CONTENT_TYPE
 	env_.push_back("CONTENT_LENGTH=" + r.getHeader().get("content-length"));
-	if (r.getHeader().get("content-type").length () == 0)
+	if (r.getHeader().get("content-type").length() == 0)
 		env_.push_back("CONTENT_TYPE=application/octet-stream");
 	else
 		env_.push_back("CONTENT_TYPE=" + r.getHeader().get("content-type"));
@@ -138,16 +140,16 @@ Cgi::buildEnv(Request const& r, Listener const& s,
 	// SCRIPT_NAME && PATH_INFO
 	parseUri(r);
 
-	//HEADER-META-VARIABLES
+	// HEADER-META-VARIABLES
 	addingRequestHeaderEnv(r);
 
-	//Display of all that
+	// Display of all that
 	displayEnv(env_);
 }
 
-
 // We will have bug if this file of place so be carefull
-std::string createPath(std::string const& target)
+std::string
+createPath(std::string const& target)
 {
 	std::string path;
 
@@ -159,16 +161,17 @@ void
 Cgi::startProgram(Request const& r) const
 {
 
-	int *fds;
-	pid_t status;
+	int*  fds = { 0 };
+	pid_t status = 0;
 
 	socketpair(AF_UNIX, SOCK_STREAM, 0, fds);
+	// SocketCgi cgi_socket;
 
-	//fds[0] part dans epoll
-	//fds[1] part dans le execve
+	// fds[0] part dans epoll
+	// fds[1] part dans le execve
 
 	status = fork();
-	
+
 	switch (status)
 	{
 		case -1:
@@ -177,29 +180,28 @@ Cgi::startProgram(Request const& r) const
 			dup2(fds[1], 1);
 			dup2(fds[0], 0);
 
-			write(fds[1], r.getBody().getContent().c_str(), r.getBody().getLength());
+			write(fds[1], r.getBody().getContent().c_str(),
+				  r.getBody().getLength());
 
-			execve(createPath(r.getUri().getTarget(),);
+			// execve(createPath(r.getUri().getTarget(),);
 		case 1:
-			//Ajouter le fds[0] a epoll et ensuite retrouver la boucle epoll
+			std::cout << "parent" << std::endl;
+			// Ajouter le fds[0] a epoll et ensuite retrouver la boucle epoll
 	}
 
+	// Parametre de ma fonction j'aurais besoin  connection (epoll manager) et
+	// parceque on a besoind e savoir a quelle client est associer le cgi
+	// Create socket_cgi = socket_cgi;
 
-	// Parametre de ma fonction j'aurais besoin  connection (epoll manager) et parceque on a besoind e savoir
-	// a quelle client est associer le cgi
-	//Create socket_cgi = socket_cgi;
+	// ajouter le socket_cgi dans epoll manager
 
-	//ajouter le socket_cgi dans epoll manager 
-
-	// ensuite revenir dans la boucle 
+	// ensuite revenir dans la boucle
 
 	// return;
 }
 
-Cgi::Cgi(Cgi const& c)
-{
-	env_ = c.env_;
-}
+Cgi::Cgi(Cgi const& c) : env_(c.env_)
+{}
 
 Cgi&
 Cgi::operator=(Cgi const& c)
