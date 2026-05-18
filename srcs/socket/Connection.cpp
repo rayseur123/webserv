@@ -100,23 +100,19 @@ Connection::handleConnectionRequest()
 
 	Request request = parsing_request_.getRequest();
 
-	std::cout << request << std::endl;
-
-	// Check the body length directly inside the parsing request not here
 	if (!bodyLengthValid())
 		request.setCode(HTTP_PAYLOAD_TOO_LARGE);
 	else
 		request.setCode(parsing_request_.getCode());
 
-	// HandleResponse
 	std::string response_str;
 
 	if (isCGI(request.getUri().getTarget()))
+	{
 		handleCGI(request, response_str);
-	else
-		handleHTTP(request, response_str);
-
-	// SEND THE RESPONSE
+		return (0);
+	}
+	handleHTTP(request, response_str);
 	return (sendMsg(response_str));
 }
 

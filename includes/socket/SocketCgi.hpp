@@ -5,6 +5,7 @@
 #include "socket/Connection.hpp"
 
 #include <csignal>
+#include <sched.h>
 #include <stdint.h>
 #include <string>
 
@@ -24,8 +25,9 @@ private:
 	SocketCgi& operator=(SocketCgi const& to_copy);
 
 public:
-	explicit SocketCgi(Connection const& connection);
+	SocketCgi(Connection const& connection, int fd, pid_t pid);
 	virtual int handleEvent(EpollManager& manager, uint32_t events);
+	~SocketCgi();
 };
 
 std::ostream& operator<<(std::ostream& os, SocketCgi const& socketCgi);
