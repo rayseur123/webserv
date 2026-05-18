@@ -13,8 +13,11 @@ SocketCgi::SocketCgi(Connection& connection, int fd, pid_t pid) :
 {}
 
 std::string
-parsingResponseCgi(std::string const& response)
-{}
+SocketCgi::parsingResponseCgi(std::string const& response)
+{
+	std::string status_line("HTTP/1.0 200 OK\r\n");
+	return (status_line + response);
+}
 
 int
 SocketCgi::handleEventCgi()

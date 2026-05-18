@@ -45,7 +45,8 @@ Listener::acceptNewConnection(EpollManager& manager)
 		char*		 b = reinterpret_cast<char*>(&addr_int);
 		std::string	 addr_string = inet_ntop(b);
 
-		Connection* connection = new Connection(connection_fd, *this, addr_string);
+		Connection* connection =
+			new Connection(connection_fd, *this, addr_string, manager);
 		manager.addConnection(std::make_pair(connection_fd, connection));
 	}
 }

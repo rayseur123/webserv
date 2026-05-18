@@ -3,6 +3,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "epoll/EpollManager.hpp"
 #include "epoll/signal.hpp"
 #include "http/Cgi.hpp"
 #include "http/httpStatus.hpp"
@@ -154,8 +155,9 @@ Connection::getClientAddr() const
 	return addr_client_;
 }
 
-Connection::Connection(int fd, Listener& server, std::string addr) :
-	ASocket(fd), server_(server), addr_client_(addr)
+Connection::Connection(int fd, Listener& server, std::string addr,
+					   EpollManager& manager) :
+	ASocket(fd), server_(server), manager_(manager), addr_client_(addr)
 {}
 
 Connection::~Connection()

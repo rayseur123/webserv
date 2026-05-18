@@ -25,10 +25,11 @@ private:
 	SocketCgi& operator=(SocketCgi const& to_copy);
 
 public:
-	SocketCgi(Connection const& connection, int fd, pid_t pid);
-	virtual int handleEvent(EpollManager& manager, uint32_t events);
 	std::string parsingResponseCgi(std::string const& response);
+	virtual int handleEvent(EpollManager& manager, uint32_t events);
 	int			handleEventCgi();
+
+	SocketCgi(Connection& connection, int fd, pid_t pid);
 	~SocketCgi();
 };
 

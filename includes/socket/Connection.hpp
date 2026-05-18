@@ -1,6 +1,7 @@
 #ifndef CONNECTION_HPP
 #define CONNECTION_HPP
 
+#include "epoll/EpollManager.hpp"
 #include "http/parsing/ParsingRequest.hpp"
 #include "socket/ASocket.hpp"
 
@@ -13,6 +14,7 @@ class Connection : public ASocket
 {
 private:
 	Listener const& server_;
+	EpollManager&	manager_;
 	ParsingRequest	parsing_request_;
 	std::string		addr_client_;
 	Connection(Connection const& to_copy);
@@ -32,7 +34,8 @@ public:
 	Listener const&	   getServer() const;
 	std::string const& getClientAddr() const;
 
-	Connection(int fd, Listener& server, std::string addr);
+	Connection(int fd, Listener& server, std::string addr,
+			   EpollManager& manager);
 	~Connection();
 };
 
