@@ -54,6 +54,7 @@ EpollManager::eventLoop()
 		for (int i = 0; i < nb_events; ++i)
 		{
 			int fd = events_[i].data.fd;
+			//! Socket cgi -> handle event (compartement different pour les cgi)
 			if (socket_map_[fd]->handleEvent(*this, events_[i].events) == 1)
 			{
 				std::map<int, ASocket*>::iterator it = socket_map_.find(fd);
@@ -65,6 +66,25 @@ EpollManager::eventLoop()
 		}
 	}
 }
+
+//class socket_cgi :: public Asocket
+{
+	private:
+	connection *connexion_;
+	std::string response;
+	pid_t child_status;
+
+}
+
+////! Socket_cgi.handle_event()
+//{
+
+//	stock chunked par chunk la reponse 
+//	quand la reponse est finis (read == 0)
+//	on ferme l'enfant() 
+//	rajoute un timeout cas d'une boucle infinie
+//	call Connection->sendReponse(response) pour renvoyer la reponse au client 
+//} 
 
 int
 EpollManager::getEpollFd() const

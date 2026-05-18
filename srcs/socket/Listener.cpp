@@ -39,7 +39,13 @@ Listener::acceptNewConnection(EpollManager& manager)
 		if (epoll_ctl(manager.getEpollFd(), EPOLL_CTL_ADD, connection_fd,
 					  &ev) == -1)
 			throw std::logic_error(messageError("acceptNewClient>epoll_ctl"));
-		Connection* connection = new Connection(connection_fd, *this);
+
+		// Convert the unsigned int adress to string adress
+		unsigned int addr_int = connection_addr.sin_addr.s_addr;
+		char*		 b = reinterpret_cast<char*>(&addr_int);
+		std::string	 addr_string = inet_ntop(b);
+
+		Connection* connection = new Connection(connection_fd, *this, addr_string);
 		manager.addConnection(std::make_pair(connection_fd, connection));
 	}
 }

@@ -1,5 +1,7 @@
 #include "http/Cgi.hpp"
 #include <unistd.h>
+#include "utils/utils.hpp"
+#include "sys/socket.h"
 
 // /usr/test/cgi.py/coucou/ca/va
 // /
@@ -17,10 +19,22 @@ namespace
 		return (pos != std::string::npos);
 	}
 
+	void
+	displayEnv(std::vector<std::string> list)
+	{
+		std::vector<std::string>::iterator it;
+
+		for (it = list.begin(); it != list.end(); it++)
+		{
+			std::cout << *it << std::endl;
+		}
+	}
 } // namespace
 
+
+
 void
-parseUri(std::string& SCRIPT_NAME, std::string& PATH_INFO, Request const& r)
+Cgi::parseUri(Request const& r)
 {
 	size_t		pos = 0;
 	std::string uri = r.getUri().getTarget();
@@ -29,73 +43,158 @@ parseUri(std::string& SCRIPT_NAME, std::string& PATH_INFO, Request const& r)
 		uri.erase(0, 1);
 
 	pos = uri.find('/');
+	if (pos == std::string::npos)
+	{
+		env_.push_back("SCRIPT_NAME=" + uri);
+		return;
+	}
 	while (pos != std::string::npos)
 	{
-		if (SCRIPT_NAME.length() == 0 && isCgiProgram(uri.substr(0, pos)))
+		if (isCgiProgram(uri.substr(0, pos)))
 		{
-			SCRIPT_NAME = uri.substr(0, pos);
+			env_.push_back("SCRIPT_NAME=" + uri.substr(0, pos));
 			break;
 		}
 		uri.erase(0, pos + 1);
 		pos = uri.find('/');
 	}
-	uri.erase(0, pos + 1);
-	PATH_INFO = uri;
+	uri.erase(0, pos);
+	env_.push_back("PATH_INFO=" + uri);
 }
 
-void
-Cgi::buildEnv(Request const& r, Listener const& s)
+std::string prepareHeaderToEnv(std::string first, std::string const& second )
 {
-	std::string SCRIPT_NAME;
-	std::string REQUEST_METHOD;
-	std::string GATEWAY_INTERFACE;
-	std::string REMOTE_ADDR;
-	std::string SERVER_NAME;
-	std::string CONTENT_LENGTH;
-	std::string CONTENT_TYPE;
-	std::string PATH_INFO;
+	
+	std::string final;
+	std::string::iterator it;
 
-	// REQUEST_METHOD
-	env_.push_back("HTTP_REQUEST_METHOD=" + r.getMethod().toString());
+	toUpperString(first);
 
-	// GATEWAY_INTERFACE
-	env_.push_back("HTTP_GATEWAY_INTERFACE=CGI/1.1");
-
-	// REMOTE_ADDR = ;
-
-	// SERVER_NAME = C'est quoi le name du server
-
-	// SERVER_PORT
-	env_.push_back("HTTP_SERVER_PORT=" + s.getPort());
-
-	// SERVER_PROTOCOL
-	env_.push_back("HTTP_SERVER_PROTOCOL=" + r.getVersion().toString());
-
-	// QUERY_STRING
-	env_.push_back("HTTP_QUERRY_STRING=" + r.getUri().getQuery());
-
-	// CONTENT_LENGTH && CONTENT_TYPE
-	if (REQUEST_METHOD == "POST")
+	for (it = first.begin(); it != first.end(); it++)
 	{
-		env_.push_back("CONTENT_LENGTH=" + r.getHeader().get("content-length"));
-		env_.push_back("CONTENT_TYPE=" + r.getHeader().get("content-type"));
-		// if (CONTENT_TYPE.length() == 0)
-		//{
-		// CONTENT_TYPE = content-type par default genre application/oxctstream
-		//}
+		if (*it == '-')
+			*it = '_';
 	}
 
+	final =  "HTTP_" + first + '=' + second;
+	return final;
+} 
+
+bool headerIsAllowedInEnv(std::string const& name)
+{
+	if (name == "content-length" || name == "content-type" || name == "authorization")
+		return false;
+	return true;
+}
+
+void 
+Cgi::addingRequestHeaderEnv(Request const& r)
+{
+	std::map<std::string, std::string>::const_iterator it;
+	std::map<std::string, std::string> shortcut = r.getHeader().getHeaders();
+
+	for (it = shortcut.begin(); it != shortcut.end(); it++)
+	{
+		if (headerIsAllowedInEnv(it->first))
+			env_.push_back(prepareHeaderToEnv(it->first, it->second));
+	}
+} 
+
+void
+Cgi::buildEnv(Request const& r, Listener const& s,
+			  std::string const& addr_client)
+{
+	// REQUEST_METHOD
+	env_.push_back("REQUEST_METHOD=" + r.getMethod().toString());
+
+	// SERVER_SOFTWARE
+	env_.push_back("SERVER_SOFTWARE=Webserv/1.0");
+
+	// REMOTE_ADDR
+	env_.push_back("REMOTE_ADDR=" + addr_client);
+
+	// GATEWAY_INTERFACE
+	env_.push_back("GATEWAY_INTERFACE=CGI/1.1");
+
+	// SERVER_NAME
+	env_.push_back("SERVER_NAME=" + s.getAddress());
+
+	// SERVER_PORT
+	env_.push_back("SERVER_PORT=" + s.getPort());
+
+	// SERVER_PROTOCOL
+	env_.push_back("SERVER_PROTOCOL=" + r.getVersion().toString());
+
+	// QUERY_STRING
+	env_.push_back("QUERY_STRING=" + r.getUri().getQuery());
+
+	// CONTENT_LENGTH && CONTENT_TYPE
+	env_.push_back("CONTENT_LENGTH=" + r.getHeader().get("content-length"));
+	if (r.getHeader().get("content-type").length () == 0)
+		env_.push_back("CONTENT_TYPE=application/octet-stream");
+	else
+		env_.push_back("CONTENT_TYPE=" + r.getHeader().get("content-type"));
+
 	// SCRIPT_NAME && PATH_INFO
-	// parseUri(r);
+	parseUri(r);
+
+	//HEADER-META-VARIABLES
+	addingRequestHeaderEnv(r);
+
+	//Display of all that
+	displayEnv(env_);
+}
+
+
+// We will have bug if this file of place so be carefull
+std::string createPath(std::string const& target)
+{
+	std::string path;
+
+	path += "../../" + target;
+	return path;
 }
 
 void
-displayEnv(std::vector<std::string>)
-{}
+Cgi::startProgram(Request const& r) const
+{
 
-void
-Cgi::startProgram() const
-{}
+	int *fds;
+	pid_t status;
+
+	socketpair(AF_UNIX, SOCK_STREAM, 0, fds);
+
+	//fds[0] part dans epoll
+	//fds[1] part dans le execve
+
+	status = fork();
+	
+	switch (status)
+	{
+		case -1:
+			throw("une erreur");
+		case 0:
+			dup2(fds[1], 1);
+			dup2(fds[0], 0);
+
+			write(fds[1], r.getBody().getContent().c_str(), r.getBody().getLength());
+
+			execve(createPath(r.getUri().getTarget(),);
+		case 1:
+			//Ajouter le fds[0] a epoll et ensuite retrouver la boucle epoll
+	}
+
+
+	// Parametre de ma fonction j'aurais besoin  connection (epoll manager) et parceque on a besoind e savoir
+	// a quelle client est associer le cgi
+	//Create socket_cgi = socket_cgi;
+
+	//ajouter le socket_cgi dans epoll manager 
+
+	// ensuite revenir dans la boucle 
+
+	// return;
+}
 
 Cgi::Cgi(Cgi const& c)
 {
@@ -105,7 +204,7 @@ Cgi::Cgi(Cgi const& c)
 Cgi&
 Cgi::operator=(Cgi const& c)
 {
-	if (this == &c)
+	if (this != &c)
 		env_ = c.env_;
 	return *this;
 }

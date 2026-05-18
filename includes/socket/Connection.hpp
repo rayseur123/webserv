@@ -14,6 +14,7 @@ class Connection : public ASocket
 private:
 	Listener const& server_;
 	ParsingRequest	parsing_request_;
+	std::string		addr_client_;
 	Connection(Connection const& to_copy);
 	Connection& operator=(Connection const& to_copy);
 
@@ -27,10 +28,11 @@ public:
 	void handleCGI(Request const& request, std::string& response_str);
 	void handleHTTP(Request const& request, std::string& response_str);
 
-	virtual int		handleEvent(EpollManager& manager, uint32_t events);
-	Listener const& getServer() const;
+	virtual int		   handleEvent(EpollManager& manager, uint32_t events);
+	Listener const&	   getServer() const;
+	std::string const& getClientAddr() const;
 
-	Connection(int fd, Listener& server);
+	Connection(int fd, Listener& server, std::string addr);
 	~Connection();
 };
 
