@@ -18,7 +18,7 @@ public:
 	void addingRequestHeaderEnv(Request const& r);
 	void buildEnv(Request const& r, Listener const& s,
 				  std::string const& addr_client);
-	void startProgram() const;
+	void startProgram(Request const& r) const;
 	void parseUri(Request const& r);
 
 	Cgi& operator=(Cgi const& c);

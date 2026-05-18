@@ -76,15 +76,15 @@ EpollManager::eventLoop()
 
 }
 
-//! Socket_cgi.handle_event()
-{
+////! Socket_cgi.handle_event()
+//{
 
-	stock chunked par chunk la reponse 
-	quand la reponse est finis (read == 0)
-	on ferme l'enfant() 
-	rajoute un timeout cas d'une boucle infinie
-	call Connection->sendReponse(response) pour renvoyer la reponse au client 
-} 
+//	stock chunked par chunk la reponse 
+//	quand la reponse est finis (read == 0)
+//	on ferme l'enfant() 
+//	rajoute un timeout cas d'une boucle infinie
+//	call Connection->sendReponse(response) pour renvoyer la reponse au client 
+//} 
 
 int
 EpollManager::getEpollFd() const

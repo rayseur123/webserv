@@ -145,9 +145,44 @@ Cgi::buildEnv(Request const& r, Listener const& s,
 	displayEnv(env_);
 }
 
-void
-Cgi::startProgram() const
+
+// We will have bug if this file of place so be carefull
+std::string createPath(std::string const& target)
 {
+	std::string path;
+
+	path += "../../" + target;
+	return path;
+}
+
+void
+Cgi::startProgram(Request const& r) const
+{
+
+	int *fds;
+	pid_t status;
+
+	socketpair(AF_UNIX, SOCK_STREAM, 0, fds);
+
+	//fds[0] part dans epoll
+	//fds[1] part dans le execve
+
+	status = fork();
+	
+	switch (status)
+	{
+		case -1:
+			throw("une erreur");
+		case 0:
+			dup2(fds[1], 1);
+			dup2(fds[0], 0);
+
+			write(fds[1], r.getBody().getContent().c_str(), r.getBody().getLength());
+
+			execve(createPath(r.getUri().getTarget(),);
+		case 1:
+			//Ajouter le fds[0] a epoll et ensuite retrouver la boucle epoll
+	}
 
 
 	// Parametre de ma fonction j'aurais besoin  connection (epoll manager) et parceque on a besoind e savoir

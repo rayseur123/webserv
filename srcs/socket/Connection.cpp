@@ -22,7 +22,7 @@ Connection::handleCGI(Request const& request, std::string& response_str)
 	Cgi response;
 
 	response.buildEnv(request, server_, getClientAddr());
-	
+	response.startProgram(request);	
 
 	response_str = "final response from cgi \n";
 }
