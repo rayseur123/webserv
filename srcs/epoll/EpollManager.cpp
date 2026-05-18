@@ -7,6 +7,7 @@
 #include "socket/ASocket.hpp"
 #include "socket/Connection.hpp"
 #include "socket/Listener.hpp"
+#include "socket/SocketCgi.hpp"
 #include "unistd.h"
 #include "utils/utils.hpp"
 
@@ -14,6 +15,12 @@ void
 EpollManager::addConnection(std::pair<int, Connection*> const& newConnection)
 {
 	socket_map_.insert(newConnection);
+}
+
+void
+EpollManager::addCgi(std::pair<int, SocketCgi*> const& new_cgi)
+{
+	socket_map_.insert(new_cgi);
 }
 
 void
