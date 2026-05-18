@@ -22,7 +22,7 @@ Connection::handleCGI(Request const& request, std::string& response_str)
 	Cgi response;
 
 	response.buildEnv(request, server_, getClientAddr());
-	response.startProgram(request);	
+	response.startProgram(request);
 
 	response_str = "final response from cgi \n";
 }
@@ -101,30 +101,19 @@ Connection::handleConnectionRequest()
 
 	Request request = parsing_request_.getRequest();
 
-	std::cout << request << std::endl;
-
-	// Check the body length directly inside the parsing request not here
 	if (!bodyLengthValid())
 		request.setCode(HTTP_PAYLOAD_TOO_LARGE);
 	else
 		request.setCode(parsing_request_.getCode());
-		
-		// HandleResponse
-		std::string response_str;
-		
+
+	std::string response_str;
+
 	if (isCGI(request.getUri().getTarget()))
 	{
-
 		handleCGI(request, response_str);
-		//! return 0 (Ne pas fermer la connextion)
+		return (0);
 	}
-	else
-	{
-		handleHTTP(request, response_str);
-		//! send message 
-	}
-
-	// SEND THE RESPONSE
+	handleHTTP(request, response_str);
 	return (sendMsg(response_str));
 }
 

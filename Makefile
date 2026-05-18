@@ -40,6 +40,7 @@ SRCS_CONTENT :=	$(SRCS_DIR)main.cpp \
 				$(SOCKET_DIR)Connection.cpp \
 				$(SOCKET_DIR)Listener.cpp \
 				$(UTILS_DIR)utils.cpp \
+				$(UTILS_DIR)SocketCgi.cpp \
 
 # ---------------------------------------------------------#
 #                       BUILD SOURCE                       #
