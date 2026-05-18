@@ -23,7 +23,7 @@ Connection::handleCGI(Request const& request, std::string& response_str)
 	Cgi response;
 
 	response.buildEnv(request, server_, getClientAddr());
-	response.startProgram(request);
+	response.startProgram(request, *this);
 
 	response_str = "final response from cgi \n";
 }
@@ -141,6 +141,12 @@ Connection::handleEvent(EpollManager& manager, uint32_t events)
 	if ((events & (EPOLLIN | EPOLLPRI)) != 0)
 		return (handleConnectionRequest());
 	return (0);
+}
+
+EpollManager&
+Connection::getManager() const
+{
+	return manager_;
 }
 
 Listener const&

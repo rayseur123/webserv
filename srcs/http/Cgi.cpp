@@ -1,5 +1,6 @@
 #include "http/Cgi.hpp"
 #include <unistd.h>
+#include "socket/Connection.hpp"
 #include "socket/SocketCgi.hpp"
 #include "sys/socket.h"
 #include "utils/utils.hpp"
@@ -186,14 +187,13 @@ convertToExecve(std::vector<std::string> vec)
 }
 
 void
-Cgi::startProgram(Request const& r) const
+Cgi::startProgram(Request const& r, Connection& c) const
 {
 
-	int*  fds = { 0 };
+	int	  fds[2] = { 0 };
 	pid_t status = 0;
 
 	socketpair(AF_UNIX, SOCK_STREAM, 0, fds);
-	// SocketCgi cgi_socket;
 
 	// fds[0] part dans epoll
 	// fds[1] part dans le execve
@@ -222,6 +222,19 @@ Cgi::startProgram(Request const& r) const
 
 	if (status == 1)
 	{
+		//  Truc bizzare on mets le fd dans le sockets cgi et dans le pair donc
+		//  en double
+
+		std::pair<int, SocketCgi*> buff;
+
+		buff.first = fds[0];
+		SocketCgi cgi_socket(c, fds[0], status);
+		buff.second = &cgi_socket;
+
+		c.getManager().addCgi(buff);
+
+		// Return to epoll boucle
+
 		std::cout << "parent" << std::endl;
 	}
 	// Ajouter le fds[0] a epoll et ensuite retrouver la boucle epoll
