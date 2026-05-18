@@ -11,6 +11,7 @@ class Cgi
 {
 private:
 	std::vector<std::string> env_;
+	std::string				 path_;
 
 public:
 	void addingRequestHeaderEnv(Request const& r);
@@ -18,6 +19,7 @@ public:
 				  std::string const& addr_client);
 	void startProgram(Request const& r) const;
 	void parseUri(Request const& r);
+	void createPath(std::string const& target);
 
 	Cgi& operator=(Cgi const& c);
 
