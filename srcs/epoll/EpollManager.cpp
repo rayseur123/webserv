@@ -18,9 +18,9 @@ EpollManager::addConnection(std::pair<int, Connection*> const& newConnection)
 }
 
 void
-EpollManager::addConnection(std::pair<int, Connection*> const& newConnection)
+EpollManager::addCgi(std::pair<int, SocketCgi*> const& new_cgi)
 {
-	socket_map_.insert(newConnection);
+	socket_map_.insert(new_cgi);
 }
 
 void
