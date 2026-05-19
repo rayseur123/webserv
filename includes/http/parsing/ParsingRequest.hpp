@@ -25,6 +25,7 @@ class ParsingRequest
 {
 
 private:
+	size_t		max_body_length_;
 	std::string buffer_;
 	Request		request_;
 	int			step_;
@@ -44,13 +45,14 @@ private:
 
 public:
 	void fillBuffer(std::string& tmp);
-	void resetParsingAndRequest();
 
 	Request& getRequest();
 	int		 getStep() const;
 	int		 getCode() const;
+	size_t	 getMaxBodyLength() const;
 
 	void setCode(int nb);
+	void setMaxBodyLength(size_t nb);
 
 	ParsingRequest& operator=(ParsingRequest const& to_copy);
 

@@ -162,6 +162,10 @@ ParsingRequest::handleBodyChunk()
 	try
 	{
 		step_ += request_.addingBodyChunked(buffer_);
+
+		if (request_.getBody().getContent().length() > max_body_length_)
+			throw(Code(HTTP_PAYLOAD_TOO_LARGE));
+
 		if (step_ == FINISH)
 		{
 			step_ = HEADER;
@@ -180,18 +184,17 @@ ParsingRequest::handleBodyChunk()
 void
 ParsingRequest::handleBodyLine()
 {
+
+	if (request_.getHeader().getContentLength() > max_body_length_)
+	{
+		code_ = HTTP_PAYLOAD_TOO_LARGE;
+		step_ = FINISH;
+		return;
+	}
+
 	step_ += request_.addingBodyLength(buffer_);
 }
 
-// Others
-void
-ParsingRequest::resetParsingAndRequest()
-{
-	step_ = 0;
-	body_type = 0;
-	code_ = 0;
-	request_.resetRequest();
-}
 
 int
 ParsingRequest::getStep() const
@@ -211,10 +214,22 @@ ParsingRequest::getCode() const
 	return code_;
 }
 
+size_t
+ParsingRequest::getMaxBodyLength() const
+{
+	return max_body_length_;
+}
+
 void
 ParsingRequest::setCode(int nb)
 {
 	code_ = nb;
+}
+
+void
+ParsingRequest::setMaxBodyLength(size_t nb)
+{
+	max_body_length_ = nb;
 }
 
 ParsingRequest&

@@ -32,6 +32,9 @@ void
 Connection::handleHTTP(Request const& request, std::string& response_str)
 {
 
+	std::cout << request << std::endl;
+	std::cout << "code: " << request.getCode() << std::endl;
+
 	if (request.getCode() != 0)
 		response_str = buildErrorResponse(request.getCode(), server_,
 										  request.getVersion().toString());
@@ -59,13 +62,6 @@ Connection::handleHTTP(Request const& request, std::string& response_str)
 		if (Signal::signal == 1)
 			throw(SIGINT);
 	}
-}
-
-bool
-Connection::bodyLengthValid()
-{
-	return (parsing_request_.getRequest().getBody().getLength() <=
-			server_.getMaxClientRequestBody());
 }
 
 // Change in the future directly check by the folder and the extension
@@ -101,11 +97,7 @@ Connection::handleConnectionRequest()
 		return 0;
 
 	Request request = parsing_request_.getRequest();
-
-	if (!bodyLengthValid())
-		request.setCode(HTTP_PAYLOAD_TOO_LARGE);
-	else
-		request.setCode(parsing_request_.getCode());
+	request.setCode(parsing_request_.getCode());
 
 	std::string response_str;
 
@@ -114,6 +106,7 @@ Connection::handleConnectionRequest()
 		handleCGI(request, response_str);
 		return (0);
 	}
+	std::cout << request << std::endl;
 	handleHTTP(request, response_str);
 	return (sendMsg(response_str));
 }
@@ -126,15 +119,15 @@ Connection::sendMsg(std::string const& msg)
 	if (Signal::signal == 1)
 		throw(SIGINT);
 
-	// Reset all the parsing info class but not sure is necessary right now
-	parsing_request_.resetParsingAndRequest();
 	return (1);
 }
 
 int
 Connection::handleEvent(EpollManager& manager, uint32_t events)
 {
-	// Really necessary here ? not sure -_-
+	// Adding the size_body_max inside the parsing_request;
+	parsing_request_.setMaxBodyLength(server_.getMaxClientRequestBody());
+
 	(void) manager;
 	if ((events & (EPOLLERR | EPOLLRDHUP)) != 0)
 		return (1);

@@ -41,7 +41,7 @@ public:
 	Uri const&	   getUri() const;
 	Version const& getVersion() const;
 	Body const&	   getBody() const;
-	Headers		   getHeader() const ;
+	Headers		   getHeader() const;
 
 	Request();
 	Request(Request const& to_copy);
@@ -49,6 +49,6 @@ public:
 	~Request();
 };
 
-std::ostream& operator<<(std::ostream& os, Request& r);
+std::ostream& operator<<(std::ostream& os, Request const& r);
 
 #endif
