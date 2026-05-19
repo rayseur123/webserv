@@ -28,12 +28,51 @@ namespace
 
 		for (it = list.begin(); it != list.end(); it++)
 		{
-			std::cout << *it << std::endl;
+			std::cout << *it << '\n';
 		}
 	}
-} // namespace
 
-// test/test./test.py
+	std::string
+	prepareHeaderToEnv(std::string first, std::string const& second)
+	{
+
+		std::string			  final;
+		std::string::iterator it;
+
+		toUpperString(first);
+
+		for (it = first.begin(); it != first.end(); it++)
+		{
+			if (*it == '-')
+				*it = '_';
+		}
+
+		final = "HTTP_" + first + '=' + second;
+		return final;
+	}
+
+	bool
+	headerIsAllowedInEnv(std::string const& name)
+	{
+		return (name != "content-length" && name != "content-type" &&
+				name != "authorization");
+	}
+
+	std::vector<char*>
+	convertToExecve(std::vector<std::string> vec)
+	{
+		std::vector<char*>						 tmp;
+		std::vector<std::string>::const_iterator it;
+
+		for (it = vec.begin(); it != vec.end(); it++)
+		{
+			tmp.push_back(const_cast<char*>(it->c_str()));
+		}
+		tmp.push_back(NULL);
+		return tmp;
+	}
+
+} // namespace
 
 void
 Cgi::parseUri(Request const& r)
@@ -78,34 +117,6 @@ Cgi::parseUri(Request const& r)
 		createPath(buff);
 		env_.push_back("PATH_INFO=" + uri);
 	}
-}
-
-std::string
-prepareHeaderToEnv(std::string first, std::string const& second)
-{
-
-	std::string			  final;
-	std::string::iterator it;
-
-	toUpperString(first);
-
-	for (it = first.begin(); it != first.end(); it++)
-	{
-		if (*it == '-')
-			*it = '_';
-	}
-
-	final = "HTTP_" + first + '=' + second;
-	return final;
-}
-
-bool
-headerIsAllowedInEnv(std::string const& name)
-{
-	if (name == "content-length" || name == "content-type" ||
-		name == "authorization")
-		return false;
-	return true;
 }
 
 void
@@ -173,20 +184,6 @@ Cgi::createPath(std::string const& target)
 	path_ += "../../" + target;
 }
 
-std::vector<char*>
-convertToExecve(std::vector<std::string> vec)
-{
-	std::vector<char*>						 tmp;
-	std::vector<std::string>::const_iterator it;
-
-	for (it = vec.begin(); it != vec.end(); it++)
-	{
-		tmp.push_back(const_cast<char*>(it->c_str()));
-	}
-	tmp.push_back(NULL);
-	return tmp;
-}
-
 void
 Cgi::startProgram(Request const& r, Connection& c) const
 {
@@ -215,12 +212,11 @@ Cgi::startProgram(Request const& r, Connection& c) const
 		std::vector<std::string> argv;
 
 		argv.push_back("python3");
-		argv.push_back(path_.c_str());
+		argv.push_back(path_);
 
 		execve("python3", convertToExecve(argv).data(),
 			   convertToExecve(env_).data());
 	}
-
 	else
 	{
 		//  Truc bizzare on mets le fd dans le sockets cgi et dans le pair donc
@@ -236,18 +232,7 @@ Cgi::startProgram(Request const& r, Connection& c) const
 
 		// Return to epoll boucle
 	}
-	// Ajouter le fds[0] a epoll et ensuite retrouver la boucle epoll
 }
-
-// Parametre de ma fonction j'aurais besoin  connection (epoll manager) et
-// parceque on a besoind e savoir a quelle client est associer le cgi
-// Create socket_cgi = socket_cgi;
-
-// ajouter le socket_cgi dans epoll manager
-
-// ensuite revenir dans la boucle
-
-// return;
 
 Cgi::Cgi(Cgi const& c) : env_(c.env_)
 {}
