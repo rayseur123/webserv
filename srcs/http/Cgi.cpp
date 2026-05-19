@@ -1,5 +1,6 @@
 #include "http/Cgi.hpp"
 #include <unistd.h>
+#include "socket/Connection.hpp"
 #include "socket/SocketCgi.hpp"
 #include "sys/socket.h"
 #include "utils/utils.hpp"
@@ -27,9 +28,50 @@ namespace
 
 		for (it = list.begin(); it != list.end(); it++)
 		{
-			std::cout << *it << std::endl;
+			std::cout << *it << '\n';
 		}
 	}
+
+	std::string
+	prepareHeaderToEnv(std::string first, std::string const& second)
+	{
+
+		std::string			  final;
+		std::string::iterator it;
+
+		toUpperString(first);
+
+		for (it = first.begin(); it != first.end(); it++)
+		{
+			if (*it == '-')
+				*it = '_';
+		}
+
+		final = "HTTP_" + first + '=' + second;
+		return final;
+	}
+
+	bool
+	headerIsAllowedInEnv(std::string const& name)
+	{
+		return (name != "content-length" && name != "content-type" &&
+				name != "authorization");
+	}
+
+	std::vector<char*>
+	convertToExecve(std::vector<std::string> vec)
+	{
+		std::vector<char*>						 tmp;
+		std::vector<std::string>::const_iterator it;
+
+		for (it = vec.begin(); it != vec.end(); it++)
+		{
+			tmp.push_back(const_cast<char*>(it->c_str()));
+		}
+		tmp.push_back(NULL);
+		return tmp;
+	}
+
 } // namespace
 
 void
@@ -37,6 +79,7 @@ Cgi::parseUri(Request const& r)
 {
 	size_t		pos = 0;
 	std::string uri = r.getUri().getTarget();
+	std::string buff;
 
 	if (*uri.begin() == '/')
 		uri.erase(0, 1);
@@ -44,49 +87,36 @@ Cgi::parseUri(Request const& r)
 	pos = uri.find('/');
 	if (pos == std::string::npos)
 	{
-		env_.push_back("SCRIPT_NAME=" + uri);
+		env_.push_back("SCRIPT_NAME=/" + uri);
+		createPath(uri);
+		env_.push_back("PATH_INFO=");
 		return;
 	}
 	while (pos != std::string::npos)
 	{
 		if (isCgiProgram(uri.substr(0, pos)))
 		{
-			env_.push_back("SCRIPT_NAME=" + uri.substr(0, pos));
+			buff += uri.substr(0, pos);
+			uri.erase(0, pos);
 			break;
 		}
+		buff += uri.substr(0, pos + 1);
 		uri.erase(0, pos + 1);
 		pos = uri.find('/');
 	}
-	uri.erase(0, pos);
-	env_.push_back("PATH_INFO=" + uri);
-}
 
-std::string
-prepareHeaderToEnv(std::string first, std::string const& second)
-{
-
-	std::string			  final;
-	std::string::iterator it;
-
-	toUpperString(first);
-
-	for (it = first.begin(); it != first.end(); it++)
+	if (pos == std::string::npos)
 	{
-		if (*it == '-')
-			*it = '_';
+		env_.push_back("SCRIPT_NAME=/" + (buff + uri));
+		createPath(buff + uri);
+		env_.push_back("PATH_INFO=");
 	}
-
-	final = "HTTP_" + first + '=' + second;
-	return final;
-}
-
-bool
-headerIsAllowedInEnv(std::string const& name)
-{
-	if (name == "content-length" || name == "content-type" ||
-		name == "authorization")
-		return false;
-	return true;
+	else
+	{
+		env_.push_back("SCRIPT_NAME=/" + buff);
+		createPath(buff);
+		env_.push_back("PATH_INFO=" + uri);
+	}
 }
 
 void
@@ -147,57 +177,61 @@ Cgi::buildEnv(Request const& r, Listener const& s,
 	displayEnv(env_);
 }
 
-// We will have bug if this file of place so be carefull
-std::string
-createPath(std::string const& target)
+// We will have bug if this file change his place (so be carefull)
+void
+Cgi::createPath(std::string const& target)
 {
-	std::string path;
-
-	path += "../../" + target;
-	return path;
+	path_ += "../../" + target;
 }
 
 void
-Cgi::startProgram(Request const& r) const
+Cgi::startProgram(Request const& r, Connection& c) const
 {
 
-	int*  fds = { 0 };
+	int	  fds[2] = { 0 };
 	pid_t status = 0;
 
 	socketpair(AF_UNIX, SOCK_STREAM, 0, fds);
-	// SocketCgi cgi_socket;
 
 	// fds[0] part dans epoll
 	// fds[1] part dans le execve
 
 	status = fork();
 
-	switch (status)
+	if (status == -1)
+		throw("une erreur");
+
+	if (status == 0)
 	{
-		case -1:
-			throw("une erreur");
-		case 0:
-			dup2(fds[1], 1);
-			dup2(fds[0], 0);
+		dup2(fds[1], 1);
+		dup2(fds[0], 0);
 
-			write(fds[1], r.getBody().getContent().c_str(),
-				  r.getBody().getLength());
+		write(fds[1], r.getBody().getContent().c_str(),
+			  r.getBody().getLength());
 
-			// execve(createPath(r.getUri().getTarget(),);
-		case 1:
-			std::cout << "parent" << std::endl;
-			// Ajouter le fds[0] a epoll et ensuite retrouver la boucle epoll
+		std::vector<std::string> argv;
+
+		argv.push_back("python3");
+		argv.push_back(path_);
+
+		execve("python3", convertToExecve(argv).data(),
+			   convertToExecve(env_).data());
 	}
+	else
+	{
+		//  Truc bizzare on mets le fd dans le sockets cgi et dans le pair donc
+		//  en double
 
-	// Parametre de ma fonction j'aurais besoin  connection (epoll manager) et
-	// parceque on a besoind e savoir a quelle client est associer le cgi
-	// Create socket_cgi = socket_cgi;
+		std::pair<int, SocketCgi*> buff;
 
-	// ajouter le socket_cgi dans epoll manager
+		buff.first = fds[0];
+		SocketCgi cgi_socket(c, fds[0], status);
+		buff.second = &cgi_socket;
 
-	// ensuite revenir dans la boucle
+		c.getManager().addCgi(buff);
 
-	// return;
+		// Return to epoll boucle
+	}
 }
 
 Cgi::Cgi(Cgi const& c) : env_(c.env_)

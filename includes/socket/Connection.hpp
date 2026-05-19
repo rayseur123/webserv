@@ -31,6 +31,7 @@ public:
 	void handleHTTP(Request const& request, std::string& response_str);
 
 	virtual int		   handleEvent(EpollManager& manager, uint32_t events);
+	EpollManager&	   getManager() const;
 	Listener const&	   getServer() const;
 	std::string const& getClientAddr() const;
 
