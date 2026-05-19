@@ -18,12 +18,13 @@
 #include "utils/utils.hpp"
 
 void
-Connection::handleCGI(Request const& request, std::string& response_str)
+Connection::handleCGI(Request const& request, std::string& response_str,
+					  std::string const& path, Location const& location)
 {
 	Cgi response;
 
 	response.buildEnv(request, server_, getClientAddr());
-	response.startProgram(request, *this);
+	response.startProgram(request, *this, path, location);
 
 	response_str = "final response from cgi \n";
 }
@@ -32,10 +33,6 @@ void
 Connection::handleHTTP(Request const& request, std::string& response_str,
 					   std::string const& path, Location const& location)
 {
-
-	std::cout << request << std::endl;
-	std::cout << "code: " << request.getCode() << std::endl;
-
 	if (request.getCode() != 0)
 		response_str = buildErrorResponse(request.getCode(), server_,
 										  request.getVersion().toString());
@@ -104,7 +101,7 @@ Connection::handleConnectionRequest()
 
 	if (isCGI(request.getUri().getTarget()))
 	{
-		handleCGI(request, response_str);
+		handleCGI(request, response_str, path, location);
 		return (0);
 	}
 	handleHTTP(request, response_str, path, location);

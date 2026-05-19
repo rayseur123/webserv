@@ -28,7 +28,8 @@ public:
 
 	int sendMsg(std::string const& msg);
 
-	void handleCGI(Request const& request, std::string& response_str);
+	void handleCGI(Request const& request, std::string& response_str,
+				   std::string const& path, Location const& location);
 	void handleHTTP(Request const& request, std::string& response_str,
 					std::string const& path, Location const& location);
 

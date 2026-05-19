@@ -21,16 +21,16 @@ namespace
 		return (pos != std::string::npos);
 	}
 
-	void
-	displayEnv(std::vector<std::string> list)
-	{
-		std::vector<std::string>::iterator it;
+	// void
+	// displayEnv(std::vector<std::string> list)
+	// {
+	// 	std::vector<std::string>::iterator it;
 
-		for (it = list.begin(); it != list.end(); it++)
-		{
-			std::cout << *it << '\n';
-		}
-	}
+	// 	for (it = list.begin(); it != list.end(); it++)
+	// 	{
+	// 		std::cout << *it << '\n';
+	// 	}
+	// }
 
 	std::string
 	prepareHeaderToEnv(std::string first, std::string const& second)
@@ -172,9 +172,6 @@ Cgi::buildEnv(Request const& r, Listener const& s,
 
 	// HEADER-META-VARIABLES
 	addingRequestHeaderEnv(r);
-
-	// Display of all that
-	displayEnv(env_);
 }
 
 // We will have bug if this file change his place (so be carefull)
@@ -184,12 +181,17 @@ Cgi::createPath(std::string const& target)
 	path_ += "../../" + target;
 }
 
+// Faudra modifier le path info et le scriptname avec le path
 void
-Cgi::startProgram(Request const& r, Connection& c) const
+Cgi::startProgram(Request const& r, Connection& c, std::string const& path,
+				  Location const& location) const
 {
+
+	(void) location;
 
 	int	  fds[2] = { 0 };
 	pid_t status = 0;
+
 
 	socketpair(AF_UNIX, SOCK_STREAM, 0, fds);
 
@@ -212,7 +214,7 @@ Cgi::startProgram(Request const& r, Connection& c) const
 		std::vector<std::string> argv;
 
 		argv.push_back("python3");
-		argv.push_back(path_);
+		argv.push_back(path);
 
 		execve("python3", convertToExecve(argv).data(),
 			   convertToExecve(env_).data());
@@ -224,9 +226,10 @@ Cgi::startProgram(Request const& r, Connection& c) const
 
 		std::pair<int, SocketCgi*> buff;
 
+
 		buff.first = fds[0];
-		SocketCgi cgi_socket(c, fds[0], status);
-		buff.second = &cgi_socket;
+		SocketCgi* cgi_socket = new SocketCgi(c, fds[0], status);
+		buff.second = cgi_socket;
 
 		c.getManager().addCgi(buff);
 

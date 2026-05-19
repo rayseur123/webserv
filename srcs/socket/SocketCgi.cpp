@@ -72,10 +72,15 @@ SocketCgi::parsingResponseCgi(std::string& response)
 int
 SocketCgi::handleEventCgi()
 {
+	std::cout << "Je suis la" << std::endl;
+
 	size_t bytes = 0;
 	char   buffer[10000] = {};
 	bytes = recv(fd_, buffer, sizeof(buffer), 0);
 	response_ += buffer;
+
+	std::cout << response_ << std::endl;
+
 	if (bytes == 0)
 	{
 		std::string response = parsingResponseCgi(response_);
@@ -89,6 +94,7 @@ SocketCgi::handleEventCgi()
 int
 SocketCgi::handleEvent(EpollManager& manager, uint32_t events)
 {
+	std::cout << "HANDDDLELLLE EVEENNT" << std::endl;
 	(void) manager;
 	if ((events & (EPOLLERR | EPOLLRDHUP)) != 0)
 		return (1);
