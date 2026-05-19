@@ -20,6 +20,8 @@ std::string				 readFileContent(std::ifstream const& file);
 std::string				 digitToString(char* adress);
 std::string				 inet_ntop(char* adress);
 std::string				 getStatusMessage(int code);
+Location const& getGoodLocation(std::vector<Location> const& locations_vec,
+								Request const&				 request);
 
 template<typename T>
 std::ostream&

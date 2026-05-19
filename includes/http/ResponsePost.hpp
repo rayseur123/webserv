@@ -8,8 +8,8 @@
 class ResponsePost : public AResponse
 {
 public:
-	std::string buildResponse(std::vector<Location> const& locations_vec,
-							  Listener const&			   server);
+	std::string buildResponse(Location const& location, Listener const& server,
+							  std::string const& path);
 
 	ResponsePost();
 	explicit ResponsePost(Request const& request);

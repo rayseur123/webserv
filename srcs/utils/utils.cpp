@@ -10,6 +10,7 @@
 #include <vector>
 
 #include "http/httpStatus.hpp"
+#include "http/parsing/Request.hpp"
 #include "socket/Listener.hpp"
 
 #define DECIMAL 10
@@ -248,4 +249,27 @@ std::string
 makeCodeResponse(int code, std::string const& version)
 {
 	return (version + " " + getStatusMessage(code));
+}
+
+Location const&
+getGoodLocation(std::vector<Location> const& locations_vec,
+				Request const&				 request)
+{
+	std::vector<Location>::const_iterator it;
+	std::vector<Location>::const_iterator ret;
+	std::string							  uri = request.getUri().getTarget();
+	int									  best_value = 0;
+
+	for (it = locations_vec.begin(); it != locations_vec.end(); ++it)
+	{
+		int actual_value = it->getValue(uri);
+		if (actual_value > best_value)
+		{
+			best_value = actual_value;
+			ret = it;
+		}
+	}
+	if (best_value == 0)
+		throw std::logic_error("404");
+	return (*ret);
 }

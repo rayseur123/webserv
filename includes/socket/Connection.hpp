@@ -3,6 +3,7 @@
 
 #include "epoll/EpollManager.hpp"
 #include "http/parsing/ParsingRequest.hpp"
+#include "parsing/Location.hpp"
 #include "socket/ASocket.hpp"
 
 #include <stdint.h>
@@ -28,7 +29,8 @@ public:
 	int sendMsg(std::string const& msg);
 
 	void handleCGI(Request const& request, std::string& response_str);
-	void handleHTTP(Request const& request, std::string& response_str);
+	void handleHTTP(Request const& request, std::string& response_str,
+					std::string const& path, Location const& location);
 
 	virtual int		   handleEvent(EpollManager& manager, uint32_t events);
 	EpollManager&	   getManager() const;

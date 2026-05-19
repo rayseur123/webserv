@@ -17,12 +17,11 @@
 #define GET_CHECKER (1u << 0u)
 
 std::string
-ResponseGet::buildResponse(std::vector<Location> const& locations_vec,
-						   Listener const&				server)
+ResponseGet::buildResponse(Location const& location, Listener const& server,
+						   std::string const& path)
 {
-	Location const& location = getGoodLocation(locations_vec);
-	std::string		file_path;
-	std::string		body;
+	std::string file_path = path;
+	std::string body;
 
 	if (!location.getRedirect().empty())
 		return (buildRedirect(location));
@@ -30,8 +29,6 @@ ResponseGet::buildResponse(std::vector<Location> const& locations_vec,
 	if (!location.checkAllowMethods(GET_CHECKER))
 		return (buildErrorResponse(HTTP_METHOD_NOT_ALLOWED, server,
 								   request_.getVersion().toString()));
-
-	file_path = location.buildPath(request_);
 
 	if (!location.getIndex().empty())
 		file_path += location.getIndex();
@@ -41,6 +38,7 @@ ResponseGet::buildResponse(std::vector<Location> const& locations_vec,
 	{
 		close(fd);
 		DIR* dir = opendir(file_path.c_str());
+
 		if (dir == NULL)
 			return (buildErrorResponse(HTTP_BAD_REQUEST, server,
 									   request_.getVersion().toString()));
@@ -49,6 +47,7 @@ ResponseGet::buildResponse(std::vector<Location> const& locations_vec,
 	}
 	else
 	{
+
 		std::ifstream file(file_path.c_str());
 		if (!file.is_open())
 			return (buildErrorResponse(HTTP_NOT_FOUND, server,

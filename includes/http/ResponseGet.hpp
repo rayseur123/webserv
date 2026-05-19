@@ -8,8 +8,8 @@
 class ResponseGet : public AResponse
 {
 public:
-	std::string buildResponse(std::vector<Location> const& locations_vec,
-							  Listener const&			   server);
+	std::string buildResponse(Location const& location, Listener const& server,
+							  std::string const& path);
 
 	ResponseGet();
 	explicit ResponseGet(Request const& request);

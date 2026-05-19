@@ -170,11 +170,11 @@ Location::setCgiPath(std::vector<std::string> const& cgi_path)
 		temp.erase(temp.length() - 1);
 
 	if (temp.find_first_of("./") == 0)
-		root_ = temp;
+		root = temp;
 	else if (temp[0] != '/')
-		root_ = "/" + temp;
+		root = "/" + temp;
 	else
-		root_ = "./" + temp;
+		root = "./" + temp;
 
 	std::pair<std::string, std::string> data =
 		std::make_pair(cgi_path[1], root);
