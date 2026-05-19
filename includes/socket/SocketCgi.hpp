@@ -25,7 +25,7 @@ private:
 	SocketCgi& operator=(SocketCgi const& to_copy);
 
 public:
-	std::string parsingResponseCgi(std::string const& response);
+	std::string parsingResponseCgi(std::string& response);
 	virtual int handleEvent(EpollManager& manager, uint32_t events);
 	int			handleEventCgi();
 

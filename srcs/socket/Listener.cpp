@@ -175,7 +175,7 @@ Listener::setErrorPage(std::vector<std::string> const& error_page)
 		if (endPtr != it->c_str())
 			temp.push_back(static_cast<int>(val));
 	}
-	error_page2_.insert(std::make_pair(temp, error_page.back()));
+	error_page_.insert(std::make_pair(temp, error_page.back()));
 	return (true);
 }
 
@@ -206,7 +206,7 @@ Listener::getLocations() const
 std::map<std::vector<int>, std::string> const&
 Listener::getErrorPage() const
 {
-	return (error_page2_);
+	return (error_page_);
 }
 
 Listener::Listener() : ASocket(-1), max_client_request_body_(0)

@@ -47,11 +47,10 @@ namespace
 } // namespace
 
 std::string
-ResponsePost::buildResponse(std::vector<Location> const& locations_vec,
-							Listener const&				 server)
+ResponsePost::buildResponse(Location const& location, Listener const& server,
+							std::string const& path)
 {
-	Location const& location = getGoodLocation(locations_vec);
-	std::string		file_path;
+	std::string file_path = path;
 	if (!location.getRedirect().empty())
 		return (buildRedirect(location));
 

@@ -29,7 +29,8 @@ Connection::handleCGI(Request const& request, std::string& response_str)
 }
 
 void
-Connection::handleHTTP(Request const& request, std::string& response_str)
+Connection::handleHTTP(Request const& request, std::string& response_str,
+					   std::string const& path, Location const& location)
 {
 
 	std::cout << request << std::endl;
@@ -44,20 +45,17 @@ Connection::handleHTTP(Request const& request, std::string& response_str)
 		if (type == GET)
 		{
 			ResponseGet response(request);
-			response_str =
-				response.buildResponse(server_.getLocations(), server_);
+			response_str = response.buildResponse(location, server_, path);
 		}
 		else if (type == POST)
 		{
 			ResponsePost response(request);
-			response_str =
-				response.buildResponse(server_.getLocations(), server_);
+			response_str = response.buildResponse(location, server_, path);
 		}
 		else if (type == DELETE)
 		{
 			ResponseDelete response(request);
-			response_str =
-				response.buildResponse(server_.getLocations(), server_);
+			response_str = response.buildResponse(location, server_, path);
 		}
 		if (Signal::signal == 1)
 			throw(SIGINT);
@@ -101,13 +99,15 @@ Connection::handleConnectionRequest()
 
 	std::string response_str;
 
+	Location	location = getGoodLocation(server_.getLocations(), request);
+	std::string path = location.buildPath(request);
+
 	if (isCGI(request.getUri().getTarget()))
 	{
 		handleCGI(request, response_str);
 		return (0);
 	}
-	std::cout << request << std::endl;
-	handleHTTP(request, response_str);
+	handleHTTP(request, response_str, path, location);
 	return (sendMsg(response_str));
 }
 

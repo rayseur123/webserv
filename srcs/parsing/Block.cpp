@@ -102,8 +102,8 @@ Block::makeLocation() const
 			loc.setIndex(directive[1]);
 		else if (key == "upload_store" && size == 2)
 			loc.setUploadStore(directive[1]);
-		else if (key == "cgi_pass" && size == 2)
-			loc.setCgiPass(directive[1]);
+		else if (key == "cgi_path" && size == 3)
+			loc.setCgiPath(directive);
 		else if (key == "redirect" && size == 2)
 			loc.setRedirect(directive[1]);
 		else

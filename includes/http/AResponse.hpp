@@ -30,9 +30,9 @@ public:
 	std::string buildRequestLine() const;
 	std::string buildResponseStr() const;
 
-	virtual std::string
-	buildResponse(std::vector<Location> const& locations_vec,
-				  Listener const&			   server) = 0;
+	virtual std::string buildResponse(Location const&	 locations,
+									  Listener const&	 server,
+									  std::string const& path) = 0;
 
 	void setBody(std::string const& body);
 	void addHeader(std::pair<std::string, std::string> const& new_header);

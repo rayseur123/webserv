@@ -17,11 +17,10 @@
 #define CHMOD		   0644
 
 std::string
-ResponseDelete::buildResponse(std::vector<Location> const& locations_vec,
-							  Listener const&			   server)
+ResponseDelete::buildResponse(Location const& location, Listener const& server,
+							  std::string const& path)
 {
-	Location const& location = getGoodLocation(locations_vec);
-	std::string		file_path;
+	std::string const& file_path = path;
 
 	if (!location.getRedirect().empty())
 		return (buildRedirect(location));
@@ -29,8 +28,6 @@ ResponseDelete::buildResponse(std::vector<Location> const& locations_vec,
 	if (!location.checkAllowMethods(DELETE_CHECKER))
 		return (buildErrorResponse(HTTP_METHOD_NOT_ALLOWED, server,
 								   request_.getVersion().toString()));
-
-	file_path = location.buildPath(request_);
 
 	std::string body;
 	int			fd = open(file_path.c_str(), O_DIRECTORY | O_CLOEXEC);

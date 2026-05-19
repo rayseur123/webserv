@@ -10,7 +10,7 @@ std::string				 messageError(std::string const& function_name);
 bool					 keyIsValid(std::string const& s);
 bool					 stringIsDigit(std::string const& s);
 void					 toLowerString(std::string& tmp);
-void 					 toUpperString(std::string& tmp);
+void					 toUpperString(std::string& tmp);
 std::vector<std::string> splitLineByDel(std::string const& line, char del);
 void					 trimSpaceString(std::string& s);
 std::string				 buildErrorResponse(int code, Listener const& server,
@@ -19,6 +19,9 @@ std::string				 makeCodeResponse(int code, std::string const& version);
 std::string				 readFileContent(std::ifstream const& file);
 std::string				 digitToString(char* adress);
 std::string				 inet_ntop(char* adress);
+std::string				 getStatusMessage(int code);
+Location const& getGoodLocation(std::vector<Location> const& locations_vec,
+								Request const&				 request);
 
 template<typename T>
 std::ostream&
