@@ -17,12 +17,11 @@
 class Listener : public ASocket
 {
 private:
-	size_t									 max_client_request_body_;
-	std::string								 address_;
-	std::string								 port_;
-	std::vector<Location>					 locations_vec_;
-	std::map<std::vector<int>, std::string>	 error_page2_;
-	std::pair<std::vector<int>, std::string> error_page_;
+	size_t									max_client_request_body_;
+	std::string								address_;
+	std::string								port_;
+	std::vector<Location>					locations_vec_;
+	std::map<std::vector<int>, std::string> error_page_;
 
 	Listener& operator=(Listener const& to_copy);
 	Listener(Listener const& to_copy);

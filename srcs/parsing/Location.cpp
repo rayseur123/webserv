@@ -3,6 +3,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "http/parsing/Method.hpp"
@@ -149,9 +150,35 @@ Location::setUploadStore(std::string const& upload_store)
 }
 
 void
-Location::setCgiPass(std::string const& cgi_pass)
+Location::setCgiPathMap(std::map<std::string, std::string> const& cgi_path_map)
 {
-	cgi_pass_ = cgi_pass;
+	cgi_path_map_ = cgi_path_map;
+}
+
+void
+Location::setCgiPath(std::vector<std::string> const& cgi_path)
+{
+	std::string root = cgi_path[2];
+	if (root.empty())
+	{
+		root_ = ".";
+		return;
+	}
+
+	std::string temp = root;
+	while (temp.length() > 1 && temp[temp.length() - 1] == '/')
+		temp.erase(temp.length() - 1);
+
+	if (temp.find_first_of("./") == 0)
+		root_ = temp;
+	else if (temp[0] != '/')
+		root_ = "/" + temp;
+	else
+		root_ = "./" + temp;
+
+	std::pair<std::string, std::string> data =
+		std::make_pair(cgi_path[1], root);
+	cgi_path_map_.insert(data);
 }
 
 void
@@ -196,10 +223,10 @@ Location::getUploadStore() const
 	return (upload_store_);
 }
 
-std::string const&
-Location::getCgiPass() const
+std::map<std::string, std::string> const&
+Location::getCgiPathMap() const
 {
-	return (cgi_pass_);
+	return (cgi_path_map_);
 }
 
 std::string const&
@@ -224,7 +251,7 @@ Location::operator=(Location const& to_copy)
 	allow_methods_ = to_copy.allow_methods_;
 	index_ = to_copy.index_;
 	upload_store_ = to_copy.upload_store_;
-	cgi_pass_ = to_copy.cgi_pass_;
+	cgi_path_map_ = to_copy.cgi_path_map_;
 	redirect_ = to_copy.redirect_;
 	path_ = to_copy.path_;
 	return (*this);
@@ -254,8 +281,6 @@ operator<<(std::ostream& os, Location const& to_print)
 		os << "\t\t\tredirect: " << to_print.getRedirect() << '\n';
 	if (!to_print.getUploadStore().empty())
 		os << "\t\t\tupload: " << to_print.getUploadStore() << '\n';
-	if (!to_print.getCgiPass().empty())
-		os << "\t\t\tcgi: " << to_print.getCgiPass() << '\n';
 
 	os << "\t\t}" << '\n';
 	return (os);
@@ -267,17 +292,17 @@ Location::Location() :
 
 Location::Location(std::string const& root, bool autoindex, int allow_methods,
 				   std::string const& index, std::string const& upload_store,
-				   std::string const& cgi_pass, std::string const& redirect,
-				   std::string const& path) :
+				   std::map<std::string, std::string> const& cgi_path_map,
+				   std::string const& redirect, std::string const& path) :
 	root_(root), autoindex_(autoindex), allow_methods_(allow_methods),
-	index_(index), upload_store_(upload_store), cgi_pass_(cgi_pass),
+	index_(index), upload_store_(upload_store), cgi_path_map_(cgi_path_map),
 	redirect_(redirect), path_(path)
 {}
 
 Location::Location(Location const& to_copy) :
 	root_(to_copy.root_), autoindex_(to_copy.autoindex_),
 	allow_methods_(to_copy.allow_methods_), index_(to_copy.index_),
-	upload_store_(to_copy.upload_store_), cgi_pass_(to_copy.cgi_pass_),
+	upload_store_(to_copy.upload_store_), cgi_path_map_(to_copy.cgi_path_map_),
 	redirect_(to_copy.redirect_), path_(to_copy.path_)
 {}
 
