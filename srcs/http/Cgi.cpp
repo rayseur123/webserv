@@ -183,6 +183,7 @@ convertToExecve(std::vector<std::string> vec)
 	{
 		tmp.push_back(const_cast<char*>(it->c_str()));
 	}
+	tmp.push_back(NULL);
 	return tmp;
 }
 
@@ -220,7 +221,7 @@ Cgi::startProgram(Request const& r, Connection& c) const
 			   convertToExecve(env_).data());
 	}
 
-	if (status == 1)
+	else
 	{
 		//  Truc bizzare on mets le fd dans le sockets cgi et dans le pair donc
 		//  en double
@@ -234,8 +235,6 @@ Cgi::startProgram(Request const& r, Connection& c) const
 		c.getManager().addCgi(buff);
 
 		// Return to epoll boucle
-
-		std::cout << "parent" << std::endl;
 	}
 	// Ajouter le fds[0] a epoll et ensuite retrouver la boucle epoll
 }
