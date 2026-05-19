@@ -44,15 +44,33 @@ ParsingRequest::defineBodyType()
 {
 	Headers tmp = request_.getHeader();
 
-	if (tmp.has("transfer-encoding"))
-		body_type = CHUNK_BODY;
-	else if (tmp.has("content-length"))
-		body_type = LINE_BODY;
+	// Check the type of method
+
+	if (request_.getMethod().getType() == POST)
+	{
+		if (tmp.has("transfer-encoding"))
+		{
+			body_type = CHUNK_BODY;
+			return;
+		}
+		else if (tmp.has("content-length"))
+		{
+			body_type = LINE_BODY;
+			return;
+		}
+		else
+		{
+			code_ = HTTP_BAD_REQUEST;
+		}
+	}
 	else
 	{
-		body_type = NO_BODY;
-		step_++;
+		if (tmp.has("transfer-encoding") || (tmp.has("content-length")))
+			code_ = HTTP_BAD_REQUEST;
 	}
+
+	body_type = NO_BODY;
+	step_++;
 }
 
 std::pair<std::string, std::string>
@@ -194,7 +212,6 @@ ParsingRequest::handleBodyLine()
 
 	step_ += request_.addingBodyLength(buffer_);
 }
-
 
 int
 ParsingRequest::getStep() const
