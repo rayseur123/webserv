@@ -94,7 +94,7 @@ Block::makeLocation() const
 
 		if (key == "root" && size == 2)
 			loc.setRoot(directive[1]);
-		else if (key == "allow_methods:" && size <= 4)
+		else if (key == "allow_methods" && size <= 4)
 			loc.setAllowMethods(directive);
 		else if (key == "autoindex" && size == 2)
 			loc.setAutoIndex(directive[1]);
