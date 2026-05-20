@@ -45,7 +45,7 @@ Version::Version(Version const& to_copy) :
 	sec_nb_(to_copy.sec_nb_)
 {}
 
-Version::Version() : first_nb_(-1), sec_nb_(-1)
+Version::Version() : protocol_("HTTP"), first_nb_(1), sec_nb_(0)
 {}
 
 Version::Version(std::string version)
