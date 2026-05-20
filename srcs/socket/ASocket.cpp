@@ -1,6 +1,5 @@
-#include <unistd.h>
-
 #include "socket/ASocket.hpp"
+#include <unistd.h>
 
 int
 ASocket::getFd() const
