@@ -45,11 +45,12 @@ Uri::operator=(Uri const& to_copy)
 	return *this;
 }
 
-Uri::Uri()
+Uri::Uri() : target_("/")
 {}
 
-Uri::Uri(std::string const& uri)
+Uri::Uri(std::string const& uri) : target_("/")
 {
+
 	size_t pos = 0;
 	if (!isValid(uri))
 		throw Code(HTTP_BAD_REQUEST);

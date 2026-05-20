@@ -72,6 +72,9 @@ Version::Version(std::string version)
 
 	// Version
 	pos = version.find('.');
+	if (pos == std::string::npos)
+		throw Code(HTTP_BAD_REQUEST);
+
 	first_nb_ = convertInNb(version.substr(0, pos));
 	version.erase(0, pos + 1);
 	sec_nb_ = convertInNb(version);

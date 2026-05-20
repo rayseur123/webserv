@@ -121,6 +121,7 @@ Cgi::parseUri(Request const& r)
 		createPath(buff);
 		env_.push_back("PATH_INFO=" + uri);
 	}
+	(void) r;
 }
 
 void
