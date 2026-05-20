@@ -29,7 +29,6 @@ ResponseGet::buildResponse(Location const& location, Listener const& server,
 	if (!location.checkAllowMethods(GET_CHECKER))
 		return (buildErrorResponse(HTTP_METHOD_NOT_ALLOWED, server,
 								   request_.getVersion().toString()));
-
 	if (!location.getIndex().empty())
 		file_path += location.getIndex();
 
@@ -47,7 +46,6 @@ ResponseGet::buildResponse(Location const& location, Listener const& server,
 	}
 	else
 	{
-
 		std::ifstream file(file_path.c_str());
 		if (!file.is_open())
 			return (buildErrorResponse(HTTP_NOT_FOUND, server,

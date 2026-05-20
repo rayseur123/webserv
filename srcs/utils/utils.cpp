@@ -226,9 +226,11 @@ buildErrorResponse(int code, Listener const& server, std::string const& version)
 
 		std::ifstream file(it->second.c_str());
 		if (!file.is_open())
+		{
 			return (version + " " +
 					getStatusMessage(HTTP_INTERNAL_SERVER_ERROR) +
 					"\r\nContent-length:0\r\n\r\n");
+		}
 
 		std::string		  file_content(readFileContent(file));
 		std::stringstream ss;
