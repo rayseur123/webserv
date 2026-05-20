@@ -7,7 +7,6 @@
 #include "epoll/EpollManager.hpp"
 #include "epoll/signal.hpp"
 #include "http/Cgi.hpp"
-#include "http/httpStatus.hpp"
 #include "http/parsing/Method.hpp"
 #include "http/parsing/ParsingRequest.hpp"
 #include "http/parsing/Request.hpp"
