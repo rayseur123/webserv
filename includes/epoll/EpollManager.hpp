@@ -32,7 +32,9 @@ public:
 	void registerListenersToEpoll();
 	void eventLoop();
 
-	int	 getEpollFd() const;
+	int getEpollFd() const;
+
+	void eraseFdSocketMap(int fd);
 	void addConnection(std::pair<int, Connection*> const& newConnection);
 	void addCgi(std::pair<int, SocketCgi*> const& new_cgi);
 

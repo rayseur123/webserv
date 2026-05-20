@@ -1,4 +1,5 @@
 #include <csignal>
+#include <sys/epoll.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -78,8 +79,10 @@ Connection::handleConnectionRequest()
 	char   buffer[10000] = {};
 
 	bytes = recv(fd_, buffer, sizeof(buffer), 0);
-	if (bytes == 0)
+	if (bytes == 0 && isCGI(parsing_request_.getRequest().getUri().getTarget()))
 		return (1);
+	if (bytes == 0)
+		return (0);
 
 	// Parsing client request
 	std::string tmp(buffer, bytes);
@@ -102,10 +105,10 @@ Connection::handleConnectionRequest()
 	if (isCGI(request.getUri().getTarget()))
 	{
 		handleCGI(request, response_str, path, location);
-		std::cout << "Connexion return \n";
 		return (0);
 	}
 	handleHTTP(request, response_str, path, location);
+
 	return (sendMsg(response_str));
 }
 
@@ -123,13 +126,14 @@ Connection::sendMsg(std::string const& msg)
 int
 Connection::handleEvent(EpollManager& manager, uint32_t events)
 {
-	// std::cout << "Connexion handle event \n";
 	// Adding the size_body_max inside the parsing_request;
 	parsing_request_.setMaxBodyLength(server_.getMaxClientRequestBody());
-
 	(void) manager;
-	if ((events & (EPOLLERR | EPOLLRDHUP)) != 0)
+	if ((events & (EPOLLERR | EPOLLRDHUP | EPOLLHUP | EPOLLOUT)) != 0)
+	{
+		std::cout << "je suis un fd connection : " << fd_ << std::endl;
 		return (1);
+	}
 	if ((events & (EPOLLIN | EPOLLPRI)) != 0)
 		return (handleConnectionRequest());
 	return (0);

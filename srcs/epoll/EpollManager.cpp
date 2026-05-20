@@ -61,15 +61,8 @@ EpollManager::eventLoop()
 		for (int i = 0; i < nb_events; ++i)
 		{
 			int fd = events_[i].data.fd;
-			//! Socket cgi -> handle event (compartement different pour les cgi)
 			if (socket_map_[fd]->handleEvent(*this, events_[i].events) == 1)
-			{
-				std::map<int, ASocket*>::iterator it = socket_map_.find(fd);
-				std::cout << "The fd " << fd << " has been shut down." << '\n';
-				delete it->second;
-				socket_map_.erase(it);
-				epoll_ctl(epoll_fd_, EPOLL_CTL_DEL, fd, NULL);
-			}
+				eraseFdSocketMap(fd);
 		}
 	}
 }
@@ -98,6 +91,16 @@ int
 EpollManager::getEpollFd() const
 {
 	return (epoll_fd_);
+}
+
+void
+EpollManager::eraseFdSocketMap(int fd)
+{
+	std::map<int, ASocket*>::iterator it = socket_map_.find(fd);
+	std::cout << "The fd " << fd << " has been shut down." << '\n';
+	delete it->second;
+	socket_map_.erase(it);
+	epoll_ctl(epoll_fd_, EPOLL_CTL_DEL, fd, NULL);
 }
 
 EpollManager::EpollManager() : epoll_fd_(-1), events_()

@@ -237,7 +237,6 @@ Cgi::startProgram(Request const& r, Connection& c, std::string const& path,
 		ev.data.fd = fds[0];
 
 		close(fds[1]);
-		std::cout << "Parent" << std::endl;
 
 		SocketCgi* cgi_socket = new SocketCgi(c, fds[0], status);
 

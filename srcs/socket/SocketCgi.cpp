@@ -1,4 +1,5 @@
 #include "socket/SocketCgi.hpp"
+#include "epoll/EpollManager.hpp"
 #include "http/httpStatus.hpp"
 #include "utils/utils.hpp"
 
@@ -70,36 +71,34 @@ SocketCgi::parsingResponseCgi(std::string& response)
 }
 
 int
-SocketCgi::handleEventCgi()
+SocketCgi::handleEventCgi(EpollManager& manager)
 {
-	std::cout << "Je suis la" << std::endl;
 
 	size_t bytes = 0;
 	char   buffer[10000] = {};
 	bytes = recv(fd_, buffer, sizeof(buffer), 0);
 	response_ += buffer;
-
-	std::cout << response_ << std::endl;
-
 	if (bytes == 0)
 	{
 		std::string response = parsingResponseCgi(response_);
-		std::cout << "Response CGI \n" << response << std::endl;
+		std::cout << response << std::endl;
 		connection_.sendMsg(response);
+		manager.eraseFdSocketMap(connection_.getFd());
+
 		return (1);
 	}
+	std::cout << "test: " << bytes << std::endl;
+
 	return (0);
 }
 
 int
 SocketCgi::handleEvent(EpollManager& manager, uint32_t events)
 {
-	std::cout << "HANDDDLELLLE EVEENNT" << std::endl;
-	(void) manager;
-	if ((events & (EPOLLERR | EPOLLRDHUP)) != 0)
+	if ((events & (EPOLLERR | EPOLLRDHUP | EPOLLHUP | EPOLLOUT)) != 0)
 		return (1);
 	if ((events & (EPOLLIN | EPOLLPRI)) != 0)
-		return (handleEventCgi());
+		return (handleEventCgi(manager));
 	return (0);
 }
 

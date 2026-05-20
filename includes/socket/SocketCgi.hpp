@@ -27,7 +27,7 @@ private:
 public:
 	std::string parsingResponseCgi(std::string& response);
 	virtual int handleEvent(EpollManager& manager, uint32_t events);
-	int			handleEventCgi();
+	int			handleEventCgi(EpollManager& manager);
 
 	SocketCgi(Connection& connection, int fd, pid_t pid);
 	~SocketCgi();
