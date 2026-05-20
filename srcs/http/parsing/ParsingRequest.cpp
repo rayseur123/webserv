@@ -44,15 +44,33 @@ ParsingRequest::defineBodyType()
 {
 	Headers tmp = request_.getHeader();
 
-	if (tmp.has("transfer-encoding"))
-		body_type = CHUNK_BODY;
-	else if (tmp.has("content-length"))
-		body_type = LINE_BODY;
+	// Check the type of method
+
+	if (request_.getMethod().getType() == POST)
+	{
+		if (tmp.has("transfer-encoding"))
+		{
+			body_type = CHUNK_BODY;
+			return;
+		}
+		else if (tmp.has("content-length"))
+		{
+			body_type = LINE_BODY;
+			return;
+		}
+		else
+		{
+			code_ = HTTP_BAD_REQUEST;
+		}
+	}
 	else
 	{
-		body_type = NO_BODY;
-		step_++;
+		if (tmp.has("transfer-encoding") || (tmp.has("content-length")))
+			code_ = HTTP_BAD_REQUEST;
 	}
+
+	body_type = NO_BODY;
+	step_++;
 }
 
 std::pair<std::string, std::string>
@@ -162,6 +180,10 @@ ParsingRequest::handleBodyChunk()
 	try
 	{
 		step_ += request_.addingBodyChunked(buffer_);
+
+		if (request_.getBody().getContent().length() > max_body_length_)
+			throw(Code(HTTP_PAYLOAD_TOO_LARGE));
+
 		if (step_ == FINISH)
 		{
 			step_ = HEADER;
@@ -180,17 +202,15 @@ ParsingRequest::handleBodyChunk()
 void
 ParsingRequest::handleBodyLine()
 {
-	step_ += request_.addingBodyLength(buffer_);
-}
 
-// Others
-void
-ParsingRequest::resetParsingAndRequest()
-{
-	step_ = 0;
-	body_type = 0;
-	code_ = 0;
-	request_.resetRequest();
+	if (request_.getHeader().getContentLength() > max_body_length_)
+	{
+		code_ = HTTP_PAYLOAD_TOO_LARGE;
+		step_ = FINISH;
+		return;
+	}
+
+	step_ += request_.addingBodyLength(buffer_);
 }
 
 int
@@ -211,10 +231,22 @@ ParsingRequest::getCode() const
 	return code_;
 }
 
+size_t
+ParsingRequest::getMaxBodyLength() const
+{
+	return max_body_length_;
+}
+
 void
 ParsingRequest::setCode(int nb)
 {
 	code_ = nb;
+}
+
+void
+ParsingRequest::setMaxBodyLength(size_t nb)
+{
+	max_body_length_ = nb;
 }
 
 ParsingRequest&

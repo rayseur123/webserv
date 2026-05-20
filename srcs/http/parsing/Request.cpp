@@ -150,7 +150,7 @@ Request::~Request()
 {}
 
 std::ostream&
-operator<<(std::ostream& os, Request& r)
+operator<<(std::ostream& os, Request const& r)
 {
 	os << "Method: " << r.getMethod() << '\n';
 	os << "URI: " << r.getUri() << '\n';

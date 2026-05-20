@@ -1,5 +1,8 @@
 #include "http/Cgi.hpp"
+#include <sys/epoll.h>
 #include <unistd.h>
+#include <utility>
+#include "epoll/EpollManager.hpp"
 #include "socket/Connection.hpp"
 #include "socket/SocketCgi.hpp"
 #include "sys/socket.h"
@@ -21,16 +24,16 @@ namespace
 		return (pos != std::string::npos);
 	}
 
-	void
-	displayEnv(std::vector<std::string> list)
-	{
-		std::vector<std::string>::iterator it;
+	// void
+	// displayEnv(std::vector<std::string> list)
+	// {
+	// 	std::vector<std::string>::iterator it;
 
-		for (it = list.begin(); it != list.end(); it++)
-		{
-			std::cout << *it << '\n';
-		}
-	}
+	// 	for (it = list.begin(); it != list.end(); it++)
+	// 	{
+	// 		std::cout << *it << '\n';
+	// 	}
+	// }
 
 	std::string
 	prepareHeaderToEnv(std::string first, std::string const& second)
@@ -77,6 +80,7 @@ namespace
 void
 Cgi::parseUri(Request const& r)
 {
+
 	size_t		pos = 0;
 	std::string uri = r.getUri().getTarget();
 	std::string buff;
@@ -172,9 +176,6 @@ Cgi::buildEnv(Request const& r, Listener const& s,
 
 	// HEADER-META-VARIABLES
 	addingRequestHeaderEnv(r);
-
-	// Display of all that
-	displayEnv(env_);
 }
 
 // We will have bug if this file change his place (so be carefull)
@@ -184,9 +185,14 @@ Cgi::createPath(std::string const& target)
 	path_ += "../../" + target;
 }
 
+// Faudra modifier le path info et le scriptname avec le path
 void
-Cgi::startProgram(Request const& r, Connection& c) const
+Cgi::startProgram(Request const& r, Connection& c, std::string const& path,
+				  Location const& location) const
 {
+
+	(void) location;
+	(void) path;
 
 	int	  fds[2] = { 0 };
 	pid_t status = 0;
@@ -196,6 +202,9 @@ Cgi::startProgram(Request const& r, Connection& c) const
 	// fds[0] part dans epoll
 	// fds[1] part dans le execve
 
+	write(fds[0], r.getBody().getContent().c_str(),
+		  r.getBody().getContent().length());
+
 	status = fork();
 
 	if (status == -1)
@@ -204,31 +213,40 @@ Cgi::startProgram(Request const& r, Connection& c) const
 	if (status == 0)
 	{
 		dup2(fds[1], 1);
-		dup2(fds[0], 0);
+		dup2(fds[1], 0);
 
-		write(fds[1], r.getBody().getContent().c_str(),
-			  r.getBody().getLength());
+		close(fds[0]);
+		close(fds[1]);
 
 		std::vector<std::string> argv;
 
-		argv.push_back("python3");
-		argv.push_back(path_);
+		argv.push_back("/usr/bin/python3");
+		argv.push_back("data/cgi/test.py");
 
-		execve("python3", convertToExecve(argv).data(),
-			   convertToExecve(env_).data());
+		if (execve("/usr/bin/python3", convertToExecve(argv).data(),
+				   convertToExecve(env_).data()) == -1)
+		{
+			std::cout << "excve failed error come from here" << std::endl;
+		}
 	}
 	else
 	{
-		//  Truc bizzare on mets le fd dans le sockets cgi et dans le pair donc
-		//  en double
+		epoll_event ev;
 
-		std::pair<int, SocketCgi*> buff;
+		ev.events = EVENTS_CONNECTION;
+		ev.data.fd = fds[0];
 
-		buff.first = fds[0];
-		SocketCgi cgi_socket(c, fds[0], status);
-		buff.second = &cgi_socket;
+		close(fds[1]);
+		std::cout << "Parent" << std::endl;
 
-		c.getManager().addCgi(buff);
+		SocketCgi* cgi_socket = new SocketCgi(c, fds[0], status);
+
+		if (epoll_ctl(c.getManager().getEpollFd(), EPOLL_CTL_ADD, fds[0],
+					  &ev) == -1)
+		{
+			std::cout << "ERROR EPOLL ADDING CGI" << std::endl;
+		}
+		c.getManager().addCgi(std::make_pair(fds[0], cgi_socket));
 
 		// Return to epoll boucle
 	}
