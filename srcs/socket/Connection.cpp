@@ -102,6 +102,7 @@ Connection::handleConnectionRequest()
 	if (isCGI(request.getUri().getTarget()))
 	{
 		handleCGI(request, response_str, path, location);
+		std::cout << "Connexion return \n";
 		return (0);
 	}
 	handleHTTP(request, response_str, path, location);
@@ -122,6 +123,7 @@ Connection::sendMsg(std::string const& msg)
 int
 Connection::handleEvent(EpollManager& manager, uint32_t events)
 {
+	// std::cout << "Connexion handle event \n";
 	// Adding the size_body_max inside the parsing_request;
 	parsing_request_.setMaxBodyLength(server_.getMaxClientRequestBody());
 
