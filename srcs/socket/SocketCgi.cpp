@@ -1,6 +1,7 @@
 #include "socket/SocketCgi.hpp"
 #include "epoll/EpollManager.hpp"
 #include "http/httpStatus.hpp"
+#include "socket/ASocket.hpp"
 #include "utils/utils.hpp"
 
 #include <csignal>
@@ -13,7 +14,7 @@
 #include <unistd.h>
 
 SocketCgi::SocketCgi(Connection& connection, int fd, pid_t pid) :
-	connection_(connection), fd_(fd), pid_child_(pid)
+	ASocket(fd), connection_(connection), pid_child_(pid)
 {}
 
 int
@@ -73,7 +74,7 @@ SocketCgi::parsingResponseCgi(std::string& response)
 int
 SocketCgi::handleEventCgi(EpollManager& manager)
 {
-
+	(void) manager;
 	size_t bytes = 0;
 	char   buffer[10000] = {};
 	bytes = recv(fd_, buffer, sizeof(buffer), 0);
@@ -81,24 +82,22 @@ SocketCgi::handleEventCgi(EpollManager& manager)
 	if (bytes == 0)
 	{
 		std::string response = parsingResponseCgi(response_);
-		std::cout << response << std::endl;
 		connection_.sendMsg(response);
 		manager.eraseFdSocketMap(connection_.getFd());
-
 		return (1);
 	}
-	std::cout << "test: " << bytes << std::endl;
-
 	return (0);
 }
 
 int
 SocketCgi::handleEvent(EpollManager& manager, uint32_t events)
 {
-	if ((events & (EPOLLERR | EPOLLRDHUP | EPOLLHUP | EPOLLOUT)) != 0)
+	if ((events & (EPOLLERR)) != 0)
 		return (1);
 	if ((events & (EPOLLIN | EPOLLPRI)) != 0)
 		return (handleEventCgi(manager));
+	if ((events & (EPOLLHUP | EPOLLRDHUP)) != 0)
+		return (1);
 	return (0);
 }
 

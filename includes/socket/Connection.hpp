@@ -17,6 +17,7 @@ private:
 	Listener const& server_;
 	EpollManager&	manager_;
 	ParsingRequest	parsing_request_;
+	uint32_t		events_;
 	std::string		addr_client_;
 	Connection(Connection const& to_copy);
 	Connection& operator=(Connection const& to_copy);

@@ -127,13 +127,11 @@ int
 Connection::handleEvent(EpollManager& manager, uint32_t events)
 {
 	// Adding the size_body_max inside the parsing_request;
+	events_ = events;
 	parsing_request_.setMaxBodyLength(server_.getMaxClientRequestBody());
 	(void) manager;
-	if ((events & (EPOLLERR | EPOLLRDHUP | EPOLLHUP | EPOLLOUT)) != 0)
-	{
-		std::cout << "je suis un fd connection : " << fd_ << std::endl;
+	if ((events & (EPOLLERR | EPOLLRDHUP | EPOLLHUP)) != 0)
 		return (1);
-	}
 	if ((events & (EPOLLIN | EPOLLPRI)) != 0)
 		return (handleConnectionRequest());
 	return (0);

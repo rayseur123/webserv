@@ -54,7 +54,7 @@ Listener::acceptNewConnection(EpollManager& manager)
 int
 Listener::handleEvent(EpollManager& manager, uint32_t events)
 {
-	if (events & (EPOLLERR | EPOLLRDHUP | EPOLLHUP | EPOLLOUT))
+	if (events & (EPOLLERR | EPOLLRDHUP | EPOLLHUP))
 		return (1);
 	if (events & EPOLLIN)
 		acceptNewConnection(manager);
