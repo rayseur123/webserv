@@ -7,6 +7,7 @@
 #include "epoll/EpollManager.hpp"
 #include "epoll/signal.hpp"
 #include "http/Cgi.hpp"
+#include "http/httpStatus.hpp"
 #include "http/parsing/Method.hpp"
 #include "http/parsing/ParsingRequest.hpp"
 #include "http/parsing/Request.hpp"
@@ -59,8 +60,6 @@ Connection::handleHTTP(Request const& request, std::string& response_str,
 	}
 }
 
-// Change in the future directly check by the folder and the extension
-// need to see with nicolas and what is cgi_pass
 bool
 isCGI(std::string const& uri)
 {
@@ -80,7 +79,8 @@ int
 Connection::handleConnectionRequest()
 {
 	size_t bytes = 0;
-	char   buffer[10000] = {};
+
+	char buffer[10000] = {};
 
 	bytes = recv(fd_, buffer, sizeof(buffer), 0);
 	if (bytes == 0 && isCGI(parsing_request_.getRequest().getUri().getTarget()))
@@ -103,15 +103,24 @@ Connection::handleConnectionRequest()
 
 	std::string response_str;
 
-	Location	location = getGoodLocation(server_.getLocations(), request);
-	std::string path = location.buildPath(request);
-
-	if (isCGI(request.getUri().getTarget()))
+	try
 	{
-		handleCGI(request, response_str, path, location);
-		return (0);
+		Location	location = getGoodLocation(server_.getLocations(), request);
+		std::string path = location.buildPath(request);
+
+		if (isCGI(request.getUri().getTarget()))
+		{
+			handleCGI(request, response_str, path, location);
+			return (0);
+		}
+
+		handleHTTP(request, response_str, path, location);
 	}
-	handleHTTP(request, response_str, path, location);
+	catch (int e)
+	{
+		sendMsg(buildErrorResponse(HTTP_NOT_FOUND, server_,
+								   request.getVersion().toString()));
+	}
 
 	return (sendMsg(response_str));
 }

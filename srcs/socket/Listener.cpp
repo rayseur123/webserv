@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <vector>
 
+#include "parsing/Location.hpp"
 #include "socket/ASocket.hpp"
 #include "socket/Connection.hpp"
 #include "socket/Listener.hpp"
@@ -86,7 +87,6 @@ Listener::createListenerSocket()
 					// trouvera quand même une adresse disponible
 
 	addrinfo* res = NULL;
-
 	if (getaddrinfo(address_.c_str(), port_.c_str(), &hints, &res) != 0)
 		throw std::runtime_error(messageError("createSocket>getaddrinfo"));
 
@@ -99,7 +99,6 @@ Listener::createListenerSocket()
 			continue;
 
 		setsockopt(fd_, SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option));
-
 		if (bind(fd_, addr_try->ai_addr, addr_try->ai_addrlen) == 0)
 			break;
 
@@ -209,8 +208,12 @@ Listener::getErrorPage() const
 	return (error_page_);
 }
 
-Listener::Listener() : ASocket(-1), max_client_request_body_(0)
-{}
+Listener::Listener() :
+	ASocket(-1), max_client_request_body_(50000), address_("127.0.0.1"),
+	port_("4242")
+{
+	locations_vec_.push_back(Location());
+}
 
 Listener::Listener(int fd, int max_client_request_body,
 				   std::string const& address, std::string const& port,

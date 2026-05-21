@@ -14,21 +14,26 @@ signalHandler(int)
 int
 main(int ac, char** av)
 {
-	if (ac != 2)
-		return (1);
-
 	if (signal(SIGINT, signalHandler) == SIG_ERR)
 		return 1;
 
 	try
 	{
 
-		std::string			   buff;
-		std::ifstream		   file(av[1]);
-		Block				   block(file, Block::FILE, buff, "FILE");
-		std::vector<Listener*> server_vec = block.makeServerVec();
-		EpollManager		   net(server_vec);
-		net.eventLoop();
+		if (ac == 2)
+		{
+			std::string			   buff;
+			std::ifstream		   file(av[1]);
+			Block				   block(file, Block::FILE, buff, "FILE");
+			std::vector<Listener*> server_vec = block.makeServerVec();
+			EpollManager		   net(server_vec);
+			net.eventLoop();
+		}
+		else
+		{
+			EpollManager net;
+			net.eventLoop();
+		}
 	}
 	catch (int s)
 	{
