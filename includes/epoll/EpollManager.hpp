@@ -1,7 +1,8 @@
 #ifndef EPOLL_MANAGER_HPP
 #define EPOLL_MANAGER_HPP
 
-#define EVENTS_CONNECTION EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLPRI
+#include "socket/SocketCgi.hpp"
+#define EVENTS_CONNECTION EPOLLIN | EPOLLRDHUP | EPOLLPRI
 #define EVENTS_SERVER	  EPOLLIN | EPOLLERR | EPOLLRDHUP
 #define MAX_EVENTS		  100
 
@@ -12,6 +13,7 @@
 class ASocket;
 class Connection;
 class Listener;
+class SocketCgi;
 
 class EpollManager
 {
@@ -30,8 +32,11 @@ public:
 	void registerListenersToEpoll();
 	void eventLoop();
 
-	int	 getEpollFd() const;
+	int getEpollFd() const;
+
+	void eraseFdSocketMap(int fd);
 	void addConnection(std::pair<int, Connection*> const& newConnection);
+	void addCgi(std::pair<int, SocketCgi*> const& new_cgi);
 
 	EpollManager();
 	explicit EpollManager(std::vector<Listener*> const& listener_vec);

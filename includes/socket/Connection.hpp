@@ -2,6 +2,7 @@
 #define CONNECTION_HPP
 
 #include "http/parsing/ParsingRequest.hpp"
+#include "parsing/Location.hpp"
 #include "socket/ASocket.hpp"
 
 #include <stdint.h>
@@ -13,7 +14,10 @@ class Connection : public ASocket
 {
 private:
 	Listener const& server_;
+	EpollManager&	manager_;
 	ParsingRequest	parsing_request_;
+	uint32_t		events_;
+	std::string		addr_client_;
 	Connection(Connection const& to_copy);
 	Connection& operator=(Connection const& to_copy);
 
@@ -22,10 +26,20 @@ public:
 
 	bool bodyLengthValid();
 
-	virtual int		handleEvent(EpollManager& manager, uint32_t events);
-	Listener const& getServer() const;
+	int sendMsg(std::string const& msg);
 
-	Connection(int fd, Listener& server);
+	void handleCGI(Request const& request, std::string& response_str,
+				   std::string& path, Location const& location);
+	void handleHTTP(Request const& request, std::string& response_str,
+					std::string const& path, Location const& location);
+
+	virtual int		   handleEvent(EpollManager& manager, uint32_t events);
+	EpollManager&	   getManager() const;
+	Listener const&	   getServer() const;
+	std::string const& getClientAddr() const;
+
+	Connection(int fd, Listener& server, std::string const& addr,
+			   EpollManager& manager);
 	~Connection();
 };
 

@@ -47,18 +47,20 @@ namespace
 } // namespace
 
 std::string
-ResponsePost::buildResponse(std::vector<Location> const& locations_vec)
+ResponsePost::buildResponse(Location const& location, Listener const& server,
+							std::string const& path)
 {
-	Location const& location = getGoodLocation(locations_vec);
-	std::string		file_path;
+	std::string file_path = path;
 	if (!location.getRedirect().empty())
 		return (buildRedirect(location));
 
 	if (!location.checkAllowMethods(POST_CHECKER))
-		return (buildErrorResponse(HTTP_BAD_REQUEST));
+		return (buildErrorResponse(HTTP_METHOD_NOT_ALLOWED, server,
+								   request_.getVersion().toString()));
 
 	if (location.getUploadStore().empty())
-		return (buildErrorResponse(HTTP_NOT_FOUND));
+		return (buildErrorResponse(HTTP_NOT_FOUND, server,
+								   request_.getVersion().toString()));
 	file_path = location.buildPathPost(request_);
 	int fd = open(file_path.c_str(), O_DIRECTORY | O_CLOEXEC);
 	if (fd != -1 && location.getAutoIndex())
@@ -67,7 +69,8 @@ ResponsePost::buildResponse(std::vector<Location> const& locations_vec)
 
 		DIR* dir = opendir(file_path.c_str());
 		if (dir == NULL)
-			return (buildErrorResponse(HTTP_NOT_FOUND));
+			return (buildErrorResponse(HTTP_NOT_FOUND, server,
+									   request_.getVersion().toString()));
 		closedir(dir);
 
 		file_path += "/" + generate_filename();
@@ -77,7 +80,8 @@ ResponsePost::buildResponse(std::vector<Location> const& locations_vec)
 
 	std::ofstream file(file_path.c_str());
 	if (!file.is_open())
-		return (buildErrorResponse(HTTP_NOT_FOUND));
+		return (buildErrorResponse(HTTP_NOT_FOUND, server,
+								   request_.getVersion().toString()));
 	file << request_.getBody().getContent();
 	if (error_code_ == 0)
 		error_code_ = HTTP_OK;

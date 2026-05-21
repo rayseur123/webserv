@@ -1,7 +1,8 @@
-#include "http/parsing/Version.hpp"
 #include <cstdlib>
+
 #include "http/Code.hpp"
 #include "http/httpStatus.hpp"
+#include "http/parsing/Version.hpp"
 
 void
 Version::setProtocol(std::string const& protocol)
@@ -21,7 +22,7 @@ Version::setSecNb(int nb)
 	sec_nb_ = nb;
 }
 
-std::string
+std::string const&
 Version::getProtocol() const
 {
 	return protocol_;
@@ -40,10 +41,11 @@ Version::getSecNb() const
 }
 
 Version::Version(Version const& to_copy) :
-	first_nb_(to_copy.first_nb_), sec_nb_(to_copy.sec_nb_)
+	protocol_(to_copy.protocol_), first_nb_(to_copy.first_nb_),
+	sec_nb_(to_copy.sec_nb_)
 {}
 
-Version::Version() : first_nb_(-1), sec_nb_(-1)
+Version::Version() : protocol_("HTTP"), first_nb_(1), sec_nb_(0)
 {}
 
 Version::Version(std::string version)
@@ -70,6 +72,9 @@ Version::Version(std::string version)
 
 	// Version
 	pos = version.find('.');
+	if (pos == std::string::npos)
+		throw Code(HTTP_BAD_REQUEST);
+
 	first_nb_ = convertInNb(version.substr(0, pos));
 	version.erase(0, pos + 1);
 	sec_nb_ = convertInNb(version);
@@ -114,6 +119,16 @@ Version::operator=(Version const& to_copy)
 	first_nb_ = to_copy.first_nb_;
 	sec_nb_ = to_copy.sec_nb_;
 	return *this;
+}
+
+std::string
+Version::toString() const
+{
+	std::stringstream ss;
+
+	ss << protocol_ << "/" << first_nb_ << "." << sec_nb_;
+
+	return ss.str();
 }
 
 std::ostream&

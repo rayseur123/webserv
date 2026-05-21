@@ -155,7 +155,7 @@ AResponse::getBody() const
 std::string
 AResponse::buildRequestLine() const
 {
-	return (makeCodeResponse(error_code_));
+	return (makeCodeResponse(error_code_, request_.getVersion().toString()));
 }
 
 std::string

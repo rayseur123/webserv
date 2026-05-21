@@ -1,11 +1,13 @@
 #include <csignal>
 #include <utility>
+#include <vector>
 
 #include "epoll/EpollManager.hpp"
 #include "epoll/signal.hpp"
 #include "socket/ASocket.hpp"
 #include "socket/Connection.hpp"
 #include "socket/Listener.hpp"
+#include "socket/SocketCgi.hpp"
 #include "unistd.h"
 #include "utils/utils.hpp"
 
@@ -13,6 +15,12 @@ void
 EpollManager::addConnection(std::pair<int, Connection*> const& newConnection)
 {
 	socket_map_.insert(newConnection);
+}
+
+void
+EpollManager::addCgi(std::pair<int, SocketCgi*> const& new_cgi)
+{
+	socket_map_.insert(new_cgi);
 }
 
 void
@@ -48,26 +56,51 @@ EpollManager::eventLoop()
 		int nb_events = epoll_wait(epoll_fd_, events_, MAX_EVENTS, -1);
 		if (Signal::signal == 1)
 			throw(SIGINT);
-
+		if (nb_events == -1)
+			std::cerr << "ERROR : ";
 		for (int i = 0; i < nb_events; ++i)
 		{
 			int fd = events_[i].data.fd;
 			if (socket_map_[fd]->handleEvent(*this, events_[i].events) == 1)
-			{
-				std::map<int, ASocket*>::iterator it = socket_map_.find(fd);
-				std::cout << "The fd " << fd << " has been shut down." << '\n';
-				delete it->second;
-				socket_map_.erase(it);
-				epoll_ctl(epoll_fd_, EPOLL_CTL_DEL, fd, NULL);
-			}
+				eraseFdSocketMap(fd);
 		}
 	}
 }
+
+// class socket_cgi :: public Asocket
+// {
+// 	private:
+// 	connection *connexion_;
+// 	std::string response;
+// 	pid_t child_status;
+
+// }
+
+////! Socket_cgi.handle_event()
+//{
+
+//	stock chunked par chunk la reponse
+//	quand la reponse est finis (read == 0)
+//	on ferme l'enfant()
+//	rajoute un timeout cas d'une boucle infinie
+//	call Connection->sendReponse(response) pour renvoyer la reponse au
+// client
+//}
 
 int
 EpollManager::getEpollFd() const
 {
 	return (epoll_fd_);
+}
+
+void
+EpollManager::eraseFdSocketMap(int fd)
+{
+	std::map<int, ASocket*>::iterator it = socket_map_.find(fd);
+	std::cout << "The fd " << fd << " has been shut down." << '\n';
+	delete it->second;
+	socket_map_.erase(it);
+	epoll_ctl(epoll_fd_, EPOLL_CTL_DEL, fd, NULL);
 }
 
 EpollManager::EpollManager() : epoll_fd_(-1), events_()
@@ -80,8 +113,19 @@ EpollManager::EpollManager(std::vector<Listener*> const& listener_vec) :
 {
 	std::vector<Listener*>::const_iterator it;
 
-	for (it = listener_vec.begin(); it != listener_vec.end(); ++it)
-		socket_map_.insert(std::make_pair((*it)->createListenerSocket(), *it));
+	try
+	{
+		for (it = listener_vec.begin(); it != listener_vec.end(); ++it)
+			socket_map_.insert(
+				std::make_pair((*it)->createListenerSocket(), *it));
+	}
+	catch (std::exception const& e)
+	{
+		std::vector<Listener*>::const_iterator it;
+		for (it = listener_vec.begin(); it != listener_vec.end(); ++it)
+			delete *it;
+		throw;
+	}
 
 	instanceEpoll();
 	registerListenersToEpoll();

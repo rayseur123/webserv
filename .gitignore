@@ -3,6 +3,7 @@
 *.json
 *.html
 *.conf
+*.md
 
 webserv
 

@@ -18,10 +18,17 @@ Headers::set(std::string const& key, std::string& value)
 	headers_[key] = value;
 }
 
-std::string&
-Headers::get(std::string const& key)
+std::string
+Headers::get(std::string const& key) const
 {
-	return headers_[key];
+	std::map<std::string, std::string>::const_iterator it;
+	std::string const								   empty;
+
+	it = headers_.find(key);
+
+	if (it == headers_.end())
+		return empty;
+	return it->second;
 }
 
 bool
@@ -33,11 +40,11 @@ Headers::has(std::string const& key) const
 	return (it != headers_.end());
 }
 
-int
-Headers::getContentLength()
+size_t
+Headers::getContentLength() const
 {
 	std::stringstream ss;
-	int				  number = 0;
+	size_t			  number = 0;
 
 	ss << get("content-length");
 	ss >> number;

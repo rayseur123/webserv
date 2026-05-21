@@ -10,15 +10,13 @@ private:
 	std::map<std::string, std::string> headers_;
 
 public:
-	static void typeAccepted(std::string& value);
-
-	void		 set(std::string const& key, std::string& value);
-	std::string& get(std::string const& key);
+	void		set(std::string const& key, std::string& value);
+	std::string get(std::string const& key) const;
 
 	std::map<std::string, std::string> const& getHeaders() const;
 	bool									  has(std::string const& key) const;
 
-	int getContentLength();
+	size_t getContentLength() const;
 
 	Headers& operator=(Headers const& to_copy);
 

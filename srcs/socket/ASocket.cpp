@@ -1,6 +1,5 @@
-#include <unistd.h>
-
 #include "socket/ASocket.hpp"
+#include <unistd.h>
 
 int
 ASocket::getFd() const
@@ -16,5 +15,6 @@ ASocket::ASocket(int fd) : fd_(fd)
 
 ASocket::~ASocket()
 {
-	close(fd_);
+	if (fd_ > 0)
+		close(fd_);
 }

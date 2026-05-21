@@ -26,6 +26,7 @@ SRCS_CONTENT :=	$(SRCS_DIR)main.cpp \
 				$(HTTP_DIR)ResponseGet.cpp \
 				$(HTTP_DIR)ResponseDelete.cpp \
 				$(HTTP_DIR)ResponsePost.cpp \
+				$(HTTP_DIR)Cgi.cpp \
 				$(HTTP_PARS_DIR)Body.cpp \
 				$(HTTP_PARS_DIR)Header.cpp \
 				$(HTTP_PARS_DIR)Method.cpp \
@@ -37,6 +38,7 @@ SRCS_CONTENT :=	$(SRCS_DIR)main.cpp \
 				$(PARS_DIR)Location.cpp \
 				$(SOCKET_DIR)ASocket.cpp \
 				$(SOCKET_DIR)Connection.cpp \
+				$(SOCKET_DIR)SocketCgi.cpp \
 				$(SOCKET_DIR)Listener.cpp \
 				$(UTILS_DIR)utils.cpp \
 

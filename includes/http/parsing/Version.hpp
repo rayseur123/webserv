@@ -16,9 +16,11 @@ private:
 	void	   isValid() const;
 
 public:
-	std::string getProtocol() const;
-	int			getFirstNb() const;
-	int			getSecNb() const;
+	std::string toString() const;
+
+	std::string const& getProtocol() const;
+	int				   getFirstNb() const;
+	int				   getSecNb() const;
 
 	void setProtocol(std::string const& protocol);
 	void setFirstNb(int nb);

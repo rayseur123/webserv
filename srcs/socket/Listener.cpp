@@ -1,6 +1,7 @@
 #include <cctype>
 #include <cstdlib>
 #include <fcntl.h>
+#include <map>
 #include <netdb.h>
 #include <string>
 #include <sys/socket.h>
@@ -8,11 +9,13 @@
 #include <unistd.h>
 #include <vector>
 
+#include "socket/ASocket.hpp"
 #include "socket/Connection.hpp"
 #include "socket/Listener.hpp"
 #include "utils/utils.hpp"
 
-#define UNIT 1000
+#define UNIT	1000
+#define DECIMAL 10
 
 void
 Listener::acceptNewConnection(EpollManager& manager)
@@ -36,7 +39,14 @@ Listener::acceptNewConnection(EpollManager& manager)
 		if (epoll_ctl(manager.getEpollFd(), EPOLL_CTL_ADD, connection_fd,
 					  &ev) == -1)
 			throw std::logic_error(messageError("acceptNewClient>epoll_ctl"));
-		Connection* connection = new Connection(connection_fd, *this);
+
+		// Convert the unsigned int adress to string adress
+		unsigned int addr_int = connection_addr.sin_addr.s_addr;
+		char*		 b = reinterpret_cast<char*>(&addr_int);
+		std::string	 addr_string = inet_ntop(b);
+
+		Connection* connection =
+			new Connection(connection_fd, *this, addr_string, manager);
 		manager.addConnection(std::make_pair(connection_fd, connection));
 	}
 }
@@ -44,7 +54,7 @@ Listener::acceptNewConnection(EpollManager& manager)
 int
 Listener::handleEvent(EpollManager& manager, uint32_t events)
 {
-	if (events & (EPOLLERR | EPOLLRDHUP))
+	if (events & (EPOLLERR | EPOLLRDHUP | EPOLLHUP))
 		return (1);
 	if (events & EPOLLIN)
 		acceptNewConnection(manager);
@@ -120,17 +130,18 @@ Listener::setLocations(std::vector<Location> const& location_vec)
 bool
 Listener::setMaxClientRequestBody(std::string const& max_client_request_body)
 {
-	size_t		index = max_client_request_body.find('m');
-	std::string temp = max_client_request_body.substr(0, index);
+	size_t index = max_client_request_body.find('m');
 
-	std::string::const_iterator it = max_client_request_body.begin();
-	while (it != max_client_request_body.end() && (std::isdigit(*it)) == 1)
-		++it;
-
-	if (it == max_client_request_body.end())
+	if (index != max_client_request_body.length() - 1 &&
+		index != std::string::npos)
 		return (false);
 
-	max_client_request_body_ = atoi(temp.c_str());
+	std::string temp = max_client_request_body.substr(0, index);
+
+	if (temp.find_first_not_of("0123456789m") != std::string::npos)
+		return (false);
+
+	max_client_request_body_ = std::strtol(temp.c_str(), NULL, DECIMAL);
 	if (index != std::string::npos)
 		max_client_request_body_ *= UNIT;
 	return (true);
@@ -164,7 +175,7 @@ Listener::setErrorPage(std::vector<std::string> const& error_page)
 		if (endPtr != it->c_str())
 			temp.push_back(static_cast<int>(val));
 	}
-	error_page_ = std::make_pair(temp, error_page.back());
+	error_page_.insert(std::make_pair(temp, error_page.back()));
 	return (true);
 }
 
@@ -192,7 +203,7 @@ Listener::getLocations() const
 	return (locations_vec_);
 }
 
-std::pair<std::vector<int>, std::string> const&
+std::map<std::vector<int>, std::string> const&
 Listener::getErrorPage() const
 {
 	return (error_page_);
@@ -219,19 +230,24 @@ operator<<(std::ostream& os, Listener const& to_print)
 	os << "\tclient_max_body_size: " << to_print.getMaxClientRequestBody()
 	   << '\n';
 
-	std::pair<std::vector<int>, std::string> err = to_print.getErrorPage();
-	if (!err.first.empty())
+	std::map<std::vector<int>, std::string> err = to_print.getErrorPage();
+	std::map<std::vector<int>, std::string>::const_iterator ite;
+
+	for (ite = err.begin(); ite != err.end(); ++ite)
 	{
-		os << "\terror_page: ";
-		for (std::vector<int>::const_iterator it = err.first.begin();
-			 it != err.first.end(); ++it)
+		if (!ite->first.empty())
 		{
-			os << *it;
-			std::vector<int>::const_iterator next = it;
-			if (++next != err.first.end())
-				os << ", ";
+			os << "\terror_page: ";
+			for (std::vector<int>::const_iterator it = ite->first.begin();
+				 it != ite->first.end(); ++it)
+			{
+				os << *it;
+				std::vector<int>::const_iterator next = it;
+				if (++next != ite->first.end())
+					os << ", ";
+			}
+			os << " -> " << ite->second << '\n';
 		}
-		os << " -> " << err.second << '\n';
 	}
 
 	std::vector<Location> const& locs = to_print.getLocations();

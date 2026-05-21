@@ -21,8 +21,9 @@ private:
 	int type_;
 
 public:
-	int	 getType() const;
-	void setType(int type);
+	int				  getType() const;
+	void			  setType(int type);
+	std::string const toString() const;
 
 	bool	operator==(Method const& m) const;
 	bool	operator!=(Method const& m) const;
