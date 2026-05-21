@@ -272,6 +272,6 @@ getGoodLocation(std::vector<Location> const& locations_vec,
 		}
 	}
 	if (best_value == 0)
-		throw std::logic_error("404");
+		throw 1;
 	return (*ret);
 }
