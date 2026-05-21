@@ -8,32 +8,8 @@
 #include "sys/socket.h"
 #include "utils/utils.hpp"
 
-// /usr/test/cgi.py/coucou/ca/va
-// /
-// /cgi.py/test
-// /cgi.py
 namespace
 {
-
-	bool
-	isCgiProgram(std::string const& s)
-	{
-		size_t pos = 0;
-		pos = s.find(".py");
-
-		return (pos != std::string::npos);
-	}
-
-	// void
-	// displayEnv(std::vector<std::string> list)
-	// {
-	// 	std::vector<std::string>::iterator it;
-
-	// 	for (it = list.begin(); it != list.end(); it++)
-	// 	{
-	// 		std::cout << *it << '\n';
-	// 	}
-	// }
 
 	std::string
 	prepareHeaderToEnv(std::string first, std::string const& second)
@@ -77,12 +53,34 @@ namespace
 
 } // namespace
 
+bool
+Cgi::isCgiProgram(std::string const& s)
+{
+	size_t pos = 0;
+
+	pos = s.find(".py");
+	if (pos != std::string::npos)
+	{
+		std::cout << "python inside" << std::endl;
+		extension_ = "py";
+	};
+
+	pos = s.find(".php");
+	if (pos != std::string::npos)
+	{
+		extension_ = "php";
+	}
+
+	std::cout << "extension:" << extension_;
+	return (extension_.length() > 0);
+}
+
 void
-Cgi::parseUri(Request const& r)
+Cgi::parseUri(Request const& r, std::string& path)
 {
 
 	size_t		pos = 0;
-	std::string uri = r.getUri().getTarget();
+	std::string uri = path;
 	std::string buff;
 
 	if (*uri.begin() == '/')
@@ -91,8 +89,9 @@ Cgi::parseUri(Request const& r)
 	pos = uri.find('/');
 	if (pos == std::string::npos)
 	{
+		isCgiProgram(uri);
+		path = uri;
 		env_.push_back("SCRIPT_NAME=/" + uri);
-		createPath(uri);
 		env_.push_back("PATH_INFO=");
 		return;
 	}
@@ -111,14 +110,15 @@ Cgi::parseUri(Request const& r)
 
 	if (pos == std::string::npos)
 	{
+		isCgiProgram(uri);
+		path = buff + uri;
 		env_.push_back("SCRIPT_NAME=/" + (buff + uri));
-		createPath(buff + uri);
 		env_.push_back("PATH_INFO=");
 	}
 	else
 	{
+		path = buff;
 		env_.push_back("SCRIPT_NAME=/" + buff);
-		createPath(buff);
 		env_.push_back("PATH_INFO=" + uri);
 	}
 	(void) r;
@@ -139,7 +139,7 @@ Cgi::addingRequestHeaderEnv(Request const& r)
 
 void
 Cgi::buildEnv(Request const& r, Listener const& s,
-			  std::string const& addr_client)
+			  std::string const& addr_client, std::string& path)
 {
 	// REQUEST_METHOD
 	env_.push_back("REQUEST_METHOD=" + r.getMethod().toString());
@@ -173,25 +173,17 @@ Cgi::buildEnv(Request const& r, Listener const& s,
 		env_.push_back("CONTENT_TYPE=" + r.getHeader().get("content-type"));
 
 	// SCRIPT_NAME && PATH_INFO
-	parseUri(r);
+	parseUri(r, path);
 
 	// HEADER-META-VARIABLES
 	addingRequestHeaderEnv(r);
 }
 
-// We will have bug if this file change his place (so be carefull)
-void
-Cgi::createPath(std::string const& target)
-{
-	path_ += "../../" + target;
-}
-
 // Faudra modifier le path info et le scriptname avec le path
 void
 Cgi::startProgram(Request const& r, Connection& c, std::string const& path,
-				  Location const& location) const
+				  Location const& location)
 {
-
 	(void) location;
 	(void) path;
 
@@ -213,6 +205,7 @@ Cgi::startProgram(Request const& r, Connection& c, std::string const& path,
 
 	if (status == 0)
 	{
+
 		dup2(fds[1], 1);
 		dup2(fds[1], 0);
 
@@ -220,19 +213,28 @@ Cgi::startProgram(Request const& r, Connection& c, std::string const& path,
 		close(fds[1]);
 
 		std::vector<std::string> argv;
+		std::string				 exec;
 
-		argv.push_back("/usr/bin/python3");
-		argv.push_back("data/cgi/test.py");
+		if (extension_ == "py")
+			exec = location.getCgiPathMap().at("py");
+		else if (extension_ == "php")
+			exec = (location.getCgiPathMap().at("php"));
 
-		if (execve("/usr/bin/python3", convertToExecve(argv).data(),
+		std::cout << "extension :" << extension_ << std::endl;
+		std::cout << exec << std::endl;
+
+		argv.push_back(exec);
+		argv.push_back(path);
+
+		if (execve(exec.c_str(), convertToExecve(argv).data(),
 				   convertToExecve(env_).data()) == -1)
 		{
-			std::cout << "excve failed error come from here" << std::endl;
+			std::cout << "serveur error iciciii cgi can't start" << std::endl;
 		}
 	}
 	else
 	{
-		epoll_event ev;
+		epoll_event ev = {};
 
 		ev.events = EVENTS_CONNECTION;
 		ev.data.fd = fds[0];
@@ -244,11 +246,11 @@ Cgi::startProgram(Request const& r, Connection& c, std::string const& path,
 		if (epoll_ctl(c.getManager().getEpollFd(), EPOLL_CTL_ADD, fds[0],
 					  &ev) == -1)
 		{
-			std::cout << "ERROR EPOLL ADDING CGI" << std::endl;
+			std::cout << "serveur error iciciii ERROR 500 Internal serveur "
+						 "error iciciii"
+					  << std::endl;
 		}
 		c.getManager().addCgi(std::make_pair(fds[0], cgi_socket));
-
-		// Return to epoll boucle
 	}
 }
 

@@ -1,7 +1,6 @@
 #ifndef CONNECTION_HPP
 #define CONNECTION_HPP
 
-#include "epoll/EpollManager.hpp"
 #include "http/parsing/ParsingRequest.hpp"
 #include "parsing/Location.hpp"
 #include "socket/ASocket.hpp"
@@ -30,7 +29,7 @@ public:
 	int sendMsg(std::string const& msg);
 
 	void handleCGI(Request const& request, std::string& response_str,
-				   std::string const& path, Location const& location);
+				   std::string& path, Location const& location);
 	void handleHTTP(Request const& request, std::string& response_str,
 					std::string const& path, Location const& location);
 
@@ -39,7 +38,7 @@ public:
 	Listener const&	   getServer() const;
 	std::string const& getClientAddr() const;
 
-	Connection(int fd, Listener& server, std::string addr,
+	Connection(int fd, Listener& server, std::string const& addr,
 			   EpollManager& manager);
 	~Connection();
 };

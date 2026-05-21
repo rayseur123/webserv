@@ -19,11 +19,11 @@
 
 void
 Connection::handleCGI(Request const& request, std::string& response_str,
-					  std::string const& path, Location const& location)
+					  std::string& path, Location const& location)
 {
 	Cgi response;
 
-	response.buildEnv(request, server_, getClientAddr());
+	response.buildEnv(request, server_, getClientAddr(), path);
 	response.startProgram(request, *this, path, location);
 
 	response_str = "final response from cgi \n";
@@ -67,8 +67,13 @@ isCGI(std::string const& uri)
 	size_t pos = 0;
 
 	pos = uri.find(".py");
+	if (pos != std::string::npos)
+		return true;
+	pos = uri.find(".php");
+	if (pos != std::string::npos)
+		return true;
 
-	return (pos != std::string::npos);
+	return false;
 }
 
 int
@@ -154,7 +159,7 @@ Connection::getClientAddr() const
 	return addr_client_;
 }
 
-Connection::Connection(int fd, Listener& server, std::string addr,
+Connection::Connection(int fd, Listener& server, std::string const& addr,
 					   EpollManager& manager) :
 	ASocket(fd), server_(server), manager_(manager), addr_client_(addr)
 {}
