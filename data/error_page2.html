@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SYSTEM FAILURE - 404</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&display=swap');
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            color: #00ff41;
+            font-family: 'Fira Code', monospace;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Effet Matrix en arrière-plan */
+        #matrix-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            opacity: 0.3;
+        }
+
+        .container {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #00ff41;
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.2);
+        }
+
+        h1 {
+            font-size: 5rem;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 10px;
+            animation: glitch 1s infinite;
+        }
+
+        .error-code {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #ff0000;
+            text-shadow: 0 0 10px #ff0000;
+        }
+
+        .typing-text {
+            border-right: 2px solid #00ff41;
+            white-space: nowrap;
+            overflow: hidden;
+            margin: 0 auto;
+            font-size: 1.2rem;
+        }
+
+        /* Animation de glitch visuel */
+        @keyframes glitch {
+            0% { transform: translate(0); text-shadow: -2px 0 red, 2px 0 blue; }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); text-shadow: 2px 0 red, -2px 0 blue; }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
+
+        .terminal-header {
+            background: #00ff41;
+            color: black;
+            padding: 2px 10px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: left;
+            font-size: 0.8rem;
+        }
+
+        .scanline {
+            width: 100%;
+            height: 100px;
+            z-index: 3;
+            background: linear-gradient(0deg, rgba(0, 0, 0, 0) 0%, rgba(0, 255, 65, 0.1) 50%, rgba(0, 0, 0, 0) 100%);
+            opacity: 0.1;
+            position: absolute;
+            bottom: 100%;
+            animation: scanline 4s linear infinite;
+        }
+
+        @keyframes scanline {
+            0% { bottom: 100%; }
+            100% { bottom: -100px; }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="matrix-canvas"></canvas>
+    <div class="scanline"></div>
+
+    <div class="container">
+        <div class="terminal-header">ROOT@WEBSERV:~# ACCESS_DENIED</div>
+        <h1>ERROR</h1>
+        <div class="error-code">[ CODE: 0x404 ]</div>
+        <div class="typing-text" id="typing">Connecting to mainframe... FAILED.</div>
+        <p style="font-size: 0.7rem; margin-top: 30px; opacity: 0.6;">
+            Traceback (most recent call last):<br>
+            SecurityException: Packet injection detected.
+        </p>
+    </div>
+
+    <script>
+        // Effet Matrix Rain
+        const canvas = document.getElementById('matrix-canvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$#@%&*";
+        const fontSize = 16;
+        const columns = canvas.width / fontSize;
+
+        const rainDrops = Array.from({ length: columns }).fill(1);
+
+        function drawMatrix() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#0F0';
+            ctx.font = fontSize + 'px monospace';
+
+            for (let i = 0; i < rainDrops.length; i++) {
+                const text = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
+                ctx.fillText(text, i * fontSize, rainDrops[i] * fontSize);
+
+                if (rainDrops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    rainDrops[i] = 0;
+                }
+                rainDrops[i]++;
+            }
+        }
+
+        // Effet de texte qui s'écrit
+        const textElement = document.getElementById('typing');
+        const phrases = [
+            "Bypassing firewall...",
+            "Decrypting RSA 4096 keys...",
+            "Access denied by administrator.",
+            "Target location not found."
+        ];
+        let phraseIndex = 0;
+        let charIndex = 0;
+
+        function type() {
+            if (charIndex < phrases[phraseIndex].length) {
+                textElement.innerHTML += phrases[phraseIndex].charAt(charIndex);
+                charIndex++;
+                setTimeout(type, 100);
+            } else {
+                setTimeout(erase, 2000);
+            }
+        }
+
+        function erase() {
+            if (charIndex > 0) {
+                textElement.innerHTML = phrases[phraseIndex].substring(0, charIndex - 1);
+                charIndex--;
+                setTimeout(erase, 50);
+            } else {
+                phraseIndex = (phraseIndex + 1) % phrases.length;
+                setTimeout(type, 500);
+            }
+        }
+
+        setInterval(drawMatrix, 30);
+        type();
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
+</body>
+</html>

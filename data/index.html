@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Horizon — Studio Créatif</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink:    #0e0e0c;
+      --paper:  #f5f2eb;
+      --mist:   #e8e4d9;
+      --stone:  #9c9488;
+      --rust:   #b85c38;
+      --rust-l: #d4795a;
+      --gold:   #c9a84c;
+      --gap:    clamp(2rem, 5vw, 5rem);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.4rem var(--gap);
+      background: rgba(245,242,235,.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--mist);
+    }
+    .nav-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.5rem; font-weight: 600; letter-spacing: .04em;
+      color: var(--ink); text-decoration: none;
+    }
+    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+    .nav-links a {
+      font-size: .85rem; letter-spacing: .08em; text-transform: uppercase;
+      color: var(--stone); text-decoration: none;
+      transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--ink); }
+    .nav-cta {
+      font-size: .8rem; letter-spacing: .1em; text-transform: uppercase;
+      padding: .55rem 1.4rem; border: 1px solid var(--ink);
+      background: transparent; color: var(--ink); cursor: pointer;
+      text-decoration: none;
+      transition: background .2s, color .2s;
+    }
+    .nav-cta:hover { background: var(--ink); color: var(--paper); }
+
+    /* ── HERO ── */
+    header {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      padding-top: 5rem;
+      overflow: hidden;
+    }
+    .hero-left {
+      display: flex; flex-direction: column; justify-content: center;
+      padding: var(--gap) var(--gap) var(--gap) clamp(2rem,6vw,7rem);
+    }
+    .hero-eyebrow {
+      font-size: .75rem; letter-spacing: .18em; text-transform: uppercase;
+      color: var(--rust); margin-bottom: 1.5rem;
+      display: flex; align-items: center; gap: .8rem;
+    }
+    .hero-eyebrow::before {
+      content: ''; display: block;
+      width: 2.5rem; height: 1px; background: var(--rust);
+    }
+    h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(3.5rem, 6vw, 6rem);
+      font-weight: 300; line-height: 1.05;
+      letter-spacing: -.01em;
+      margin-bottom: 2rem;
+    }
+    h1 em { font-style: italic; color: var(--rust); }
+    .hero-sub {
+      font-size: 1.05rem; line-height: 1.75;
+      color: #555; max-width: 42ch;
+      margin-bottom: 3rem;
+    }
+    .btn-group { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+    .btn-primary {
+      display: inline-block; padding: .9rem 2.2rem;
+      background: var(--ink); color: var(--paper);
+      font-size: .8rem; letter-spacing: .1em; text-transform: uppercase;
+      text-decoration: none; transition: background .2s, transform .15s;
+    }
+    .btn-primary:hover { background: #2a2a28; transform: translateY(-1px); }
+    .btn-ghost {
+      font-size: .85rem; color: var(--stone);
+      text-decoration: none; letter-spacing: .04em;
+      display: flex; align-items: center; gap: .5rem;
+      transition: color .2s;
+    }
+    .btn-ghost:hover { color: var(--ink); }
+    .btn-ghost span { transition: transform .2s; }
+    .btn-ghost:hover span { transform: translateX(4px); }
+
+    .hero-right {
+      position: relative; overflow: hidden;
+    }
+    .hero-right::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, #e2d5c0 0%, #c8b99a 50%, #b09070 100%);
+    }
+    .hero-grid-overlay {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.08) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+    .hero-shape {
+      position: absolute;
+      border-radius: 50%;
+    }
+    .hero-shape-1 {
+      width: 340px; height: 340px;
+      top: 15%; left: 50%; transform: translateX(-50%);
+      background: rgba(184,92,56,.25);
+      animation: float 6s ease-in-out infinite;
+    }
+    .hero-shape-2 {
+      width: 180px; height: 180px;
+      bottom: 20%; right: 15%;
+      background: rgba(201,168,76,.2);
+      animation: float 8s ease-in-out infinite reverse;
+    }
+    .hero-number {
+      position: absolute; bottom: 2rem; left: 2rem;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 7rem; font-weight: 300;
+      color: rgba(255,255,255,.15);
+      line-height: 1; letter-spacing: -.04em;
+    }
+
+    @keyframes float {
+      0%,100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(-18px); }
+    }
+
+    /* ── STATS BAND ── */
+    .stats {
+      display: grid; grid-template-columns: repeat(3,1fr);
+      border-top: 1px solid var(--mist);
+      border-bottom: 1px solid var(--mist);
+    }
+    .stat {
+      padding: 2.5rem var(--gap);
+      border-right: 1px solid var(--mist);
+      text-align: center;
+      opacity: 0; transform: translateY(20px);
+      transition: opacity .6s, transform .6s;
+    }
+    .stat:last-child { border-right: none; }
+    .stat.visible { opacity: 1; transform: none; }
+    .stat-number {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 3.5rem; font-weight: 600;
+      color: var(--rust); line-height: 1;
+      margin-bottom: .4rem;
+    }
+    .stat-label { font-size: .8rem; letter-spacing: .1em; text-transform: uppercase; color: var(--stone); }
+
+    /* ── SERVICES ── */
+    .section { padding: calc(var(--gap) * 2) var(--gap); }
+    .section-header {
+      display: flex; justify-content: space-between;
+      align-items: flex-end; margin-bottom: 4rem;
+    }
+    .section-tag {
+      font-size: .7rem; letter-spacing: .18em; text-transform: uppercase;
+      color: var(--rust); margin-bottom: .8rem;
+    }
+    h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.5rem, 4vw, 3.8rem);
+      font-weight: 300; line-height: 1.1;
+    }
+    .section-header p {
+      max-width: 36ch; color: var(--stone);
+      font-size: .95rem; line-height: 1.7;
+      align-self: flex-end;
+    }
+
+    .services-grid {
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 1px;
+      background: var(--mist);
+    }
+    .service-card {
+      background: var(--paper);
+      padding: 2.5rem 2rem;
+      position: relative; overflow: hidden;
+      transition: background .3s;
+    }
+    .service-card::after {
+      content: '';
+      position: absolute; bottom: 0; left: 0;
+      height: 2px; width: 0;
+      background: var(--rust);
+      transition: width .35s ease;
+    }
+    .service-card:hover { background: #f0ece2; }
+    .service-card:hover::after { width: 100%; }
+    .service-icon {
+      width: 2.5rem; height: 2.5rem;
+      border: 1px solid var(--mist);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 1.5rem; font-size: 1rem;
+    }
+    .service-card h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.7rem; font-weight: 400;
+      margin-bottom: .8rem;
+    }
+    .service-card p { font-size: .9rem; line-height: 1.7; color: var(--stone); }
+
+    /* ── WORK ── */
+    .work-grid {
+      display: grid;
+      grid-template-columns: 5fr 3fr;
+      grid-template-rows: auto auto;
+      gap: 1.5rem;
+    }
+    .work-card {
+      position: relative; overflow: hidden;
+      background: var(--mist);
+      aspect-ratio: 4/3;
+    }
+    .work-card-wide { grid-column: 1; grid-row: 1 / 3; aspect-ratio: unset; }
+    .work-card-a { grid-column: 2; grid-row: 1; }
+    .work-card-b { grid-column: 2; grid-row: 2; }
+
+    .work-card-wide .work-bg { background: linear-gradient(145deg, #1a1814 0%, #3c3428 100%); }
+    .work-card-a .work-bg { background: linear-gradient(145deg, #2c2420 0%, #5a3828 100%); }
+    .work-card-b .work-bg { background: linear-gradient(145deg, #1e2228 0%, #2c3a4a 100%); }
+
+    .work-bg { position: absolute; inset: 0; }
+    .work-noise {
+      position: absolute; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E");
+      mix-blend-mode: overlay; opacity: .4;
+    }
+    .work-info {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 1.5rem;
+      background: linear-gradient(transparent, rgba(0,0,0,.5));
+    }
+    .work-tag {
+      font-size: .65rem; letter-spacing: .15em; text-transform: uppercase;
+      color: rgba(255,255,255,.5); margin-bottom: .3rem;
+    }
+    .work-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.6rem; font-weight: 400;
+      color: #fff;
+    }
+    .work-card-a .work-title, .work-card-b .work-title { font-size: 1.2rem; }
+
+    /* ── CTA ── */
+    .cta-section {
+      margin: 0 var(--gap) var(--gap);
+      padding: 5rem clamp(2rem,6vw,7rem);
+      background: var(--ink);
+      display: grid; grid-template-columns: 1fr 1fr;
+      align-items: center; gap: 3rem;
+    }
+    .cta-section h2 {
+      color: var(--paper);
+      font-size: clamp(2.5rem, 4vw, 3.5rem);
+    }
+    .cta-section h2 em { color: var(--rust-l); }
+    .cta-right { display: flex; flex-direction: column; gap: 1.5rem; align-items: flex-start; }
+    .cta-right p { color: rgba(245,242,235,.5); font-size: .95rem; line-height: 1.7; }
+    .btn-light {
+      display: inline-block; padding: .9rem 2.2rem;
+      background: var(--paper); color: var(--ink);
+      font-size: .8rem; letter-spacing: .1em; text-transform: uppercase;
+      text-decoration: none; transition: background .2s;
+    }
+    .btn-light:hover { background: var(--mist); }
+
+    /* ── FOOTER ── */
+    footer {
+      padding: 2rem var(--gap);
+      display: flex; justify-content: space-between; align-items: center;
+      border-top: 1px solid var(--mist);
+    }
+    footer p { font-size: .8rem; color: var(--stone); }
+    .footer-links { display: flex; gap: 2rem; }
+    .footer-links a {
+      font-size: .75rem; letter-spacing: .08em; text-transform: uppercase;
+      color: var(--stone); text-decoration: none;
+      transition: color .2s;
+    }
+    .footer-links a:hover { color: var(--ink); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      header { grid-template-columns: 1fr; }
+      .hero-right { min-height: 40vh; }
+      .stats { grid-template-columns: repeat(3,1fr); }
+      .services-grid { grid-template-columns: 1fr; }
+      .work-grid { grid-template-columns: 1fr; }
+      .work-card-wide { grid-column: auto; grid-row: auto; aspect-ratio: 4/3; }
+      .work-card-a, .work-card-b { grid-column: auto; grid-row: auto; }
+      .section-header { flex-direction: column; align-items: flex-start; }
+      .cta-section { grid-template-columns: 1fr; }
+      nav .nav-links { display: none; }
+    }
+
+    /* ── SCROLL REVEAL ── */
+    .reveal { opacity: 0; transform: translateY(30px); transition: opacity .7s, transform .7s; }
+    .reveal.visible { opacity: 1; transform: none; }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="#" class="nav-logo">Horizon</a>
+    <ul class="nav-links">
+      <li><a href="#services">Services</a></li>
+      <li><a href="#work">Réalisations</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <a href="#contact" class="nav-cta">Démarrer</a>
+  </nav>
+
+  <header>
+    <div class="hero-left">
+      <p class="hero-eyebrow">Studio créatif — Lyon</p>
+      <h1>Donner vie<br>à vos <em>idées</em><br>les plus grandes.</h1>
+      <p class="hero-sub">
+        Nous concevons des expériences numériques et visuelles qui marquent les esprits.
+        Du branding à l'interface, chaque détail compte.
+      </p>
+      <div class="btn-group">
+        <a href="#work" class="btn-primary">Voir nos travaux</a>
+        <a href="#contact" class="btn-ghost">Parlons de votre projet <span>→</span></a>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="hero-grid-overlay"></div>
+      <div class="hero-shape hero-shape-1"></div>
+      <div class="hero-shape hero-shape-2"></div>
+      <div class="hero-number">01</div>
+    </div>
+  </header>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-number">120+</div>
+      <div class="stat-label">Projets livrés</div>
+    </div>
+    <div class="stat">
+      <div class="stat-number">8 ans</div>
+      <div class="stat-label">D'expérience</div>
+    </div>
+    <div class="stat">
+      <div class="stat-number">98%</div>
+      <div class="stat-label">Clients satisfaits</div>
+    </div>
+  </div>
+
+  <section class="section" id="services">
+    <div class="section-header reveal">
+      <div>
+        <p class="section-tag">Ce que nous faisons</p>
+        <h2>Nos<br>expertises</h2>
+      </div>
+      <p>Un savoir-faire pluridisciplinaire au service de votre vision, de la stratégie à la réalisation finale.</p>
+    </div>
+    <div class="services-grid">
+      <div class="service-card reveal">
+        <div class="service-icon">✦</div>
+        <h3>Identité visuelle</h3>
+        <p>Création de marques mémorables — logo, charte graphique, typographie et système de design cohérent.</p>
+      </div>
+      <div class="service-card reveal" style="transition-delay:.1s">
+        <div class="service-icon">⬡</div>
+        <h3>Design web</h3>
+        <p>Interfaces élégantes et intuitives conçues pour convertir, impressionner et fidéliser vos visiteurs.</p>
+      </div>
+      <div class="service-card reveal" style="transition-delay:.2s">
+        <div class="service-icon">◈</div>
+        <h3>Motion & photo</h3>
+        <p>Direction artistique, animation et production visuelle pour donner vie à vos messages clés.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="work" style="padding-top:0">
+    <div class="section-header reveal">
+      <div>
+        <p class="section-tag">Portfolio sélection</p>
+        <h2>Quelques<br>réalisations</h2>
+      </div>
+      <p>Des projets variés, chacun mené avec la même exigence de qualité et d'attention au détail.</p>
+    </div>
+    <div class="work-grid reveal">
+      <div class="work-card work-card-wide">
+        <div class="work-bg"></div>
+        <div class="work-noise"></div>
+        <div class="work-info">
+          <p class="work-tag">Branding · 2024</p>
+          <h3 class="work-title">Maison Lune — Identité complète</h3>
+        </div>
+      </div>
+      <div class="work-card work-card-a">
+        <div class="work-bg"></div>
+        <div class="work-noise"></div>
+        <div class="work-info">
+          <p class="work-tag">Web · 2024</p>
+          <h3 class="work-title">Atelier Forma</h3>
+        </div>
+      </div>
+      <div class="work-card work-card-b">
+        <div class="work-bg"></div>
+        <div class="work-noise"></div>
+        <div class="work-info">
+          <p class="work-tag">Motion · 2023</p>
+          <h3 class="work-title">Nuit Blanche Festival</h3>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact">
+    <div class="cta-section reveal">
+      <h2>Prêt à créer<br>quelque chose<br><em>d'exceptionnel&nbsp;?</em></h2>
+      <div class="cta-right">
+        <p>
+          Chaque collaboration commence par une conversation. Décrivez-nous votre projet et voyons comment nous pouvons vous aider.
+        </p>
+        <a href="mailto:hello@horizon-studio.fr" class="btn-light">Nous contacter →</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>© 2025 Horizon Studio — Lyon, France</p>
+    <div class="footer-links">
+      <a href="#">LinkedIn</a>
+      <a href="#">Instagram</a>
+      <a href="#">Dribbble</a>
+    </div>
+  </footer>
+
+  <script>
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.15 });
+
+    document.querySelectorAll('.reveal, .stat').forEach(el => io.observe(el));
+  </script>
+</body>
+</html>
