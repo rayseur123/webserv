@@ -3,6 +3,7 @@
 #include <fcntl.h>
 #include <map>
 #include <netdb.h>
+#include <sstream>
 #include <string>
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -151,10 +152,29 @@ Listener::setAddrAndPort(std::string const& addr_and_port)
 {
 	size_t index = addr_and_port.find(':');
 	if (index == std::string::npos)
-		return (false);
+		return false;
+
+	std::string port_str = addr_and_port.substr(index + 1);
+
+	if (port_str.empty())
+		return false;
+
+	for (size_t i = 0; i < port_str.size(); ++i)
+	{
+		if (!std::isdigit(port_str[i]))
+			return false;
+	}
+
+	std::stringstream ss(port_str);
+	unsigned long	  port_val;
+	ss >> port_val;
+
+	if (port_val > 65535)
+		return false;
 	address_ = addr_and_port.substr(0, index);
-	port_ = addr_and_port.substr(index + 1);
-	return (true);
+	port_ = port_str;
+
+	return true;
 }
 
 bool
