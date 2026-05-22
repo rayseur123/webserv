@@ -1,8 +1,12 @@
 #include "http/Cgi.hpp"
+#include <cstdio>
+#include <cstring>
 #include <sys/epoll.h>
 #include <unistd.h>
 #include <utility>
 #include "epoll/EpollManager.hpp"
+#include "http/Code.hpp"
+#include "http/httpStatus.hpp"
 #include "socket/Connection.hpp"
 #include "socket/SocketCgi.hpp"
 #include "sys/socket.h"
@@ -53,75 +57,26 @@ namespace
 
 } // namespace
 
-bool
-Cgi::isCgiProgram(std::string const& s)
-{
-	size_t pos = 0;
-
-	pos = s.find(".py");
-	if (pos != std::string::npos)
-	{
-		std::cout << "python inside" << std::endl;
-		extension_ = "py";
-	};
-
-	pos = s.find(".php");
-	if (pos != std::string::npos)
-	{
-		extension_ = "php";
-	}
-
-	std::cout << "extension:" << extension_;
-	return (extension_.length() > 0);
-}
-
 void
-Cgi::parseUri(Request const& r, std::string& path)
+Cgi::defineExtension(std::string const& path)
 {
-
+	std::string check;
 	size_t		pos = 0;
-	std::string uri = path;
-	std::string buff;
 
-	if (*uri.begin() == '/')
-		uri.erase(0, 1);
-
-	pos = uri.find('/');
-	if (pos == std::string::npos)
+	pos = path.find(".py");
+	if (pos != std::string::npos)
 	{
-		isCgiProgram(uri);
-		path = uri;
-		env_.push_back("SCRIPT_NAME=/" + uri);
-		env_.push_back("PATH_INFO=");
-		return;
+		check = path.substr(pos);
+		if (check.length() == 3)
+			extension_ = "py";
 	}
-	while (pos != std::string::npos)
+	pos = path.find(".php");
+	if (pos != std::string::npos)
 	{
-		if (isCgiProgram(uri.substr(0, pos)))
-		{
-			buff += uri.substr(0, pos);
-			uri.erase(0, pos);
-			break;
-		}
-		buff += uri.substr(0, pos + 1);
-		uri.erase(0, pos + 1);
-		pos = uri.find('/');
+		check = path.substr(pos);
+		if (check.length() == 4)
+			extension_ = "php";
 	}
-
-	if (pos == std::string::npos)
-	{
-		isCgiProgram(uri);
-		path = buff + uri;
-		env_.push_back("SCRIPT_NAME=/" + (buff + uri));
-		env_.push_back("PATH_INFO=");
-	}
-	else
-	{
-		path = buff;
-		env_.push_back("SCRIPT_NAME=/" + buff);
-		env_.push_back("PATH_INFO=" + uri);
-	}
-	(void) r;
 }
 
 void
@@ -142,7 +97,12 @@ Cgi::buildEnv(Request const& r, Listener const& s,
 			  std::string const& addr_client, std::string& path)
 {
 	// REQUEST_METHOD
+	if (r.getMethod().toString() == "DELETE")
+		throw(Code(HTTP_METHOD_NOT_ALLOWED));
 	env_.push_back("REQUEST_METHOD=" + r.getMethod().toString());
+
+	// SCRIPT_NAME
+	env_.push_back("SCRIPT_NAME=" + path);
 
 	// SERVER_SOFTWARE
 	env_.push_back("SERVER_SOFTWARE=Webserv/1.0");
@@ -172,22 +132,68 @@ Cgi::buildEnv(Request const& r, Listener const& s,
 	else
 		env_.push_back("CONTENT_TYPE=" + r.getHeader().get("content-type"));
 
-	// SCRIPT_NAME && PATH_INFO
-	parseUri(r, path);
-
 	// HEADER-META-VARIABLES
 	addingRequestHeaderEnv(r);
 }
 
-// Faudra modifier le path info et le scriptname avec le path
+void
+Cgi::childProcess(int										fds[2],
+				  std::map<std::string, std::string> const& path_map,
+				  std::string const&						path)
+{
+	dup2(fds[1], 1);
+	dup2(fds[1], 0);
+
+	close(fds[0]);
+	close(fds[1]);
+
+	std::vector<std::string> argv;
+	std::string				 exec;
+
+	if (extension_ == "py")
+		exec = path_map.at("py");
+	else if (extension_ == "php")
+		exec = (path_map.at("php"));
+
+	argv.push_back(exec);
+	argv.push_back(path);
+
+	if (execve(exec.c_str(), convertToExecve(argv).data(),
+			   convertToExecve(env_).data()) == -1)
+	{
+		perror("execve");
+		close(fds[0]);
+		close(fds[1]);
+		throw(ForkException());
+	}
+}
+
+void
+parentProcess(int fds[2], pid_t status, Connection& c)
+{
+	epoll_event ev = {};
+
+	ev.events = EVENTS_CONNECTION;
+	ev.data.fd = fds[0];
+
+	close(fds[1]);
+
+	SocketCgi* cgi_socket = new SocketCgi(c, fds[0], status);
+
+	if (epoll_ctl(c.getManager().getEpollFd(), EPOLL_CTL_ADD, fds[0], &ev) ==
+		-1)
+	{
+		perror("epoll_adding_cgi");
+		throw Code(HTTP_INTERNAL_SERVER_ERROR);
+	}
+	c.getManager().addCgi(std::make_pair(fds[0], cgi_socket));
+}
+
 void
 Cgi::startProgram(Request const& r, Connection& c, std::string const& path,
 				  Location const& location)
 {
-	(void) location;
-	(void) path;
-
-	int	  fds[2] = { 0 };
+	int	  fds[2] = {};
 	pid_t status = 0;
 
 	socketpair(AF_UNIX, SOCK_STREAM, 0, fds);
@@ -198,63 +204,23 @@ Cgi::startProgram(Request const& r, Connection& c, std::string const& path,
 	write(fds[0], r.getBody().getContent().c_str(),
 		  r.getBody().getContent().length());
 
+	if (access(path.c_str(), F_OK) != 0)
+		throw(Code(HTTP_NOT_FOUND));
+
+	defineExtension(path);
+
 	status = fork();
 
 	if (status == -1)
-		throw("une erreur");
+		throw(Code(HTTP_INTERNAL_SERVER_ERROR));
 
 	if (status == 0)
-	{
-
-		dup2(fds[1], 1);
-		dup2(fds[1], 0);
-
-		close(fds[0]);
-		close(fds[1]);
-
-		std::vector<std::string> argv;
-		std::string				 exec;
-
-		if (extension_ == "py")
-			exec = location.getCgiPathMap().at("py");
-		else if (extension_ == "php")
-			exec = (location.getCgiPathMap().at("php"));
-
-		std::cout << "extension :" << extension_ << std::endl;
-		std::cout << exec << std::endl;
-
-		argv.push_back(exec);
-		argv.push_back(path);
-
-		if (execve(exec.c_str(), convertToExecve(argv).data(),
-				   convertToExecve(env_).data()) == -1)
-		{
-			std::cout << "serveur error iciciii cgi can't start" << std::endl;
-		}
-	}
+		childProcess(fds, location.getCgiPathMap(), path);
 	else
-	{
-		epoll_event ev = {};
-
-		ev.events = EVENTS_CONNECTION;
-		ev.data.fd = fds[0];
-
-		close(fds[1]);
-
-		SocketCgi* cgi_socket = new SocketCgi(c, fds[0], status);
-
-		if (epoll_ctl(c.getManager().getEpollFd(), EPOLL_CTL_ADD, fds[0],
-					  &ev) == -1)
-		{
-			std::cout << "serveur error iciciii ERROR 500 Internal serveur "
-						 "error iciciii"
-					  << std::endl;
-		}
-		c.getManager().addCgi(std::make_pair(fds[0], cgi_socket));
-	}
+		parentProcess(fds, status, c);
 }
 
-Cgi::Cgi(Cgi const& c) : env_(c.env_)
+Cgi::Cgi(Cgi const& c) : env_(c.env_), extension_(c.extension_)
 {}
 
 Cgi&
@@ -268,3 +234,9 @@ Cgi::operator=(Cgi const& c)
 Cgi::Cgi() {};
 
 Cgi::~Cgi() {};
+
+char const*
+ForkException::what() const throw()
+{
+	return "error inside fork";
+};
