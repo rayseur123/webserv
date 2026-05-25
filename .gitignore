@@ -4,7 +4,10 @@
 *.conf
 *.md
 
+webserv.conf
 webserv
+
+*.conf
 
 # Compiled Object files
 *.slo

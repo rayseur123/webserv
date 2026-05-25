@@ -7,6 +7,7 @@
 #include "epoll/EpollManager.hpp"
 #include "http/Code.hpp"
 #include "http/httpStatus.hpp"
+#include "parsing/Location.hpp"
 #include "socket/Connection.hpp"
 #include "socket/SocketCgi.hpp"
 #include "sys/socket.h"
@@ -58,24 +59,15 @@ namespace
 } // namespace
 
 void
-Cgi::defineExtension(std::string const& path)
+Cgi::defineExtension(std::string path)
 {
-	std::string check;
-	size_t		pos = 0;
+	size_t pos = 0;
 
-	pos = path.find(".py");
+	pos = path.rfind('.');
 	if (pos != std::string::npos)
 	{
-		check = path.substr(pos);
-		if (check.length() == 3)
-			extension_ = "py";
-	}
-	pos = path.find(".php");
-	if (pos != std::string::npos)
-	{
-		check = path.substr(pos);
-		if (check.length() == 4)
-			extension_ = "php";
+		path.erase(0, pos + 1);
+		extension_ = path;
 	}
 }
 
@@ -154,10 +146,7 @@ Cgi::childProcess(int										fds[2],
 	std::vector<std::string> argv;
 	std::string				 exec;
 
-	if (extension_ == "py")
-		exec = path_map.at("py");
-	else if (extension_ == "php")
-		exec = (path_map.at("php"));
+	exec = path_map.at(extension_);
 
 	argv.push_back(exec);
 	argv.push_back(path);
@@ -215,12 +204,6 @@ Cgi::startProgram(Request const& r, Connection& c, std::string const& path,
 	{
 		perror("write_cgi");
 		throw(Code(HTTP_INTERNAL_SERVER_ERROR));
-	}
-
-	if (access(path.c_str(), F_OK) != 0)
-	{
-		perror("access_cgi");
-		throw(Code(HTTP_NOT_FOUND));
 	}
 
 	defineExtension(path);
