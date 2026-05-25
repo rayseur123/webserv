@@ -170,7 +170,8 @@ Connection::getClientAddr() const
 
 Connection::Connection(int fd, Listener& server, std::string const& addr,
 					   EpollManager& manager) :
-	ASocket(fd), server_(server), manager_(manager), addr_client_(addr)
+	ASocket(fd), server_(server), manager_(manager), events_(),
+	addr_client_(addr)
 {}
 
 Connection::~Connection()

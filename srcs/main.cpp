@@ -1,7 +1,7 @@
 #include <csignal>
 #include <iostream>
 #include <ostream>
-#include "csignal"
+
 #include "epoll/EpollManager.hpp"
 #include "epoll/signal.hpp"
 #include "parsing/Block.hpp"
