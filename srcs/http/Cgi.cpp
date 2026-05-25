@@ -141,11 +141,15 @@ Cgi::childProcess(int										fds[2],
 				  std::map<std::string, std::string> const& path_map,
 				  std::string const&						path)
 {
-	dup2(fds[1], 1);
-	dup2(fds[1], 0);
+	if (dup2(fds[1], 1) == -1)
+		throw(ForkException());
+	if (dup2(fds[1], 0) == -1)
+		throw(ForkException());
 
-	close(fds[0]);
-	close(fds[1]);
+	if (close(fds[0]) == -1)
+		throw(ForkException());
+	if (close(fds[1]) == -1)
+		throw(ForkException());
 
 	std::vector<std::string> argv;
 	std::string				 exec;
@@ -162,8 +166,6 @@ Cgi::childProcess(int										fds[2],
 			   convertToExecve(env_).data()) == -1)
 	{
 		perror("execve");
-		close(fds[0]);
-		close(fds[1]);
 		throw(ForkException());
 	}
 }
@@ -176,7 +178,11 @@ parentProcess(int fds[2], pid_t status, Connection& c)
 	ev.events = EVENTS_CONNECTION;
 	ev.data.fd = fds[0];
 
-	close(fds[1]);
+	if (close(fds[1]) == -1)
+	{
+		perror("close_cgi");
+		throw(Code(HTTP_INTERNAL_SERVER_ERROR));
+	}
 
 	SocketCgi* cgi_socket = new SocketCgi(c, fds[0], status);
 
@@ -196,23 +202,36 @@ Cgi::startProgram(Request const& r, Connection& c, std::string const& path,
 	int	  fds[2] = {};
 	pid_t status = 0;
 
-	socketpair(AF_UNIX, SOCK_STREAM, 0, fds);
-
 	// fds[0] part dans epoll
 	// fds[1] part dans le execve
+	if (socketpair(AF_UNIX, SOCK_STREAM, 0, fds) == -1)
+	{
+		perror("socketpair");
+		throw(Code(HTTP_INTERNAL_SERVER_ERROR));
+	}
 
-	write(fds[0], r.getBody().getContent().c_str(),
-		  r.getBody().getContent().length());
+	if (write(fds[0], r.getBody().getContent().c_str(),
+			  r.getBody().getContent().length()) == -1)
+	{
+		perror("write_cgi");
+		throw(Code(HTTP_INTERNAL_SERVER_ERROR));
+	}
 
 	if (access(path.c_str(), F_OK) != 0)
+	{
+		perror("access_cgi");
 		throw(Code(HTTP_NOT_FOUND));
+	}
 
 	defineExtension(path);
 
 	status = fork();
 
 	if (status == -1)
+	{
+		perror("fork_cgi");
 		throw(Code(HTTP_INTERNAL_SERVER_ERROR));
+	}
 
 	if (status == 0)
 		childProcess(fds, location.getCgiPathMap(), path);
