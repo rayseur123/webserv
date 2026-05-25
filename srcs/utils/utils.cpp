@@ -244,7 +244,7 @@ buildErrorResponse(int code, Listener const& server, std::string const& version)
 		return (ret);
 	}
 
-	return (version + " " + getStatusMessage(code));
+	return (version + " " + getStatusMessage(code) + "\r\n\r\n");
 }
 
 std::string

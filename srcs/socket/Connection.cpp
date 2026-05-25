@@ -117,6 +117,7 @@ Connection::handleConnectionRequest()
 	{
 		response_str = buildErrorResponse(request.getCode(), server_,
 										  request.getVersion().toString());
+		std::cout << response_str << std::endl;
 		return (sendMsg(response_str));
 	}
 
