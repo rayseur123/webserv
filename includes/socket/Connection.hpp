@@ -26,9 +26,9 @@ public:
 
 	bool bodyLengthValid();
 
-	int sendMsg(std::string const& msg);
+	bool sendMsg(std::string const& msg);
 
-	void handleCGI(Request const& request, std::string& response_str,
+	bool handleCGI(Request const& request, std::string& response_str,
 				   std::string& path, Location const& location);
 	void handleHTTP(Request const& request, std::string& response_str,
 					std::string const& path, Location const& location);

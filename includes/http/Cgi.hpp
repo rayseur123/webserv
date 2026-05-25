@@ -1,6 +1,7 @@
 #ifndef CGI_HPP
 #define CGI_HPP
 
+#include <exception>
 #include <string>
 #include <vector>
 
@@ -19,14 +20,23 @@ public:
 				  std::string const& addr_client, std::string& path);
 	void startProgram(Request const& r, Connection& c, std::string const& path,
 					  Location const& location);
-	void parseUri(Request const& r, std::string& path);
-	bool isCgiProgram(std::string const& s);
+	void parseUri(std::string& path);
+	void defineExtension(std::string const& path);
+
+	void childProcess(int										fds[2],
+					  std::map<std::string, std::string> const& path_map,
+					  std::string const&						path);
 
 	Cgi& operator=(Cgi const& c);
 
 	Cgi();
 	Cgi(Cgi const& c);
 	~Cgi();
+};
+
+class ForkException : public std::exception
+{
+	char const* what() const throw();
 };
 
 #endif
