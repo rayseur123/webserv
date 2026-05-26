@@ -46,10 +46,10 @@ private:
 public:
 	void fillBuffer(std::string& tmp);
 
-	Request& getRequest();
-	int		 getStep() const;
-	int		 getCode() const;
-	size_t	 getMaxBodyLength() const;
+	Request const& getRequest() const;
+	int			   getStep() const;
+	int			   getCode() const;
+	size_t		   getMaxBodyLength() const;
 
 	void setCode(int nb);
 	void setMaxBodyLength(size_t nb);

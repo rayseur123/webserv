@@ -29,7 +29,7 @@ public:
 	void setUri(Uri const& uri);
 	void setUri(std::string const& target);
 	void setVersion(Version const& version);
-	void setVersion(std::string& version);
+	void setVersion(std::string const& version);
 	void setHeaders(Headers& type);
 	void setHeaders(std::string const& method);
 	void setBody(Body const& body);

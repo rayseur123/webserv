@@ -7,6 +7,8 @@
 #include "epoll/EpollManager.hpp"
 #include "epoll/signal.hpp"
 #include "http/Cgi.hpp"
+#include "http/Code.hpp"
+#include "http/httpStatus.hpp"
 #include "http/parsing/Method.hpp"
 #include "http/parsing/ParsingRequest.hpp"
 #include "http/parsing/Request.hpp"
@@ -17,62 +19,62 @@
 #include "socket/Listener.hpp"
 #include "utils/utils.hpp"
 
-void
-Connection::handleCGI(Request const& request, std::string& response_str,
+bool
+Connection::handleCGI(Request const& request_http, std::string& response_str,
 					  std::string& path, Location const& location)
 {
-	Cgi response;
+	Cgi request_cgi;
 
-	response.buildEnv(request, server_, getClientAddr(), path);
-	response.startProgram(request, *this, path, location);
-
-	response_str = "final response from cgi \n";
+	try
+	{
+		request_cgi.buildEnv(request_http, server_, getClientAddr(), path);
+		request_cgi.startProgram(request_http, *this, path, location);
+	}
+	catch (Code& e)
+	{
+		response_str = buildErrorResponse(e.getCode(), server_, "HTTP/1.1");
+		return (sendMsg(response_str));
+	}
+	return (false);
 }
 
 void
 Connection::handleHTTP(Request const& request, std::string& response_str,
 					   std::string const& path, Location const& location)
 {
-	if (request.getCode() != 0)
-		response_str = buildErrorResponse(request.getCode(), server_,
-										  request.getVersion().toString());
-	else
+	int type = request.getMethod().getType();
+	if (type == GET)
 	{
-		int type = request.getMethod().getType();
-		if (type == GET)
-		{
-			ResponseGet response(request);
-			response_str = response.buildResponse(location, server_, path);
-		}
-		else if (type == POST)
-		{
-			ResponsePost response(request);
-			response_str = response.buildResponse(location, server_, path);
-		}
-		else if (type == DELETE)
-		{
-			ResponseDelete response(request);
-			response_str = response.buildResponse(location, server_, path);
-		}
-		if (Signal::signal == 1)
-			throw(SIGINT);
+		ResponseGet response(request);
+		response_str = response.buildResponse(location, server_, path);
 	}
+	else if (type == POST)
+	{
+		ResponsePost response(request);
+		response_str = response.buildResponse(location, server_, path);
+	}
+	else if (type == DELETE)
+	{
+		ResponseDelete response(request);
+		response_str = response.buildResponse(location, server_, path);
+	}
+	if (Signal::signal == 1)
+		throw(SIGINT);
 }
 
-// Change in the future directly check by the folder and the extension
-// need to see with nicolas and what is cgi_pass
 bool
-isCGI(std::string const& uri)
+isCGI(std::string path, Location const& l)
 {
-	size_t pos = 0;
+	size_t		pos = 0;
+	std::string extension;
 
-	pos = uri.find(".py");
+	pos = path.rfind(".");
 	if (pos != std::string::npos)
-		return true;
-	pos = uri.find(".php");
-	if (pos != std::string::npos)
-		return true;
-
+	{
+		path.erase(0, pos + 1);
+		extension = path;
+		return l.hasCgiPathMap(extension);
+	}
 	return false;
 }
 
@@ -83,7 +85,7 @@ Connection::handleConnectionRequest()
 	char   buffer[10000] = {};
 
 	bytes = recv(fd_, buffer, sizeof(buffer), 0);
-	if (bytes == 0 && isCGI(parsing_request_.getRequest().getUri().getTarget()))
+	if ((bytes == 0 && isCgi_ == 1) || bytes == 1)
 		return (1);
 	if (bytes == 0)
 		return (0);
@@ -101,22 +103,32 @@ Connection::handleConnectionRequest()
 	Request request = parsing_request_.getRequest();
 	request.setCode(parsing_request_.getCode());
 
-	std::string response_str;
-
 	Location	location = getGoodLocation(server_.getLocations(), request);
 	std::string path = location.buildPath(request);
 
-	if (isCGI(request.getUri().getTarget()))
+	std::string response_str;
+
+	if (access(path.c_str(), F_OK) != 0)
+		request.setCode(HTTP_NOT_FOUND);
+
+	if (request.getCode() != 0)
 	{
-		handleCGI(request, response_str, path, location);
-		return (0);
+		response_str = buildErrorResponse(request.getCode(), server_,
+										  request.getVersion().toString());
+		return (sendMsg(response_str));
+	}
+
+	if (isCGI(path, location))
+	{
+		isCgi_ = 1;
+		return (handleCGI(request, response_str, path, location));
 	}
 	handleHTTP(request, response_str, path, location);
 
 	return (sendMsg(response_str));
 }
 
-int
+bool
 Connection::sendMsg(std::string const& msg)
 {
 	send(fd_, msg.c_str(), msg.size(), 0);
@@ -124,7 +136,7 @@ Connection::sendMsg(std::string const& msg)
 	if (Signal::signal == 1)
 		throw(SIGINT);
 
-	return (1);
+	return (true);
 }
 
 int
@@ -161,7 +173,8 @@ Connection::getClientAddr() const
 
 Connection::Connection(int fd, Listener& server, std::string const& addr,
 					   EpollManager& manager) :
-	ASocket(fd), server_(server), manager_(manager), addr_client_(addr)
+	ASocket(fd), server_(server), manager_(manager), addr_client_(addr),
+	isCgi_(0)
 {}
 
 Connection::~Connection()

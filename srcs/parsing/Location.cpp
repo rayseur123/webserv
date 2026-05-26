@@ -9,6 +9,15 @@
 #include "http/parsing/Method.hpp"
 #include "parsing/Location.hpp"
 
+bool
+Location::hasCgiPathMap(std::string const& key) const
+{
+	std::map<std::string, std::string>::const_iterator it;
+
+	it = cgi_path_map_.find(key);
+	return (it != cgi_path_map_.end());
+}
+
 std::string
 Location::buildPath(Request const& request) const
 {
@@ -92,11 +101,11 @@ Location::setAllowMethods(std::vector<std::string> const& allow_methods)
 	for (size_t i = 1; i < allow_methods.size(); ++i)
 	{
 		if (allow_methods[i] == "GET")
-			allow_methods_ += GET;
+			allow_methods_ |= GET;
 		else if (allow_methods[i] == "POST")
-			allow_methods_ += POST;
+			allow_methods_ |= POST;
 		else if (allow_methods[i] == "DELETE")
-			allow_methods_ += DELETE;
+			allow_methods_ |= DELETE;
 		else
 			throw std::invalid_argument("[ERROR] : Cant find " +
 										allow_methods[i] + " method.");
@@ -287,7 +296,8 @@ operator<<(std::ostream& os, Location const& to_print)
 }
 
 Location::Location() :
-	root_("/www/data"), autoindex_(false), allow_methods_(0), path_("/")
+	root_("./data"), autoindex_(true), allow_methods_(7), upload_store_("/tmp"),
+	path_("/")
 {}
 
 Location::Location(std::string const& root, bool autoindex, int allow_methods,

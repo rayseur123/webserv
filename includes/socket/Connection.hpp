@@ -20,15 +20,16 @@ private:
 	std::string		addr_client_;
 	Connection(Connection const& to_copy);
 	Connection& operator=(Connection const& to_copy);
+	int			isCgi_;
 
 public:
 	int handleConnectionRequest();
 
 	bool bodyLengthValid();
 
-	int sendMsg(std::string const& msg);
+	bool sendMsg(std::string const& msg);
 
-	void handleCGI(Request const& request, std::string& response_str,
+	bool handleCGI(Request const& request, std::string& response_str,
 				   std::string& path, Location const& location);
 	void handleHTTP(Request const& request, std::string& response_str,
 					std::string const& path, Location const& location);
