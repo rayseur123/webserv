@@ -14,6 +14,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+int SocketCgi::id_cookie = 0;
+
 SocketCgi::SocketCgi(Connection& connection, int fd, pid_t pid) :
 	ASocket(fd), connection_(connection), connection_fd_(connection.getFd()),
 	pid_child_(pid)
@@ -70,7 +72,10 @@ std::string
 SocketCgi::parsingResponseCgi(std::string& response)
 {
 	int			status = fixSeparators(response);
-	std::string cookie("Set-Cookie: cookie=chocolate\r\n");
+	std::string cookie("Set-Cookie: id=");
+	cookie += SocketCgi::id_cookie++;
+	cookie += "\r\n";
+
 	return ("HTTP/1.0 " + getStatusMessage(status) + "\r\n" + cookie +
 			response);
 }
@@ -96,7 +101,10 @@ int
 SocketCgi::handleEvent(EpollManager& manager, uint32_t events)
 {
 	if (!manager.checkIfSocketOpen(connection_fd_))
+	{
+		kill(pid_child_, SIGTERM);
 		return (1);
+	}
 	if ((events & (EPOLLERR)) != 0)
 		return (1);
 	if ((events & (EPOLLIN | EPOLLPRI)) != 0)

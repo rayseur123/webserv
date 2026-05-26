@@ -1,15 +1,32 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
+# Importing the 'cgi' module
+import cgi
 
-import time
-import sys
+# Send an HTTP header indicating the content type as HTML
+print("Content-type: text/html\n\n")
 
-print("Content-Type: text/plain\r\n\r\n")
-sys.stdout.flush()
+# Start an HTML document with center-aligned content
+print("<html><body style='text-align:center;'>")
 
-i = 0
+# Parse form data submitted via the CGI script
+form = cgi.FieldStorage()
 
-while True:
-    print(f"Loop: {i}")
-    sys.stdout.flush()
-    i += 1
-    time.sleep(1)
+# Check if the "name" field is present in the form data
+if form.getvalue("name"):
+    # If present, retrieve the value and display a personalized greeting
+    name = form.getvalue("name")
+    print("<h2>Hello, " + name + "!</h2>")
+    print("<p>Thank you for using our script.</p>")
+
+# Check if the "happy" checkbox is selected
+if form.getvalue("happy"):
+    # If selected, display a message with a happy emoji
+    print("<p>Yayy! We're happy too! ????</p>")
+
+# Check if the "sad" checkbox is selected
+if form.getvalue("sad"):
+    # If selected, display a message with a sad emoji
+    print("<p>Oh no! Why are you sad? ????</p>")
+
+# Close the HTML document
+print("</body></html>")
