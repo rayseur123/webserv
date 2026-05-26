@@ -25,34 +25,31 @@ Listener::acceptNewConnection(EpollManager& manager)
 {
 	epoll_event ev;
 
-	while (true)
-	{
-		sockaddr_in connection_addr = {};
-		socklen_t	size = sizeof(connection_addr);
+	sockaddr_in connection_addr = {};
+	socklen_t	size = sizeof(connection_addr);
 
-		int connection_fd =
-			accept(fd_, reinterpret_cast<sockaddr*>(&connection_addr), &size);
+	int connection_fd =
+		accept(fd_, reinterpret_cast<sockaddr*>(&connection_addr), &size);
 
-		if (connection_fd == -1)
-			break;
+	if (connection_fd == -1)
+		return;
 
-		ev.data.fd = connection_fd;
-		ev.events = EVENTS_CONNECTION;
+	ev.data.fd = connection_fd;
+	ev.events = EVENTS_CONNECTION;
 
-		if (epoll_ctl(manager.getEpollFd(), EPOLL_CTL_ADD, connection_fd,
-					  &ev) == -1)
-			throw std::logic_error(messageError("acceptNewClient>epoll_ctl"));
+	if (epoll_ctl(manager.getEpollFd(), EPOLL_CTL_ADD, connection_fd, &ev) ==
+		-1)
+		throw std::logic_error(messageError("acceptNewClient>epoll_ctl"));
 
-		// Convert the unsigned int adress to string adress
-		unsigned int addr_int = connection_addr.sin_addr.s_addr;
-		char*		 b = reinterpret_cast<char*>(&addr_int);
-		std::string	 addr_string = inet_ntop(b);
+	// Convert the unsigned int adress to string adress
+	unsigned int addr_int = connection_addr.sin_addr.s_addr;
+	char*		 b = reinterpret_cast<char*>(&addr_int);
+	std::string	 addr_string = inet_ntop(b);
 
-		Connection* connection =
-			new Connection(connection_fd, *this, addr_string, manager);
-		std::cout << "New connection fd : " << connection_fd << std::endl;
-		manager.addConnection(std::make_pair(connection_fd, connection));
-	}
+	Connection* connection =
+		new Connection(connection_fd, *this, addr_string, manager);
+	std::cout << "New connection fd : " << connection_fd << std::endl;
+	manager.addConnection(std::make_pair(connection_fd, connection));
 }
 
 int
@@ -72,7 +69,7 @@ Listener::setNoBlockingFd()
 	if (flags == -1)
 		throw std::runtime_error(messageError("createSocket>flags_fcntl"));
 
-	if (fcntl(fd_, F_SETFL, flags | O_NONBLOCK | FD_CLOEXEC) == -1)
+	if (fcntl(fd_, F_SETFL, flags | FD_CLOEXEC) == -1)
 		throw std::runtime_error(messageError("createSocket>set_fcntl"));
 }
 

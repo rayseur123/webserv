@@ -5,6 +5,7 @@
 #include "parsing/Location.hpp"
 #include "utils/utils.hpp"
 
+#include <cerrno>
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
@@ -59,29 +60,30 @@ ResponsePost::buildResponse(Location const& location, Listener const& server,
 								   request_.getVersion().toString()));
 
 	if (location.getUploadStore().empty())
-		return (buildErrorResponse(HTTP_NOT_FOUND, server,
+		return (buildErrorResponse(HTTP_FORBIDDEN, server,
 								   request_.getVersion().toString()));
 	file_path = location.buildPathPost(request_);
-	int fd = open(file_path.c_str(), O_DIRECTORY | O_CLOEXEC);
-	if (fd != -1 && location.getAutoIndex())
+
+	if (!isDir(file_path))
 	{
-		close(fd);
-
-		DIR* dir = opendir(file_path.c_str());
-		if (dir == NULL)
-			return (buildErrorResponse(HTTP_NOT_FOUND, server,
-									   request_.getVersion().toString()));
-		closedir(dir);
-
-		file_path += "/" + generate_filename();
-		close(open(file_path.c_str(), O_CREAT | O_CLOEXEC, CHMOD));
+		std::string file_path_temp = file_path + "/" + generate_filename();
+		while (fileExists(file_path_temp))
+			file_path_temp = file_path + "/" + generate_filename();
+		file_path = file_path_temp;
 		error_code_ = HTTP_CREATED;
 	}
-
 	std::ofstream file(file_path.c_str());
 	if (!file.is_open())
-		return (buildErrorResponse(HTTP_NOT_FOUND, server,
+	{
+		if (errno == EACCES)
+			return (buildErrorResponse(HTTP_FORBIDDEN, server,
+									   request_.getVersion().toString()));
+		if (errno == ENOENT)
+			return (buildErrorResponse(HTTP_NOT_FOUND, server,
+									   request_.getVersion().toString()));
+		return (buildErrorResponse(HTTP_INTERNAL_SERVER_ERROR, server,
 								   request_.getVersion().toString()));
+	}
 	file << request_.getBody().getContent();
 	if (error_code_ == 0)
 		error_code_ = HTTP_OK;

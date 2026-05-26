@@ -30,6 +30,9 @@ public:
 	std::string buildRequestLine() const;
 	std::string buildResponseStr() const;
 
+	bool isDir(std::string const& path) const;
+	bool fileExists(std::string const& file_name) const;
+
 	virtual std::string buildResponse(Location const&	 locations,
 									  Listener const&	 server,
 									  std::string const& path) = 0;

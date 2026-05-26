@@ -62,12 +62,8 @@ EpollManager::eventLoop()
 		for (int i = 0; i < nb_events; ++i)
 		{
 			int fd = events_[i].data.fd;
-			std::cout << "fd : " << fd << std::endl;
 			if (socket_map_[fd]->handleEvent(*this, events_[i].events) == 1)
-			{
-				std::cout << "In the main loop : ";
 				eraseFdSocketMap(fd);
-			}
 		}
 	}
 }
