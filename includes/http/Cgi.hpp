@@ -20,7 +20,6 @@ public:
 				  std::string const& addr_client, std::string& path);
 	void startProgram(Request const& r, Connection& c, std::string const& path,
 					  Location const& location);
-	void parseUri(std::string& path);
 	void defineExtension(std::string path);
 
 	void childProcess(int										fds[2],

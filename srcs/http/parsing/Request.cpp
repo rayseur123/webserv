@@ -42,7 +42,7 @@ Request::setVersion(Version const& version)
 }
 
 void
-Request::setVersion(std::string& version)
+Request::setVersion(std::string const& version)
 {
 	version_ = Version(version);
 }

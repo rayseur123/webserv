@@ -219,8 +219,8 @@ ParsingRequest::getStep() const
 	return step_;
 }
 
-Request&
-ParsingRequest::getRequest()
+Request const&
+ParsingRequest::getRequest() const
 {
 	return request_;
 }

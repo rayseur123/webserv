@@ -6,10 +6,11 @@ class Signal
 private:
 	Signal(int signal);
 	Signal const& operator=(Signal const& s);
+	Signal(Signal const& s);
 
 public:
-	Signal(Signal const& s);
 	static int signal;
+
 	Signal();
 	~Signal();
 };

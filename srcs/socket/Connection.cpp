@@ -68,8 +68,6 @@ isCGI(std::string path, Location const& l)
 	size_t		pos = 0;
 	std::string extension;
 
-	std::cout << path << std::endl;
-
 	pos = path.rfind(".");
 	if (pos != std::string::npos)
 	{
@@ -87,7 +85,7 @@ Connection::handleConnectionRequest()
 	char   buffer[10000] = {};
 
 	bytes = recv(fd_, buffer, sizeof(buffer), 0);
-	if (bytes == 0 && isCgi_ == 1)
+	if ((bytes == 0 && isCgi_ == 1) || bytes == 1)
 		return (1);
 	if (bytes == 0)
 		return (0);
@@ -122,11 +120,9 @@ Connection::handleConnectionRequest()
 
 	if (isCGI(path, location))
 	{
-		std::cout << "Cgi accepted \n" << std::endl;
 		isCgi_ = 1;
 		return (handleCGI(request, response_str, path, location));
 	}
-	std::cout << "HTTP accepted \n" << std::endl;
 	handleHTTP(request, response_str, path, location);
 
 	return (sendMsg(response_str));
