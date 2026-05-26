@@ -98,7 +98,10 @@ SocketCgi::handleEvent(EpollManager& manager, uint32_t events)
 	if ((events & (EPOLLIN | EPOLLPRI)) != 0)
 		return (handleEventCgi(manager));
 	if ((events & (EPOLLHUP | EPOLLRDHUP)) != 0)
+	{
+		std::cout << "Fermeture client \n" << std::endl;
 		return (1);
+	}
 	return (0);
 }
 
