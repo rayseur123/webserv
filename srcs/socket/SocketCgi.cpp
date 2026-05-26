@@ -67,14 +67,15 @@ fixSeparators(std::string& response)
 std::string
 SocketCgi::parsingResponseCgi(std::string& response)
 {
-	int status = fixSeparators(response);
-	return ("HTTP/1.0 " + getStatusMessage(status) + "\r\n" + response);
+	int			status = fixSeparators(response);
+	std::string cookie("Set-Cookie: cookie=chocolate\r\n");
+	return ("HTTP/1.0 " + getStatusMessage(status) + "\r\n" + cookie +
+			response);
 }
 
 int
 SocketCgi::handleEventCgi(EpollManager& manager)
 {
-	(void) manager;
 	size_t bytes = 0;
 	char   buffer[10000] = {};
 	bytes = recv(fd_, buffer, sizeof(buffer), 0);
