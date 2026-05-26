@@ -107,14 +107,6 @@ Connection::handleConnectionRequest()
 
 	std::string response_str;
 
-	if (access(path.c_str(), F_OK) != 0) // CETTE MERDE EST BLOQUANTE POUR POST
-	{
-		if (errno == EACCES)
-			request.setCode(HTTP_FORBIDDEN);
-		else
-			request.setCode(HTTP_NOT_FOUND);
-	}
-
 	if (request.getCode() != 0)
 	{
 		response_str = buildErrorResponse(request.getCode(), server_,
@@ -124,6 +116,14 @@ Connection::handleConnectionRequest()
 
 	if (isCGI(path, location))
 	{
+		if (access(path.c_str(), F_OK) !=
+			0) // CETTE MERDE EST BLOQUANTE POUR POST
+		{
+			if (errno == EACCES)
+				request.setCode(HTTP_FORBIDDEN);
+			else
+				request.setCode(HTTP_NOT_FOUND);
+		}
 		isCgi_ = 1;
 		return (handleCGI(request, response_str, path, location));
 	}
