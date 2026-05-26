@@ -8,6 +8,7 @@
 #include <cstddef>
 #include <cstdlib>
 #include <map>
+#include <sstream>
 #include <string>
 #include <sys/epoll.h>
 #include <sys/socket.h>
@@ -69,15 +70,27 @@ fixSeparators(std::string& response)
 }
 
 std::string
-SocketCgi::parsingResponseCgi(std::string& response)
+defineIdSession()
 {
-	int			status = fixSeparators(response);
-	std::string cookie("Set-Cookie: id=");
-	cookie += SocketCgi::id_cookie++;
+	std::string		  cookie;
+	std::stringstream ss;
+
+	ss << SocketCgi::id_cookie++;
+
+	cookie = "Set-Cookie:id=";
+	cookie += ss.str();
 	cookie += "\r\n";
 
-	return ("HTTP/1.0 " + getStatusMessage(status) + "\r\n" + cookie +
-			response);
+	std::cout << "cookie \n";
+	return cookie;
+}
+
+std::string
+SocketCgi::parsingResponseCgi(std::string& response)
+{
+	int status = fixSeparators(response);
+	return ("HTTP/1.0 " + getStatusMessage(status) + "\r\n" +
+			defineIdSession() + response);
 }
 
 int

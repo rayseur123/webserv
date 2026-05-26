@@ -8,6 +8,7 @@ print("Content-type: text/html\n\n")
 # Start an HTML document with center-aligned content
 print("<html><body style='text-align:center;'>")
 
+print("<h1>Enter inside the CGI</h1>")
 # Parse form data submitted via the CGI script
 form = cgi.FieldStorage()
 
