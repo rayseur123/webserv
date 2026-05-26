@@ -9,6 +9,15 @@
 #include "http/parsing/Method.hpp"
 #include "parsing/Location.hpp"
 
+bool
+Location::hasCgiPathMap(std::string const& key) const
+{
+	std::map<std::string, std::string>::const_iterator it;
+
+	it = cgi_path_map_.find(key);
+	return (it != cgi_path_map_.end());
+}
+
 std::string
 Location::buildPath(Request const& request) const
 {

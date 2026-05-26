@@ -38,6 +38,8 @@ public:
 	void addConnection(std::pair<int, Connection*> const& newConnection);
 	void addCgi(std::pair<int, SocketCgi*> const& new_cgi);
 
+	bool checkIfSocketOpen(int fd);
+
 	EpollManager();
 	explicit EpollManager(std::vector<Listener*> const& listener_vec);
 

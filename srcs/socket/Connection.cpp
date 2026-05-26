@@ -8,6 +8,7 @@
 #include "epoll/signal.hpp"
 #include "http/Cgi.hpp"
 #include "http/Code.hpp"
+#include "http/httpStatus.hpp"
 #include "http/parsing/Method.hpp"
 #include "http/parsing/ParsingRequest.hpp"
 #include "http/parsing/Request.hpp"
@@ -62,35 +63,30 @@ Connection::handleHTTP(Request const& request, std::string& response_str,
 }
 
 bool
-isCGI(std::string const& uri)
+isCGI(std::string path, Location const& l)
 {
 	size_t		pos = 0;
-	std::string check;
+	std::string extension;
 
-	pos = uri.find(".py");
+	pos = path.rfind(".");
 	if (pos != std::string::npos)
 	{
-		check = uri.substr(pos);
-		if (check.length() == 3)
-			return true;
+		path.erase(0, pos + 1);
+		extension = path;
+		return l.hasCgiPathMap(extension);
 	}
-	pos = uri.find(".php");
-	if (pos != std::string::npos)
-	{
-		return true;
-	}
-
 	return false;
 }
 
 int
 Connection::handleConnectionRequest()
 {
+	std::cout << "MY FD IS : " << fd_ << std::endl;
 	size_t bytes = 0;
 	char   buffer[10000] = {};
 
 	bytes = recv(fd_, buffer, sizeof(buffer), 0);
-	if (bytes == 0 && isCGI(parsing_request_.getRequest().getUri().getTarget()))
+	if ((bytes == 0 && isCgi_ == 1) || bytes == 1)
 		return (1);
 	if (bytes == 0)
 		return (0);
@@ -112,7 +108,10 @@ Connection::handleConnectionRequest()
 	std::string path = location.buildPath(request);
 
 	std::string response_str;
-	// Check error inside the parsing
+
+	if (access(path.c_str(), F_OK) != 0)
+		request.setCode(HTTP_NOT_FOUND);
+
 	if (request.getCode() != 0)
 	{
 		response_str = buildErrorResponse(request.getCode(), server_,
@@ -120,8 +119,9 @@ Connection::handleConnectionRequest()
 		return (sendMsg(response_str));
 	}
 
-	if (isCGI(request.getUri().getTarget()))
+	if (isCGI(path, location))
 	{
+		isCgi_ = 1;
 		return (handleCGI(request, response_str, path, location));
 	}
 	handleHTTP(request, response_str, path, location);
@@ -175,7 +175,7 @@ Connection::getClientAddr() const
 Connection::Connection(int fd, Listener& server, std::string const& addr,
 					   EpollManager& manager) :
 	ASocket(fd), server_(server), manager_(manager), events_(),
-	addr_client_(addr)
+	addr_client_(addr), isCgi_(0)
 {}
 
 Connection::~Connection()

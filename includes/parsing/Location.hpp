@@ -46,6 +46,9 @@ public:
 	std::map<std::string, std::string> const& getCgiPathMap() const;
 	std::string const&						  getRedirect() const;
 	std::string const&						  getPath() const;
+	bool									  hasCgiPathMap() const;
+
+	bool hasCgiPathMap(std::string const& key) const;
 
 	Location();
 	Location(std::string const& root, bool autoindex, int allow_methods,

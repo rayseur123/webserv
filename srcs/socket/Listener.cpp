@@ -3,6 +3,7 @@
 #include <fcntl.h>
 #include <map>
 #include <netdb.h>
+#include <ostream>
 #include <sstream>
 #include <string>
 #include <sys/socket.h>
@@ -49,6 +50,7 @@ Listener::acceptNewConnection(EpollManager& manager)
 
 		Connection* connection =
 			new Connection(connection_fd, *this, addr_string, manager);
+		std::cout << "New connection fd : " << connection_fd << std::endl;
 		manager.addConnection(std::make_pair(connection_fd, connection));
 	}
 }

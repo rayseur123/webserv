@@ -7,6 +7,7 @@
 #include <csignal>
 #include <cstddef>
 #include <cstdlib>
+#include <map>
 #include <string>
 #include <sys/epoll.h>
 #include <sys/socket.h>
@@ -14,7 +15,8 @@
 #include <unistd.h>
 
 SocketCgi::SocketCgi(Connection& connection, int fd, pid_t pid) :
-	ASocket(fd), connection_(connection), pid_child_(pid)
+	ASocket(fd), connection_(connection), connection_fd_(connection.getFd()),
+	pid_child_(pid)
 {}
 
 int
@@ -67,14 +69,15 @@ fixSeparators(std::string& response)
 std::string
 SocketCgi::parsingResponseCgi(std::string& response)
 {
-	int status = fixSeparators(response);
-	return ("HTTP/1.0 " + getStatusMessage(status) + "\r\n" + response);
+	int			status = fixSeparators(response);
+	std::string cookie("Set-Cookie: cookie=chocolate\r\n");
+	return ("HTTP/1.0 " + getStatusMessage(status) + "\r\n" + cookie +
+			response);
 }
 
 int
 SocketCgi::handleEventCgi(EpollManager& manager)
 {
-	(void) manager;
 	size_t bytes = 0;
 	char   buffer[10000] = {};
 	bytes = recv(fd_, buffer, sizeof(buffer), 0);
@@ -92,6 +95,8 @@ SocketCgi::handleEventCgi(EpollManager& manager)
 int
 SocketCgi::handleEvent(EpollManager& manager, uint32_t events)
 {
+	if (!manager.checkIfSocketOpen(connection_fd_))
+		return (1);
 	if ((events & (EPOLLERR)) != 0)
 		return (1);
 	if ((events & (EPOLLIN | EPOLLPRI)) != 0)

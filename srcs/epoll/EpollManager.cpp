@@ -1,4 +1,5 @@
 #include <csignal>
+#include <map>
 #include <utility>
 #include <vector>
 
@@ -61,8 +62,12 @@ EpollManager::eventLoop()
 		for (int i = 0; i < nb_events; ++i)
 		{
 			int fd = events_[i].data.fd;
+			std::cout << "fd : " << fd << std::endl;
 			if (socket_map_[fd]->handleEvent(*this, events_[i].events) == 1)
+			{
+				std::cout << "In the main loop : ";
 				eraseFdSocketMap(fd);
+			}
 		}
 	}
 }
@@ -77,10 +82,23 @@ void
 EpollManager::eraseFdSocketMap(int fd)
 {
 	std::map<int, ASocket*>::iterator it = socket_map_.find(fd);
-	std::cout << "The fd " << fd << " has been shut down." << '\n';
-	delete it->second;
-	socket_map_.erase(it);
-	epoll_ctl(epoll_fd_, EPOLL_CTL_DEL, fd, NULL);
+	if (it != socket_map_.end())
+	{
+		if (epoll_ctl(epoll_fd_, EPOLL_CTL_DEL, fd, NULL) == -1)
+			std::cerr << "Erreur epoll_ctl fd " << fd << std::endl;
+
+		std::cout << "The fd " << fd << " has been shut down." << '\n';
+		delete it->second;
+		socket_map_.erase(it);
+		return;
+	}
+	std::cout << "ERROR: find>eraseFdSocketMap" << std::endl;
+}
+
+bool
+EpollManager::checkIfSocketOpen(int fd)
+{
+	return (socket_map_.find(fd) != socket_map_.end());
 }
 
 EpollManager::EpollManager() : epoll_fd_(-1), events_()

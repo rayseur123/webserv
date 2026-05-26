@@ -16,6 +16,8 @@ class SocketCgi : public ASocket
 {
 private:
 	Connection& connection_;
+	int			connection_fd_;
+
 	pid_t		pid_child_;
 	std::string response_;
 

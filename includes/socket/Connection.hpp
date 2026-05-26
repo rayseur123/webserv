@@ -20,6 +20,7 @@ private:
 	std::string		addr_client_;
 	Connection(Connection const& to_copy);
 	Connection& operator=(Connection const& to_copy);
+	int			isCgi_;
 
 public:
 	int handleConnectionRequest();

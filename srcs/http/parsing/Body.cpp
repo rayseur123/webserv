@@ -7,7 +7,7 @@
 int
 Body::chunkedBody(std::string& container)
 {
-	char* end = NULL;
+	char*  end = NULL;
 	size_t pos = 0;
 
 	if (status_ == GETTING_LENGTH)
