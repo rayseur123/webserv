@@ -1,4 +1,5 @@
 #include <csignal>
+#include <cstdio>
 #include <sys/epoll.h>
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -116,13 +117,16 @@ Connection::handleConnectionRequest()
 
 	if (isCGI(path, location))
 	{
-		if (access(path.c_str(), F_OK) !=
-			0) // CETTE MERDE EST BLOQUANTE POUR POST
+		if (access(path.c_str(), F_OK | X_OK) != 0)
 		{
 			if (errno == EACCES)
 				request.setCode(HTTP_FORBIDDEN);
 			else
 				request.setCode(HTTP_NOT_FOUND);
+
+			response_str = buildErrorResponse(request.getCode(), server_,
+											  request.getVersion().toString());
+			return (sendMsg(response_str));
 		}
 		isCgi_ = 1;
 		return (handleCGI(request, response_str, path, location));

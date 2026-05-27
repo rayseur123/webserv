@@ -78,7 +78,7 @@ Listener::createListenerSocket()
 {
 	int		 option = 1;
 	addrinfo hints = {};
-	hints.ai_family = AF_UNSPEC; // IPv4 / IPv6
+	hints.ai_family = AF_INET; // IPv4
 	hints.ai_socktype =
 		SOCK_STREAM; // Communication par flux de bytes, avec des données hors
 					 // bande pour les données prioritaires
