@@ -124,6 +124,8 @@ Block::makeLocationVec() const
 	loc_vec.reserve(blocks_vec_.size());
 	for (it = blocks_vec_.begin(); it != blocks_vec_.end(); ++it)
 		loc_vec.push_back(it->makeLocation());
+	if (loc_vec.empty())
+		throw std::runtime_error("[ERROR] : A Server need location(s)");
 	return (loc_vec);
 }
 
@@ -133,7 +135,6 @@ Block::makeServer() const
 	Listener*								 serv = new Listener;
 	std::vector<std::string>				 directive;
 	std::vector<std::string>::const_iterator it;
-
 	try
 	{
 		serv->setLocations(makeLocationVec());
@@ -184,6 +185,8 @@ Block::makeServerVec() const
 	std::vector<Listener*>			   server_vec;
 	std::vector<Block>::const_iterator it;
 
+	if (blocks_vec_.empty())
+		throw std::invalid_argument("[ERROR] : A Block ({}) need content.");
 	server_vec.reserve(blocks_vec_.size());
 	try
 	{

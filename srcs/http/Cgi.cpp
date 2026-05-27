@@ -134,9 +134,17 @@ Cgi::childProcess(int										fds[2],
 				  std::string const&						path)
 {
 	if (dup2(fds[1], 1) == -1)
+	{
+		close(fds[0]);
+		close(fds[1]);
 		throw(ForkException());
+	}
 	if (dup2(fds[1], 0) == -1)
+	{
+		close(fds[0]);
+		close(fds[1]);
 		throw(ForkException());
+	}
 
 	if (close(fds[0]) == -1)
 		throw(ForkException());
@@ -203,6 +211,8 @@ Cgi::startProgram(Request const& r, Connection& c, std::string const& path,
 			  r.getBody().getContent().length()) == -1)
 	{
 		perror("write_cgi");
+		close(fds[0]);
+		close(fds[1]);
 		throw(Code(HTTP_INTERNAL_SERVER_ERROR));
 	}
 
@@ -213,6 +223,8 @@ Cgi::startProgram(Request const& r, Connection& c, std::string const& path,
 	if (status == -1)
 	{
 		perror("fork_cgi");
+		close(fds[0]);
+		close(fds[1]);
 		throw(Code(HTTP_INTERNAL_SERVER_ERROR));
 	}
 

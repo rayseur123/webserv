@@ -7,14 +7,19 @@
 #include <csignal>
 #include <cstddef>
 #include <cstdlib>
+#include <map>
+#include <sstream>
 #include <string>
 #include <sys/epoll.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
 
+int SocketCgi::id_cookie = 0;
+
 SocketCgi::SocketCgi(Connection& connection, int fd, pid_t pid) :
-	ASocket(fd), connection_(connection), pid_child_(pid)
+	ASocket(fd), connection_(connection), connection_fd_(connection.getFd()),
+	pid_child_(pid)
 {}
 
 int
@@ -65,24 +70,51 @@ fixSeparators(std::string& response)
 }
 
 std::string
+defineIdSession()
+{
+	std::string		  cookie;
+	std::stringstream ss;
+
+	ss << SocketCgi::id_cookie++;
+
+	cookie = "Set-Cookie:id=";
+	cookie += ss.str();
+	cookie += "; Path=/\r\n";
+
+	std::cout << "cookie \n";
+	return cookie;
+}
+
+std::string
 SocketCgi::parsingResponseCgi(std::string& response)
 {
 	int status = fixSeparators(response);
-	return ("HTTP/1.0 " + getStatusMessage(status) + "\r\n" + response);
+	return ("HTTP/1.0 " + getStatusMessage(status) + "\r\n" +
+			defineIdSession() + response);
 }
 
 int
 SocketCgi::handleEventCgi(EpollManager& manager)
 {
-	(void) manager;
-	size_t bytes = 0;
-	char   buffer[10000] = {};
+	ssize_t bytes = 0;
+	char	buffer[10000] = {};
 	bytes = recv(fd_, buffer, sizeof(buffer), 0);
 	response_ += buffer;
-	if (bytes == 0)
+	if (bytes == -1)
+	{
+		connection_.sendMsg(buildErrorResponse(
+			HTTP_INTERNAL_SERVER_ERROR, connection_.getServer(), "HTTP/1.0"));
+		return (1);
+	}
+	if (bytes <= 0)
 	{
 		std::string response = parsingResponseCgi(response_);
-		connection_.sendMsg(response);
+		if (bytes == -1)
+			connection_.sendMsg(buildErrorResponse(HTTP_INTERNAL_SERVER_ERROR,
+												   connection_.getServer(),
+												   "HTTP/1.0"));
+		else
+			connection_.sendMsg(response);
 		manager.eraseFdSocketMap(connection_.getFd());
 		return (1);
 	}
@@ -92,6 +124,11 @@ SocketCgi::handleEventCgi(EpollManager& manager)
 int
 SocketCgi::handleEvent(EpollManager& manager, uint32_t events)
 {
+	if (!manager.checkIfSocketOpen(connection_fd_))
+	{
+		kill(pid_child_, SIGTERM);
+		return (1);
+	}
 	if ((events & (EPOLLERR)) != 0)
 		return (1);
 	if ((events & (EPOLLIN | EPOLLPRI)) != 0)

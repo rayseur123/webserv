@@ -16,6 +16,8 @@ class SocketCgi : public ASocket
 {
 private:
 	Connection& connection_;
+	int			connection_fd_;
+
 	pid_t		pid_child_;
 	std::string response_;
 
@@ -27,6 +29,7 @@ public:
 	std::string parsingResponseCgi(std::string& response);
 	virtual int handleEvent(EpollManager& manager, uint32_t events);
 	int			handleEventCgi(EpollManager& manager);
+	static int	id_cookie;
 
 	SocketCgi(Connection& connection, int fd, pid_t pid);
 	~SocketCgi();

@@ -1,7 +1,7 @@
 #include <csignal>
 #include <iostream>
 #include <ostream>
-#include "csignal"
+
 #include "epoll/EpollManager.hpp"
 #include "epoll/signal.hpp"
 #include "parsing/Block.hpp"
@@ -24,8 +24,13 @@ main(int ac, char** av)
 
 		if (ac == 2)
 		{
-			std::string			   buff;
-			std::ifstream		   file(av[1]);
+			std::string	  buff;
+			std::ifstream file(av[1]);
+			if (!file.is_open())
+			{
+				std::cerr << "ERROR: Invalid file.\n";
+				return (1);
+			}
 			Block				   block(file, Block::FILE, buff, "FILE");
 			std::vector<Listener*> server_vec = block.makeServerVec();
 			EpollManager		   net(server_vec);
@@ -34,7 +39,7 @@ main(int ac, char** av)
 		else
 		{
 			EpollManager net;
-			std::cout << "IP-accepted: 172.0.0.1\n";
+			std::cout << "IP-accepted: 127.0.0.1\n";
 			std::cout << "Port: 4242\n";
 			std::cout << "You can use GET POST DELETE\n";
 			std::flush(std::cout);

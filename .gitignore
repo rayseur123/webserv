@@ -1,13 +1,10 @@
 # Prerequisites
 *.d
 *.json
-*.conf
 *.md
 
-webserv.conf
-webserv
 
-*.conf
+webserv
 
 # Compiled Object files
 *.slo

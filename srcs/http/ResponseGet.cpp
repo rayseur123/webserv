@@ -5,6 +5,7 @@
 #include "parsing/Location.hpp"
 #include "utils/utils.hpp"
 
+#include <cerrno>
 #include <cstdio>
 #include <cstdlib>
 #include <dirent.h>
@@ -32,14 +33,14 @@ ResponseGet::buildResponse(Location const& location, Listener const& server,
 	if (!location.getIndex().empty())
 		file_path += location.getIndex();
 
-	int fd = open(file_path.c_str(), O_DIRECTORY | O_CLOEXEC);
-	if (fd != -1 && location.getAutoIndex())
+	if (isDir(file_path) && location.getAutoIndex())
 	{
-		close(fd);
 		DIR* dir = opendir(file_path.c_str());
-
+		if (dir == NULL && errno == EACCES)
+			return (buildErrorResponse(HTTP_FORBIDDEN, server,
+									   request_.getVersion().toString()));
 		if (dir == NULL)
-			return (buildErrorResponse(HTTP_BAD_REQUEST, server,
+			return (buildErrorResponse(HTTP_INTERNAL_SERVER_ERROR, server,
 									   request_.getVersion().toString()));
 		closedir(dir);
 		body = generateAutoIndex(file_path, request_.getUri().getTarget());

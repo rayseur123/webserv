@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>404 - not found</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: #fff;
+    color: #111;
+    font-family: 'Geist', sans-serif;
+
+    min-height: 100vh;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    gap: 18px;
+    text-align: center;
+}
+
+.code {
+    font-size: 6rem;
+    font-weight: 500;
+    letter-spacing: -4px;
+}
+
+.title {
+    font-size: 1.2rem;
+    color: #555;
+}
+
+.subtitle {
+    font-size: .85rem;
+    color: #aaa;
+}
+
+.box {
+    border: 1px solid #eee;
+    border-radius: 999px;
+
+    padding: 6px 14px;
+
+    font-size: .75rem;
+    color: #888;
+}
+
+a {
+    margin-top: 10px;
+    font-size: .8rem;
+    color: #888;
+    text-decoration: none;
+
+    border: 1px solid #eee;
+    padding: 6px 14px;
+    border-radius: 999px;
+
+    transition: .15s;
+}
+
+a:hover {
+    border-color: #bbb;
+    color: #111;
+}
+
+footer {
+    position: fixed;
+    bottom: 20px;
+
+    font-size: .7rem;
+    color: #ccc;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="code">404</div>
+
+<div class="title">page not found</div>
+
+<div class="subtitle">
+the page you are looking for does not exist
+</div>
+
+<div class="box">
+try checking the URL
+</div>
+
+<a href="/index.html">
+← back home
+</a>
+
+<footer>
+HTTP/1.0 · 42 webserv
+</footer>
+
+</body>
+</html>

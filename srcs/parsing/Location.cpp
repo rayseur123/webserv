@@ -3,6 +3,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <string>
+#include <unistd.h>
 #include <utility>
 #include <vector>
 
@@ -66,12 +67,7 @@ Location::getValue(std::string const& uri) const
 
 	if (uri.size() > path_.size() && uri[path_.size()] != '/')
 		return (0);
-
-	int depth = 0;
-	for (size_t i = 0; i < path_.size(); ++i)
-		if (path_[i] == '/')
-			++depth;
-	return (depth);
+	return (path_.size());
 }
 
 void
@@ -93,6 +89,8 @@ Location::setRoot(std::string const& root)
 		root_ = "/" + temp;
 	else
 		root_ = "./" + temp;
+	if (access(root_.c_str(), F_OK) != 0)
+		throw std::invalid_argument("[ERROR] : Invalid root");
 }
 
 void
@@ -156,6 +154,8 @@ Location::setUploadStore(std::string const& upload_store)
 		upload_store_ = "/" + temp;
 	else
 		upload_store_ = "./" + temp;
+	if (access(upload_store_.c_str(), F_OK) != 0)
+		throw std::invalid_argument("[ERROR] : Invalid upload store");
 }
 
 void
@@ -188,6 +188,8 @@ Location::setCgiPath(std::vector<std::string> const& cgi_path)
 	std::pair<std::string, std::string> data =
 		std::make_pair(cgi_path[1], root);
 	cgi_path_map_.insert(data);
+	if (access(root.c_str(), F_OK | X_OK) != 0)
+		throw std::invalid_argument("[ERROR] : Invalid cgi path : " + root);
 }
 
 void
