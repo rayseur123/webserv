@@ -66,12 +66,7 @@ Location::getValue(std::string const& uri) const
 
 	if (uri.size() > path_.size() && uri[path_.size()] != '/')
 		return (0);
-
-	int depth = 0;
-	for (size_t i = 0; i < path_.size(); ++i)
-		if (path_[i] == '/')
-			++depth;
-	return (depth);
+	return (path_.size());
 }
 
 void
