@@ -271,7 +271,5 @@ getGoodLocation(std::vector<Location> const& locations_vec,
 			ret = it;
 		}
 	}
-	if (best_value == 0)
-		throw 1;
 	return (*ret);
 }
