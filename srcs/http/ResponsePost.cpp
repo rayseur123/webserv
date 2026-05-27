@@ -64,7 +64,7 @@ ResponsePost::buildResponse(Location const& location, Listener const& server,
 								   request_.getVersion().toString()));
 	file_path = location.buildPathPost(request_);
 
-	if (!isDir(file_path))
+	if (isDir(file_path))
 	{
 		std::string file_path_temp = file_path + "/" + generate_filename();
 		while (fileExists(file_path_temp))
@@ -73,7 +73,7 @@ ResponsePost::buildResponse(Location const& location, Listener const& server,
 		error_code_ = HTTP_CREATED;
 	}
 	std::ofstream file(file_path.c_str());
-	if (!file.is_open())
+	if (file.fail())
 	{
 		if (errno == EACCES)
 			return (buildErrorResponse(HTTP_FORBIDDEN, server,
