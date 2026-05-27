@@ -2,6 +2,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <sys/stat.h>
 #include <utility>
 #include <vector>
 
@@ -42,6 +43,21 @@ AResponse::getGoodLocation(std::vector<Location> const& locations_vec) const
 	if (best_value == 0)
 		throw std::logic_error("404");
 	return (*ret);
+}
+
+bool
+AResponse::isDir(std::string const& path) const
+{
+	struct stat buff = {};
+	stat(path.c_str(), &buff);
+	return (S_ISDIR(buff.st_mode));
+}
+
+bool
+AResponse::fileExists(std::string const& file_name) const
+{
+	struct stat buffer;
+	return (stat(file_name.c_str(), &buffer) == 0);
 }
 
 std::string

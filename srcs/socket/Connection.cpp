@@ -81,17 +81,15 @@ isCGI(std::string path, Location const& l)
 int
 Connection::handleConnectionRequest()
 {
-	std::cout << "MY FD IS : " << fd_ << std::endl;
-	size_t bytes = 0;
-	char   buffer[10000] = {};
+	ssize_t bytes = 0;
+	char	buffer[10000] = {};
 
 	bytes = recv(fd_, buffer, sizeof(buffer), 0);
-	if ((bytes == 0 && isCgi_ == 1) || bytes == 1)
+	if ((bytes == 0 && isCgi_ == 1) || bytes == -1)
 		return (1);
 	if (bytes == 0)
 		return (0);
 
-	// Parsing client request
 	std::string tmp(buffer, bytes);
 	parsing_request_.fillBuffer(tmp);
 
@@ -109,9 +107,6 @@ Connection::handleConnectionRequest()
 
 	std::string response_str;
 
-	if (access(path.c_str(), F_OK) != 0)
-		request.setCode(HTTP_NOT_FOUND);
-
 	if (request.getCode() != 0)
 	{
 		response_str = buildErrorResponse(request.getCode(), server_,
@@ -121,6 +116,14 @@ Connection::handleConnectionRequest()
 
 	if (isCGI(path, location))
 	{
+		if (access(path.c_str(), F_OK) !=
+			0) // CETTE MERDE EST BLOQUANTE POUR POST
+		{
+			if (errno == EACCES)
+				request.setCode(HTTP_FORBIDDEN);
+			else
+				request.setCode(HTTP_NOT_FOUND);
+		}
 		isCgi_ = 1;
 		return (handleCGI(request, response_str, path, location));
 	}
@@ -132,18 +135,16 @@ Connection::handleConnectionRequest()
 bool
 Connection::sendMsg(std::string const& msg)
 {
-	send(fd_, msg.c_str(), msg.size(), 0);
-
+	if (send(fd_, msg.c_str(), msg.size(), 0) == -1)
+		return (false);
 	if (Signal::signal == 1)
 		throw(SIGINT);
-
 	return (true);
 }
 
 int
 Connection::handleEvent(EpollManager& manager, uint32_t events)
 {
-	// Adding the size_body_max inside the parsing_request;
 	events_ = events;
 	parsing_request_.setMaxBodyLength(server_.getMaxClientRequestBody());
 	(void) manager;

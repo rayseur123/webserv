@@ -96,14 +96,25 @@ SocketCgi::parsingResponseCgi(std::string& response)
 int
 SocketCgi::handleEventCgi(EpollManager& manager)
 {
-	size_t bytes = 0;
-	char   buffer[10000] = {};
+	ssize_t bytes = 0;
+	char	buffer[10000] = {};
 	bytes = recv(fd_, buffer, sizeof(buffer), 0);
 	response_ += buffer;
-	if (bytes == 0)
+	if (bytes == -1)
+	{
+		connection_.sendMsg(buildErrorResponse(
+			HTTP_INTERNAL_SERVER_ERROR, connection_.getServer(), "HTTP/1.0"));
+		return (1);
+	}
+	if (bytes <= 0)
 	{
 		std::string response = parsingResponseCgi(response_);
-		connection_.sendMsg(response);
+		if (bytes == -1)
+			connection_.sendMsg(buildErrorResponse(HTTP_INTERNAL_SERVER_ERROR,
+												   connection_.getServer(),
+												   "HTTP/1.0"));
+		else
+			connection_.sendMsg(response);
 		manager.eraseFdSocketMap(connection_.getFd());
 		return (1);
 	}

@@ -30,13 +30,9 @@ ResponseDelete::buildResponse(Location const& location, Listener const& server,
 								   request_.getVersion().toString()));
 
 	std::string body;
-	int			fd = open(file_path.c_str(), O_DIRECTORY | O_CLOEXEC);
-	if (fd != -1)
-	{
-		close(fd);
+	if (isDir(file_path))
 		return (buildErrorResponse(HTTP_FORBIDDEN, server,
 								   request_.getVersion().toString()));
-	}
 
 	std::ifstream file(file_path.c_str());
 
@@ -47,7 +43,6 @@ ResponseDelete::buildResponse(Location const& location, Listener const& server,
 								   request_.getVersion().toString()));
 
 	error_code_ = HTTP_OK;
-	close(fd);
 	setBody(body);
 	return (buildResponseStr());
 }
