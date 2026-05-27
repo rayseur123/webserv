@@ -124,7 +124,7 @@ Block::makeLocationVec() const
 	loc_vec.reserve(blocks_vec_.size());
 	for (it = blocks_vec_.begin(); it != blocks_vec_.end(); ++it)
 		loc_vec.push_back(it->makeLocation());
-	if (loc_vec.size() == 0)
+	if (loc_vec.empty())
 		throw std::runtime_error("[ERROR] : A Server need location(s)");
 	return (loc_vec);
 }

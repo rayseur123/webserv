@@ -194,6 +194,8 @@ Listener::setErrorPage(std::vector<std::string> const& error_page)
 			temp.push_back(static_cast<int>(val));
 	}
 	error_page_.insert(std::make_pair(temp, error_page.back()));
+	if (access(error_page.back().c_str(), F_OK) != 0)
+		return (false);
 	return (true);
 }
 
