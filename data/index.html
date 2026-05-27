@@ -1,19 +1,142 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <title>Mon Super Serveur - Accueil</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>webserv</title>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #fff;
+      color: #111;
+      font-family: 'Geist', sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 32px;
+    }
+    .session-pill {
+      position: fixed;
+      top: 20px; right: 24px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: .72rem;
+      color: #888;
+      border: 1px solid #e5e5e5;
+      border-radius: 999px;
+      padding: 5px 12px;
+      background: #fff;
+    }
+    .session-pill .sid {
+      font-size: .7rem;
+      color: #111;
+      max-width: 130px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    h1 { font-size: 2.4rem; font-weight: 500; letter-spacing: -1.5px; }
+    .badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: .8rem;
+      color: #888;
+      border: 1px solid #e5e5e5;
+      border-radius: 999px;
+      padding: 6px 14px;
+    }
+    .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #22c55e;
+      animation: blink 2s infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+    .divider { width: 40px; height: 1px; background: #e5e5e5; }
+    .links { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+    .link-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: #111;
+      font-size: .85rem;
+      padding: 10px 18px;
+      border: 1px solid #e5e5e5;
+      border-radius: 8px;
+      width: 220px;
+      transition: border-color .15s, background .15s;
+    }
+    .link-item:hover { border-color: #bbb; background: #fafafa; }
+    .link-icon { font-size: 1rem; }
+    .link-label { flex: 1; }
+    .link-arrow { color: #ccc; font-size: .75rem; }
+    footer {
+      position: fixed;
+      bottom: 28px;
+      font-size: .72rem;
+      color: #ccc;
+      letter-spacing: .5px;
+    }
+  </style>
 </head>
 <body>
-    <h1>👋 Bienvenue sur mon serveur web !</h1>
-    <p>Si tu vois cette page, c'est que ton serveur fonctionne parfaitement.</p>
-    
-    <hr>
-    
-    <h3>Navigation de test :</h3>
-    <ul>
-        <li><a href="./page1.html">Aller sur la page À propos</a></li>
-        <li><a href="./coucou/page2.html">Aller sur la page Contact</a></li>
-    </ul>
+  <div class="session-pill">
+    <span>🍪</span>
+    <span class="sid" id="sid-display">…</span>
+  </div>
+
+  <h1>webserv</h1>
+  <div class="badge"><span class="dot"></span>server is running</div>
+  <div class="divider"></div>
+  <div class="links">
+    <a class="link-item" href="sent/post.html">
+      <span class="link-icon">📤</span>
+      <span class="link-label">Tester POST</span>
+      <span class="link-arrow">→</span>
+    </a>
+    <a class="link-item" href="/cgi/test.py">
+      <span class="link-icon">🔍</span>
+      <span class="link-label">CGI Debug</span>
+      <span class="link-arrow">→</span>
+    </a>
+  </div>
+  <footer>HTTP/1.0 · 42 project</footer>
+
+<script>
+  function getCookie(name) {
+    const cookies = document.cookie.split('; ');
+
+    for (let i = 0; i < cookies.length; i++) {
+      const parts = cookies[i].split('=');
+      const key = parts.shift();
+      const value = parts.join('=');
+
+      if (key === name)
+        return decodeURIComponent(value);
+    }
+
+    return null;
+  }
+
+  const sid = getCookie('id');
+
+  const pill = document.querySelector('.session-pill');
+  const display = document.getElementById('sid-display');
+
+  // Le serveur a envoyé un cookie "id"
+  if (sid !== null && sid !== '') {
+    display.textContent = sid;
+  }
+  // Aucun cookie retourné par le serveur
+  else {
+    pill.remove();
+  }
+</script>
 </body>
 </html>

@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>POST tester · webserv</title>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #fff;
+      color: #111;
+      font-family: 'Geist', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 80px 24px 60px;
+      gap: 32px;
+    }
+    .session-pill {
+      position: fixed;
+      top: 20px; right: 24px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: .72rem;
+      color: #888;
+      border: 1px solid #e5e5e5;
+      border-radius: 999px;
+      padding: 5px 12px;
+      background: #fff;
+      z-index: 10;
+    }
+    .session-pill .sid {
+      font-size: .7rem;
+      color: #111;
+      max-width: 130px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .back {
+      position: fixed;
+      top: 20px; left: 24px;
+      font-size: .78rem;
+      color: #888;
+      text-decoration: none;
+      border: 1px solid #e5e5e5;
+      border-radius: 999px;
+      padding: 5px 14px;
+    }
+    .back:hover { border-color: #bbb; color: #111; }
+
+    h1 { font-size: 1.6rem; font-weight: 500; letter-spacing: -1px; }
+
+    .form-block {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      width: 100%;
+      max-width: 480px;
+    }
+    .field { display: flex; flex-direction: column; gap: 5px; }
+    label { font-size: .7rem; color: #888; letter-spacing: .4px; }
+    input, textarea, select {
+      font-family: 'Geist', sans-serif;
+      font-size: .82rem;
+      background: #fafafa;
+      border: 1px solid #e5e5e5;
+      border-radius: 8px;
+      padding: 9px 12px;
+      color: #111;
+      outline: none;
+      transition: border-color .15s;
+      width: 100%;
+    }
+    input:focus, textarea:focus, select:focus { border-color: #bbb; background: #fff; }
+    textarea { resize: vertical; min-height: 90px; line-height: 1.5; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    button {
+      font-family: 'Geist', sans-serif;
+      font-size: .82rem;
+      background: #111;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 22px;
+      cursor: pointer;
+      align-self: flex-start;
+      transition: opacity .15s;
+    }
+    button:hover { opacity: .75; }
+    button:disabled { opacity: .35; cursor: not-allowed; }
+
+    .divider { width: 100%; max-width: 480px; height: 1px; background: #e5e5e5; }
+
+    .response-block {
+      display: none;
+      flex-direction: column;
+      gap: 16px;
+      width: 100%;
+      max-width: 480px;
+    }
+    .response-block.visible { display: flex; }
+
+    .status-row { display: flex; align-items: baseline; gap: 10px; }
+    .status-code {
+      font-size: 1.6rem;
+      font-weight: 500;
+      letter-spacing: -1px;
+    }
+    .status-code.ok { color: #22c55e; }
+    .status-code.err { color: #ef4444; }
+    .status-text { font-size: .78rem; color: #888; }
+
+    .resp-label { font-size: .68rem; color: #aaa; letter-spacing: .5px; margin-bottom: 5px; }
+    pre {
+      background: #111;
+      color: #e5e5e5;
+      border-radius: 8px;
+      padding: 14px 16px;
+      font-size: .75rem;
+      line-height: 1.6;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: 'Geist', monospace;
+    }
+
+    .hist-section { width: 100%; max-width: 480px; }
+    .hist-label { font-size: .68rem; color: #aaa; letter-spacing: .5px; margin-bottom: 10px; }
+    .hist-list { display: flex; flex-direction: column; gap: 6px; }
+    .hist-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border: 1px solid #e5e5e5;
+      border-radius: 8px;
+      font-size: .75rem;
+    }
+    .hist-code { font-weight: 500; min-width: 32px; }
+    .hist-code.ok { color: #22c55e; }
+    .hist-code.err { color: #ef4444; }
+    .hist-url { flex: 1; color: #888; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .hist-time { color: #ccc; font-size: .68rem; }
+    .empty { font-size: .78rem; color: #ccc; }
+
+    footer { font-size: .72rem; color: #ccc; letter-spacing: .5px; margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <a class="back" href="/index.html">← retour</a>
+  <div class="session-pill">
+    <span>🍪</span>
+    <span class="sid" id="sid-display">…</span>
+  </div>
+
+  <h1>POST tester</h1>
+
+  <div class="form-block">
+    <div class="field">
+      <label>URL CIBLE</label>
+      <input type="text" id="url" value="/" />
+    </div>
+    <div class="row">
+      <div class="field">
+        <label>MÉTHODE</label>
+        <select id="method">
+          <option value="POST">POST</option>
+          <option value="GET">GET</option>
+          <option value="DELETE">DELETE</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>CONTENT-TYPE</label>
+        <select id="ctype">
+          <option value="text/plain">text/plain</option>
+          <option value="application/json">application/json</option>
+          <option value="application/x-www-form-urlencoded">x-www-form-urlencoded</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label>BODY</label>
+      <textarea id="body">Hello WebServ!</textarea>
+    </div>
+    <button id="btn" onclick="sendRequest()">→ envoyer</button>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="response-block" id="resp-block">
+    <div class="status-row">
+      <span class="status-code" id="resp-code">—</span>
+      <span class="status-text" id="resp-text">—</span>
+    </div>
+    <div>
+      <p class="resp-label">HEADERS</p>
+      <pre id="resp-headers"></pre>
+    </div>
+    <div>
+      <p class="resp-label">BODY REÇU</p>
+      <pre id="resp-body"></pre>
+    </div>
+    <div>
+      <p class="resp-label">REQUÊTE ENVOYÉE</p>
+      <pre id="sent-req"></pre>
+    </div>
+  </div>
+
+  <div class="hist-section">
+    <p class="hist-label">HISTORIQUE</p>
+    <div class="hist-list" id="hist-list">
+      <p class="empty">Aucune requête.</p>
+    </div>
+  </div>
+
+  <footer>HTTP/1.0 · 42 project</footer>
+
+  <script>
+    function getCookie(n){return document.cookie.split('; ').reduce((a,c)=>{const[k,v]=c.split('=');return k===n?decodeURIComponent(v):a},null)}
+    function setCookie(n,v,d=30){document.cookie=`${n}=${encodeURIComponent(v)};expires=${new Date(Date.now()+d*864e5).toUTCString()};path=/`}
+    function makeId(){return 'sess_'+Math.random().toString(36).slice(2,9)+Date.now().toString(36)}
+    let sid=getCookie('id');
+    if(!sid){sid=makeId();setCookie('id',sid)}
+    document.getElementById('sid-display').textContent=sid;
+
+    let history=[];
+    function renderHist(){
+      const el=document.getElementById('hist-list');
+      if(!history.length){el.innerHTML='<p class="empty">Aucune requête.</p>';return}
+      el.innerHTML=history.map(h=>`
+        <div class="hist-item">
+          <span class="hist-code ${h.ok?'ok':'err'}">${h.code}</span>
+          <span class="hist-url">${h.method} ${h.url}</span>
+          <span class="hist-time">${h.time}</span>
+        </div>`).join('');
+    }
+
+    async function sendRequest(){
+      const url=document.getElementById('url').value.trim()||'/';
+      const method=document.getElementById('method').value;
+      const ctype=document.getElementById('ctype').value;
+      const body=document.getElementById('body').value;
+      const btn=document.getElementById('btn');
+      btn.disabled=true; btn.textContent='…';
+
+      const sentSummary=`${method} ${url} HTTP/1.0\nContent-Type: ${ctype}\nContent-Length: ${new TextEncoder().encode(body).length}\nCookie: session_id=${sid}\n\n${method!=='GET'?body:'(pas de body)'}`;
+      document.getElementById('sent-req').textContent=sentSummary;
+
+      let status=0,statusText='',headersText='',respBody='';
+      try{
+        const opts={method,headers:{'Content-Type':ctype,'X-Session-Id':sid}};
+        if(method!=='GET'&&method!=='HEAD') opts.body=body;
+        const res=await fetch(url,opts);
+        status=res.status; statusText=res.statusText;
+        const hdrs=[];res.headers.forEach((v,k)=>hdrs.push(`${k}: ${v}`));
+        headersText=hdrs.join('\n');
+        respBody=await res.text();
+      }catch(e){statusText='Erreur réseau';respBody=e.message}
+
+      const codeEl=document.getElementById('resp-code');
+      codeEl.textContent=status||'—';
+      codeEl.className='status-code '+(status>=200&&status<300?'ok':'err');
+      document.getElementById('resp-text').textContent=statusText;
+      document.getElementById('resp-headers').textContent=headersText||'(aucun)';
+      document.getElementById('resp-body').textContent=respBody||'(vide)';
+      document.getElementById('resp-block').classList.add('visible');
+
+      history.unshift({code:status||0,ok:status>=200&&status<300,method,url,time:new Date().toLocaleTimeString('fr-FR')});
+      if(history.length>15) history=history.slice(0,15);
+      renderHist();
+
+      btn.disabled=false; btn.textContent='→ envoyer';
+      document.getElementById('resp-block').scrollIntoView({behavior:'smooth',block:'start'});
+    }
+  </script>
+</body>
+</html>

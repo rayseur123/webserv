@@ -79,7 +79,7 @@ defineIdSession()
 
 	cookie = "Set-Cookie:id=";
 	cookie += ss.str();
-	cookie += "\r\n";
+	cookie += "; Path=/\r\n";
 
 	std::cout << "cookie \n";
 	return cookie;
