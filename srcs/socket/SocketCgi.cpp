@@ -1,6 +1,7 @@
 #include "http/httpStatus.hpp"
 #include "utils/utils.hpp"
 
+#include <algorithm>
 #include <cstdlib>
 #include <sstream>
 #include <sys/socket.h>
@@ -78,6 +79,16 @@ std::string
 SocketCgi::parsingResponseCgi(std::string& response)
 {
 	int status = fixSeparators(response);
+	std::map<std::vector<int>, std::string> const& map =
+		connection_.getServer().getErrorPage();
+	std::map<std::vector<int>, std::string>::const_iterator it;
+	for (it = map.begin(); it != map.end(); ++it)
+	{
+		if (std::find(it->first.begin(), it->first.end(), status) !=
+			it->first.end())
+			return (buildErrorResponse(status, connection_.getServer(),
+									   "HTTP/1.0"));
+	}
 	return ("HTTP/1.0 " + getStatusMessage(status) + "\r\n" +
 			defineIdSession() + response);
 }
