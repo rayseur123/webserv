@@ -129,11 +129,11 @@
   const pill = document.querySelector('.session-pill');
   const display = document.getElementById('sid-display');
 
-  // Le serveur a envoyé un cookie "id"
+  // The server return a cookie "id"
   if (sid !== null && sid !== '') {
     display.textContent = sid;
   }
-  // Aucun cookie retourné par le serveur
+  // No cookie return by serveur
   else {
     pill.remove();
   }

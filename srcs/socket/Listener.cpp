@@ -67,11 +67,10 @@ Listener::createListenerSocket()
 	addrinfo hints = {};
 	hints.ai_family = AF_INET; // IPv4
 	hints.ai_socktype =
-		SOCK_STREAM; // Communication par flux de bytes, avec des données hors
-					 // bande pour les données prioritaires
+		SOCK_STREAM; // Communication by flux of bytes
+					 
 	hints.ai_flags =
-		AI_PASSIVE; // si node (address_.c_str()) est NULL, alors getaddrinfo
-					// trouvera quand même une adresse disponible
+		AI_PASSIVE; // if node (address_.c_str()) is NULL = 0.0.0.0
 
 	addrinfo* res = NULL;
 	if (getaddrinfo(address_.c_str(), port_.c_str(), &hints, &res) != 0)
