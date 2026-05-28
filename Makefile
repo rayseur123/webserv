@@ -7,6 +7,7 @@ NAME := webserv
 MAKEFLAGS += --jobs
 
 SRCS_DIR        := srcs/
+CGI_DIR         := $(SRCS_DIR)cgi/
 EPOLL_DIR       := $(SRCS_DIR)epoll/
 HTTP_DIR        := $(SRCS_DIR)http/
 HTTP_PARS_DIR   := $(SRCS_DIR)http/parsing/
@@ -19,14 +20,13 @@ UTILS_DIR       := $(SRCS_DIR)utils/
 # ---------------------------------------------------------#
 
 SRCS_CONTENT :=	$(SRCS_DIR)main.cpp \
+				$(CGI_DIR)Cgi.cpp \
 				$(EPOLL_DIR)EpollManager.cpp \
-				$(EPOLL_DIR)Signal.cpp \
 				$(HTTP_DIR)AResponse.cpp \
 				$(HTTP_DIR)Code.cpp \
 				$(HTTP_DIR)ResponseGet.cpp \
 				$(HTTP_DIR)ResponseDelete.cpp \
 				$(HTTP_DIR)ResponsePost.cpp \
-				$(HTTP_DIR)Cgi.cpp \
 				$(HTTP_PARS_DIR)Body.cpp \
 				$(HTTP_PARS_DIR)Header.cpp \
 				$(HTTP_PARS_DIR)Method.cpp \
@@ -41,6 +41,7 @@ SRCS_CONTENT :=	$(SRCS_DIR)main.cpp \
 				$(SOCKET_DIR)SocketCgi.cpp \
 				$(SOCKET_DIR)Listener.cpp \
 				$(UTILS_DIR)utils.cpp \
+				$(UTILS_DIR)Signal.cpp \
 
 # ---------------------------------------------------------#
 #                       BUILD SOURCE                       #

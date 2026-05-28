@@ -1,19 +1,9 @@
-#include "socket/SocketCgi.hpp"
-#include "epoll/EpollManager.hpp"
 #include "http/httpStatus.hpp"
-#include "socket/ASocket.hpp"
 #include "utils/utils.hpp"
 
-#include <csignal>
-#include <cstddef>
 #include <cstdlib>
-#include <map>
 #include <sstream>
-#include <string>
-#include <sys/epoll.h>
 #include <sys/socket.h>
-#include <sys/types.h>
-#include <unistd.h>
 
 int SocketCgi::id_cookie = 0;
 

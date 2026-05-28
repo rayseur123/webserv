@@ -1,22 +1,10 @@
 #include "http/ResponsePost.hpp"
-#include "http/AResponse.hpp"
 #include "http/httpStatus.hpp"
-#include "http/parsing/Request.hpp"
-#include "parsing/Location.hpp"
 #include "utils/utils.hpp"
 
-#include <cerrno>
-#include <cstdio>
 #include <cstdlib>
 #include <ctime>
-#include <dirent.h>
-#include <fcntl.h>
-#include <fstream>
-#include <linux/close_range.h>
 #include <sstream>
-#include <string>
-#include <sys/types.h>
-#include <unistd.h>
 
 #define POST_CHECKER (1u << 1u)
 #define CHMOD		 0644

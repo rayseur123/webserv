@@ -2,8 +2,6 @@
 #define UTILS_HPP
 
 #include <fstream>
-#include <iostream>
-#include <vector>
 #include "socket/Listener.hpp"
 
 std::string				 messageError(std::string const& function_name);

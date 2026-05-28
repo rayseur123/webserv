@@ -1,13 +1,6 @@
 #include <climits>
-#include <cstddef>
-#include <iostream>
-#include <stdexcept>
-#include <string>
 #include <unistd.h>
-#include <utility>
-#include <vector>
 
-#include "http/parsing/Method.hpp"
 #include "parsing/Location.hpp"
 
 bool

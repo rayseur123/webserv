@@ -1,12 +1,6 @@
 #ifndef ARESPONSE_HPP
 #define ARESPONSE_HPP
 
-#include <list>
-#include <string>
-#include <utility>
-
-#include "http/parsing/Request.hpp"
-#include "parsing/Location.hpp"
 #include "socket/Listener.hpp"
 
 class AResponse

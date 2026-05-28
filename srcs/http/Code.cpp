@@ -1,5 +1,4 @@
 #include "http/Code.hpp"
-#include <cstdarg>
 
 int
 Code::getCode() const

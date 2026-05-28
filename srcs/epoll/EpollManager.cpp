@@ -1,15 +1,5 @@
-#include <csignal>
-#include <map>
-#include <utility>
-#include <vector>
-
 #include "epoll/EpollManager.hpp"
-#include "epoll/signal.hpp"
-#include "socket/ASocket.hpp"
-#include "socket/Connection.hpp"
-#include "socket/Listener.hpp"
-#include "socket/SocketCgi.hpp"
-#include "unistd.h"
+#include "utils/signal.hpp"
 #include "utils/utils.hpp"
 
 void

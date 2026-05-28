@@ -1,20 +1,7 @@
-#include <cctype>
 #include <cstdlib>
 #include <fcntl.h>
-#include <map>
 #include <netdb.h>
-#include <ostream>
 #include <sstream>
-#include <string>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <vector>
-
-#include "parsing/Location.hpp"
-#include "socket/ASocket.hpp"
-#include "socket/Connection.hpp"
-#include "socket/Listener.hpp"
 #include "utils/utils.hpp"
 
 #define UNIT	1000

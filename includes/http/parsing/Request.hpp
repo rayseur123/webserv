@@ -1,7 +1,6 @@
 #ifndef REQUEST_HPP
 #define REQUEST_HPP
 
-#include <vector>
 #include "http/parsing/Body.hpp"
 #include "http/parsing/Header.hpp"
 #include "http/parsing/Method.hpp"

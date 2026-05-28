@@ -1,19 +1,8 @@
 #include "http/ResponseGet.hpp"
-#include "http/AResponse.hpp"
 #include "http/httpStatus.hpp"
-#include "http/parsing/Request.hpp"
-#include "parsing/Location.hpp"
 #include "utils/utils.hpp"
 
-#include <cerrno>
-#include <cstdio>
-#include <cstdlib>
 #include <dirent.h>
-#include <fcntl.h>
-#include <fstream>
-#include <string>
-#include <sys/types.h>
-#include <unistd.h>
 
 #define GET_CHECKER (1u << 0u)
 

@@ -1,9 +1,4 @@
 #include "http/parsing/Request.hpp"
-#include <string>
-#include <utility>
-#include "http/parsing/Body.hpp"
-#include "http/parsing/Header.hpp"
-#include "http/parsing/Uri.hpp"
 
 void
 Request::setCode(int code)

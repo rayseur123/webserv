@@ -1,16 +1,9 @@
 #include <algorithm>
-#include <cstdlib>
 #include <cstring>
-#include <errno.h>
 #include <fstream>
-#include <iostream>
-#include <map>
 #include <sstream>
-#include <string>
-#include <vector>
 
 #include "http/httpStatus.hpp"
-#include "http/parsing/Request.hpp"
 #include "socket/Listener.hpp"
 
 #define DECIMAL 10

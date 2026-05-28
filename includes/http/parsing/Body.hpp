@@ -1,7 +1,6 @@
 #ifndef BODY_HPP
 #define BODY_HPP
 
-#include <cstddef>
 #include <iostream>
 
 #define HEXA_BASE 16
