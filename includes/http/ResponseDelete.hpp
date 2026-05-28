@@ -2,8 +2,6 @@
 #define METHOD_DELETE
 
 #include "http/AResponse.hpp"
-#include "http/parsing/Request.hpp"
-#include "parsing/Location.hpp"
 
 class ResponseDelete : public AResponse
 {

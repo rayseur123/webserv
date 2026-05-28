@@ -1,15 +1,6 @@
-#include "http/Cgi.hpp"
-#include <cstdio>
-#include <cstring>
-#include <sys/epoll.h>
-#include <unistd.h>
-#include <utility>
-#include "epoll/EpollManager.hpp"
+#include "cgi/Cgi.hpp"
 #include "http/Code.hpp"
 #include "http/httpStatus.hpp"
-#include "parsing/Location.hpp"
-#include "socket/Connection.hpp"
-#include "socket/SocketCgi.hpp"
 #include "sys/socket.h"
 #include "utils/utils.hpp"
 

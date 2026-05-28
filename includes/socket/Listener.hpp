@@ -1,15 +1,8 @@
 #ifndef LISTENER_HPP
 #define LISTENER_HPP
 
-#include <cstddef>
-#include <map>
-#include <string>
-#include <utility>
-#include <vector>
 
 #include "epoll/EpollManager.hpp"
-#include "parsing/Location.hpp"
-#include "socket/ASocket.hpp"
 
 #define LISTEN_QUEUE 10
 #define BASE		 10

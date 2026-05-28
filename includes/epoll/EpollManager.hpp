@@ -2,13 +2,12 @@
 #define EPOLL_MANAGER_HPP
 
 #include "socket/SocketCgi.hpp"
+#include <sys/epoll.h>
+
 #define EVENTS_CONNECTION EPOLLIN | EPOLLRDHUP | EPOLLPRI
 #define EVENTS_SERVER	  EPOLLIN | EPOLLERR | EPOLLRDHUP
 #define MAX_EVENTS		  100
 
-#include <map>
-#include <sys/epoll.h>
-#include <vector>
 
 class ASocket;
 class Connection;

@@ -1,10 +1,6 @@
 #ifndef LOCATION_HPP
 #define LOCATION_HPP
 
-#include <iostream>
-#include <map>
-#include <string>
-#include <utility>
 #include <vector>
 
 #include "http/parsing/Request.hpp"

@@ -1,15 +1,6 @@
-#include <climits>
-#include <cstddef>
-#include <cstring>
-#include <string>
-#include <utility>
-#include <vector>
-
-#include "epoll/signal.hpp"
 #include "http/Code.hpp"
 #include "http/httpStatus.hpp"
-#include "http/parsing/ParsingRequest.hpp"
-#include "http/parsing/Request.hpp"
+#include "utils/signal.hpp"
 #include "utils/utils.hpp"
 
 // Request line

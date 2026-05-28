@@ -1,5 +1,3 @@
-#include <cstdlib>
-
 #include "http/Code.hpp"
 #include "http/httpStatus.hpp"
 #include "http/parsing/Version.hpp"

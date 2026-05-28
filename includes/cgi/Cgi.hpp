@@ -1,11 +1,7 @@
 #ifndef CGI_HPP
 #define CGI_HPP
 
-#include <exception>
-#include <string>
-#include <vector>
 
-#include "http/parsing/Request.hpp"
 #include "socket/Listener.hpp"
 
 class Cgi

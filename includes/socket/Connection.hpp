@@ -5,7 +5,6 @@
 #include "parsing/Location.hpp"
 #include "socket/ASocket.hpp"
 
-#include <stdint.h>
 
 class Listener;
 class EpollManager;

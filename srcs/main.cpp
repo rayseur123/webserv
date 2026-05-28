@@ -1,11 +1,5 @@
-#include <csignal>
-#include <iostream>
-#include <ostream>
-
-#include "epoll/EpollManager.hpp"
-#include "epoll/signal.hpp"
+#include "utils/signal.hpp"
 #include "parsing/Block.hpp"
-#include "socket/Listener.hpp"
 
 void
 signalHandler(int)

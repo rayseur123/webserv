@@ -1,23 +1,12 @@
-#include <csignal>
-#include <cstdio>
-#include <sys/epoll.h>
 #include <sys/socket.h>
-#include <sys/types.h>
-#include <unistd.h>
 
-#include "epoll/EpollManager.hpp"
-#include "epoll/signal.hpp"
-#include "http/Cgi.hpp"
+#include "cgi/Cgi.hpp"
 #include "http/Code.hpp"
 #include "http/httpStatus.hpp"
-#include "http/parsing/Method.hpp"
-#include "http/parsing/ParsingRequest.hpp"
-#include "http/parsing/Request.hpp"
 #include "http/ResponseDelete.hpp"
 #include "http/ResponseGet.hpp"
 #include "http/ResponsePost.hpp"
-#include "socket/Connection.hpp"
-#include "socket/Listener.hpp"
+#include "utils/signal.hpp"
 #include "utils/utils.hpp"
 
 bool

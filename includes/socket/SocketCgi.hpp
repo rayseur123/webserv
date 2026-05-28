@@ -1,13 +1,9 @@
 #ifndef SOCKETCGI_HPP
 #define SOCKETCGI_HPP
 
-#include "socket/ASocket.hpp"
 #include "socket/Connection.hpp"
 
 #include <csignal>
-#include <sched.h>
-#include <stdint.h>
-#include <string>
 
 class Connection;
 class EpollManager;

@@ -3,7 +3,6 @@
 
 #include <bits/stdc++.h>
 
-
 class Code
 {
 private:
